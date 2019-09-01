@@ -1,0 +1,10 @@
+.DS_Store
+*.bak
+*.o
+*.bin
+*.wsc
+*~
+testserial
+wonderswan
+*.orig
+*.rej
