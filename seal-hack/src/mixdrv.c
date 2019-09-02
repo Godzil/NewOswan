@@ -557,11 +557,14 @@ static UINT AIAPI OpenAudio(LPAUDIOINFO lpInfo)
     Synth.lpMemory = malloc(sizeof(LONG) * 65 * 256 +
 			    sizeof(BYTE) * 32 * 256 + 1023);
     if (Synth.lpMemory != NULL) {
-	lpVolumeTable = (LPLONG) (((DWORD) Synth.lpMemory + 1023) & ~1023);
-	lpFilterTable = (LPBYTE) (lpVolumeTable + 65 * 256);
-	ASetAudioMixerValue(AUDIO_MIXER_MASTER_VOLUME, 96);
-	ASetAudioCallback(UpdateVoices);
-	return AUDIO_ERROR_NONE;
+       uint64_t tmp;
+       tmp = ((uint64_t)(Synth.lpMemory) + 1023) & ~1023;
+	   lpVolumeTable = (LPLONG)(tmp);
+	   lpFilterTable = (LPBYTE) (lpVolumeTable + 65 * 256);
+	   ASetAudioMixerValue(AUDIO_MIXER_MASTER_VOLUME, 96);
+	   ASetAudioCallback(UpdateVoices);
+
+	   return AUDIO_ERROR_NONE;
     }
     return AUDIO_ERROR_NOMEMORY;
 }
@@ -659,7 +662,7 @@ static LONG AIAPI GetAudioDataAvail(VOID)
 static UINT AIAPI CreateAudioData(LPAUDIOWAVE lpWave)
 {
     if (lpWave != NULL) {
-	lpWave->dwHandle = (DWORD) lpWave->lpData;
+	lpWave->dwHandle = (uintptr_t) lpWave->lpData;
 	return AUDIO_ERROR_NONE;
     }
     return AUDIO_ERROR_INVALHANDLE;

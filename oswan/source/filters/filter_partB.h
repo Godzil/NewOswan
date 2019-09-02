@@ -8,10 +8,10 @@
 			console.option("windowed output");
 		console.option("fixed window");
 		console.option("center window");
-		totalFrames=0;
-		startTime=clock();
-		nNormalLast=0;// Last value of timeGetTime()
-		nNormalFrac=0; // Extra fraction we did
+		//totalFrames=0;
+		//startTime=clock();
+		//nNormalLast=0;// Last value of timeGetTime()
+		//nNormalFrac=0; // Extra fraction we did
 		//nNormalLast=timeGetTime();
 		// hopefully, we only care about time delta, not time of day...
 		//nNormalLast = SDL_GetTicks();

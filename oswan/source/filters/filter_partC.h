@@ -47,7 +47,7 @@
 						strcpy(old_rom_path,ws_rom_path);
 					//gui_open();
 #ifndef GUI_OPEN_WARNED
-#warning XXX something ought to take place here...
+//#warning XXX something ought to take place here...
 #define GUI_OPEN_WARNED
 #endif
 					app_terminate = 1;

@@ -16,12 +16,14 @@ OBJS       = $(wonderswan_CXX_SRCS:.cpp=.o)
 
 all: wonderswan
 
-CXX       = clang++
-CXXFLAGS  = -g -O2 `sdl-config --cflags` -arch i386
-OPTIONS   =  -D_REENTRANT -I. -I../seal-hack/include
+CXX       = g++
+CXXFLAGS  = -g -O2 `sdl-config --cflags` -Wall -Werror -std=c++98 -Wno-write-strings
+#-arch i386
+OPTIONS   =  -D_REENTRANT -I. -I../seal-hack/src/
 
 LIBRARY_PATH = -L../seal-hack/lib/SDL
-LIBS      = -g $(LIBRARY_PATH) `sdl-config --libs` -arch i386
+LIBS      = -g $(LIBRARY_PATH) `sdl-config --libs` 
+#-arch i386
 
 ALLCFLAGS = $(CFLAGS) $(CEXTRA) $(OPTIONS) $(ALLFLAGS)
 ALLCXXFLAGS=$(CXXFLAGS) $(CXXEXTRA) $(OPTIONS) $(ALLFLAGS)

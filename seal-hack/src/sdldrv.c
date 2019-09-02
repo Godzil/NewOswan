@@ -74,8 +74,9 @@ static void updatecallback(void *userdata, Uint8 *stream, int len);
 
 static UINT AIAPI OpenAudio(LPAUDIOINFO lpInfo)
 {
-	int nBitsPerSample, nStereoOn, nSampleRate, nFrags;
-
+	//int nBitsPerSample, nStereoOn, nSampleRate, nFrags;
+	int nStereoOn;
+	
 	memset(&Audio, 0, sizeof(Audio));
 
 	if (!SDL_WasInit(SDL_INIT_EVERYTHING))
@@ -90,7 +91,7 @@ static UINT AIAPI OpenAudio(LPAUDIOINFO lpInfo)
 		return AUDIO_ERROR_NODEVICE;
 
 
-	nBitsPerSample = lpInfo->wFormat & AUDIO_FORMAT_16BITS ? 16 : 8;
+	//nBitsPerSample = lpInfo->wFormat & AUDIO_FORMAT_16BITS ? 16 : 8;
 	nStereoOn = lpInfo->wFormat & AUDIO_FORMAT_STEREO ? 1 : 0;
 	/*nSampleRate = lpInfo->nSampleRate;*/
 

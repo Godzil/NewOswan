@@ -14,6 +14,7 @@
 #ifdef __GNUC__
 #include <memory.h>
 #endif
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "audio.h"

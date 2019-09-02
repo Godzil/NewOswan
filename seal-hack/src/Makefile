@@ -1,11 +1,11 @@
 # Makefile for Linux and SDL wrapper driver...
 
-CC = clang
+CC = gcc
 AR = ar
 RANLIB = ranlib
 STRIP = strip
-CFLAGS = -g -c -Wall -O2 -D__SDL__ `sdl-config --cflags` -arch i386
-LFLAGS = -L../lib/SDL -laudio `sdl-config --libs`  -arch i386
+CFLAGS = -g -c -Wall -O2 -D__SDL__ `sdl-config --cflags` -Wall -Werror 
+LFLAGS = -L../lib/SDL -laudio `sdl-config --libs`
 
 OBJS = audio.o wavfile.o xmfile.o s3mfile.o modfile.o mtmfile.o \
 	iofile.o modeng.o nondrv.o mixdrv.o sdldrv.o 

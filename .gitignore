@@ -1,9 +1,11 @@
 .DS_Store
 *.bak
+*.a
 *.o
 *.bin
 *.wsc
 *~
+seal-hack/src/mp
 testserial
 wonderswan
 *.orig

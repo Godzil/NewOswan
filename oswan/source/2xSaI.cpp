@@ -299,7 +299,7 @@ void SuperEagle (u8 *srcPtr, u32 srcPitch, u8 *deltaPtr,
 {
   u8  *dP;
   u16 *bP;
-  u16 *xP;
+  //u16 *xP;
   u32 inc_bP;
 
   {

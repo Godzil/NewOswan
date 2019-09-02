@@ -126,8 +126,7 @@ static UINT MTMMakeSample(LPAUDIOPATCH lpPatch, LPMTMSAMPLE lpMTMSample)
     DWORD dwCount;
     UINT rc;
 
-    strncpy(lpPatch->szPatchName, lpMTMSample->szSampleName,
-	    sizeof(lpMTMSample->szSampleName));
+    strncpy(lpPatch->szPatchName, lpMTMSample->szSampleName, sizeof(lpPatch->szPatchName) - 1);
     if (lpMTMSample->dwLength) {
         if ((lpSample = (LPAUDIOSAMPLE) calloc(1, sizeof(AUDIOSAMPLE))) == NULL)
             return AUDIO_ERROR_NOMEMORY;
@@ -203,8 +202,7 @@ UINT AIAPI ALoadModuleMTM(LPSTR lpszFileName,
     }
 
     /* build the local module header structure */
-    strncpy(lpModule->szModuleName, Header.szModuleName,
-	    sizeof(Header.szModuleName));
+    strncpy(lpModule->szModuleName, Header.szModuleName, sizeof(lpModule->szModuleName));
     lpModule->wFlags = AUDIO_MODULE_AMIGA | AUDIO_MODULE_PANNING;
     lpModule->nOrders = Header.nOrders + 1;
     lpModule->nRestart = AUDIO_MAX_ORDERS;

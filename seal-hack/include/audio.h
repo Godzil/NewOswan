@@ -29,7 +29,7 @@ extern "C" {
 
 #ifndef WINAPI
 
-/* atomic data types definitions */
+#if 0
     typedef void            VOID;
     typedef char            CHAR;
     typedef int             INT;
@@ -40,7 +40,18 @@ extern "C" {
     typedef unsigned short  WORD;
     typedef unsigned int    UINT;
     typedef unsigned long   DWORD;
+#else
+    typedef void            VOID;
+    typedef int8_t          CHAR;
+    typedef int32_t         INT;
+    typedef int32_t         LONG;
+    typedef int8_t          BOOL;
 
+    typedef uint8_t         BYTE;
+    typedef uint16_t        WORD;
+    typedef uint32_t        UINT;
+    typedef uint32_t        DWORD;
+#endif
     typedef VOID*           LPVOID;
     typedef CHAR*           LPCHAR;
     typedef INT*            LPINT;
@@ -50,8 +61,8 @@ extern "C" {
     typedef WORD*           LPWORD;
     typedef UINT*           LPUINT;
     typedef DWORD*          LPDWORD;
-    typedef CHAR*           LPSTR;
-    typedef DWORD           HANDLE;
+    typedef char*           LPSTR;
+    typedef uint64_t        HANDLE;
 
 /* helper macros */
 #define LOBYTE(s)       ((BYTE)(s))

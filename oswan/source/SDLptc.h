@@ -102,7 +102,7 @@ public:
 		nupdates = 0;
 		is_console = 1;
 	}
-	~Surface() {
+	virtual ~Surface() {
 		if ( ! is_console ) {
 			SDL_FreeSurface(surface);
 		}

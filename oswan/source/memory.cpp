@@ -74,9 +74,9 @@ void dump_memory()
    fp = fopen("memorydump.bin", "wb");
    fwrite(internalRam, 1, 0x10000, fp);
    /* page 1 */
-	fwrite(&(ws_staticRam[sramAddressMask]), 1, 0x10000, fp);
+   fwrite(&(ws_staticRam[0 & sramAddressMask]), 1, 0x10000, fp);
    fwrite(&(ws_rom[((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR+2]&((romSize>>16)-1))<<16)]), 1, 0x10000, fp);
-	fwrite(&(ws_rom[((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR+3]&((romSize>>16)-1))<<16)]), 1, 0x10000, fp);
+   fwrite(&(ws_rom[((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR+3]&((romSize>>16)-1))<<16)]), 1, 0x10000, fp);
    for(i = 4; i < 0x10; i++)
    {
       int romBank=(256-(((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR]&0xf)<<4)|(i&0xf)));
@@ -274,7 +274,7 @@ uint16	memory_getRomCrc(void)
 void ws_sram_load(char *path)
 {
 	FILE *f;
-	size_t read;
+	//size_t read;
 
 	f = fopen(path, "r");
 	if (NULL == f)
@@ -283,7 +283,7 @@ void ws_sram_load(char *path)
 		return;
 	}
 
-	read = fread(ws_staticRam, 1, 0x8000, f);
+	/*read = */fread(ws_staticRam, 1, 0x8000, f);
 	//fprintf(log_get(), "read 0x%x (of 0x%x?) bytes of save ram from %s\n", read, ws_rom_sramSize(ws_rom, romSize), path);
 	fclose(f);
 }
@@ -291,7 +291,7 @@ void ws_sram_load(char *path)
 void ws_sram_save(char *path)
 {
 	FILE *f;
-	size_t wrote;
+	//size_t wrote;
 
 	f = fopen(path, "wb");
 	if (NULL == f)
@@ -300,7 +300,7 @@ void ws_sram_save(char *path)
 		return;
 	}
 
-	wrote = fwrite(ws_staticRam, 1, 0x8000, f);
+	/*wrote = */fwrite(ws_staticRam, 1, 0x8000, f);
 	fflush(f);
 	//fprintf(log_get(), "wrote 0x%x bytes of save ram to %s\n", wrote, path);
 	fclose(f);

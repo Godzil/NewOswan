@@ -75,6 +75,7 @@ void ws_patchRom(void)
 
 	fprintf(log_get(),"developper Id: 0x%.2x\nGame Id: 0x%.2x\n",rom[romSize-10],rom[romSize-8]);
 
+	/*
 	if((rom[romSize-10]==0x01)&&(rom[romSize-8]==0x27)) // Detective Conan 
 	{
 		// WS cpu is using cache/pipeline or
@@ -87,7 +88,7 @@ void ws_patchRom(void)
 		rom[0xfffeb]=0x00;
 		rom[0xfffec]=0x20;
 		
-	}
+	}*/
 
 	if (!ws_cyclesByLine) ws_cyclesByLine=256;
 }

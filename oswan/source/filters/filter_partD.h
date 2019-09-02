@@ -6,5 +6,5 @@
 					while (!ws_executeLine(backbuffer,0));
 
 				while (!ws_executeLine(backbuffer,1));
-				totalFrames++;
+				//totalFrames++;
 

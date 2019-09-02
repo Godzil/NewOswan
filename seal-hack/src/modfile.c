@@ -217,8 +217,7 @@ UINT AIAPI ALoadModuleMOD(LPSTR lpszFileName,
     }
 
     /* initialize the module structure */
-    strncpy(lpModule->szModuleName, Header.aModuleName,
-	    sizeof(Header.aModuleName));
+    strncpy(lpModule->szModuleName, Header.aModuleName, sizeof(lpModule->szModuleName));
     lpModule->wFlags = AUDIO_MODULE_AMIGA | AUDIO_MODULE_PANNING;
     lpModule->nOrders = Header.nSongLength;
     lpModule->nRestart = Header.nRestart;
@@ -262,8 +261,7 @@ UINT AIAPI ALoadModuleMOD(LPSTR lpszFileName,
     lpPatch = lpModule->aPatchTable;
     for (n = 0; n < lpModule->nPatches; n++, lpPatch++) {
         memcpy(&Sample, &Header.aSampleTable[n], sizeof(MODSAMPLEHEADER));
-        strncpy(lpPatch->szPatchName, Sample.aSampleName,
-		sizeof(Sample.aSampleName));
+        strncpy(lpPatch->szPatchName, Sample.aSampleName, sizeof(lpPatch->szPatchName));
         if (Sample.wLength != 0) {
             if ((lpSample = (LPAUDIOSAMPLE)
 		 calloc(1, sizeof(AUDIOSAMPLE))) == NULL) {

@@ -585,7 +585,7 @@ UINT AIAPI ALoadModuleS3M(LPSTR lpszFileName,
     AIOReadFile(Header.aReserved, sizeof(Header.aReserved));
     AIOReadShort(&Header.wSpecial);
     AIOReadFile(Header.aChannelTable, sizeof(Header.aChannelTable));
-	printf("[%lX] vs [%lX]\n", Header.dwSCRM, S3M_SCRM_MAGIC);
+	printf("[%X] vs [%lX]\n", Header.dwSCRM, S3M_SCRM_MAGIC);
     if (Header.dwSCRM != S3M_SCRM_MAGIC ||
         Header.nSongLength > S3M_MAX_ORDERS ||
         Header.nPatterns > S3M_MAX_PATTERNS ||

@@ -65,7 +65,7 @@ void ws_io_reset(void)
 	ws_key_button_2=0;
   int i;
 	for (i=0;i<0x100;i++)
-		ws_ioRam[i]=initialIoValue[i];
+		ws_ioRam[i]= initialIoValue[i];
 	for (i=0;i<0xc9;i++)
 		cpu_writeport(i,initialIoValue[i]);
 
@@ -162,8 +162,11 @@ void set_baudrate(int speed)
    {
       cfsetospeed(&options, B38400);  
    }
-   
+#if 0
    options.c_cflag &= ~CNEW_RTSCTS;
+#else
+   options.c_cflag &= ~CRTSCTS;
+#endif
    options.c_cflag |= (CLOCAL | CREAD);
    
    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
@@ -254,9 +257,9 @@ void write_serial(unsigned char value)
 BYTE cpu_readport(BYTE port)
 {
 	int w1,w2;
-    BYTE retVal;
+    BYTE retVal = 0;
 
-    if (port >= 0xBA) && (port <= 0xBE)
+    if ((port >= 0xBA) && (port <= 0xBE))
     {
        printf("Reading IEEP %02X\n", port);
     }
@@ -453,7 +456,8 @@ BYTE cpu_readport(BYTE port)
       goto exit;
 
    default:
-      if (port > 0xD0) printf("ReadIO %02X <= %02X\n", port, retVal);
+      if (port > 0xD0)
+      	printf("ReadIO %02X <= %02X\n", port, retVal);
       break;
       
 	}
@@ -475,11 +479,11 @@ exit:
 ////////////////////////////////////////////////////////////////////////////////
 void cpu_writeport(DWORD port,BYTE value)
 {
-   unsigned short F0dbg = 0;
-	int w1,w2;
+    //unsigned short F0dbg = 0;
+	int w1; //,w2;
 	int unknown_io_port=0;
 
-   if (port >= 0xBA) && (port <= 0xBE)
+   if ((port >= 0xBA) && (port <= 0xBE))
    {
       printf("Writing IEEP %02X <= %02X\n", port, value);
    }
@@ -696,6 +700,8 @@ void cpu_writeport(DWORD port,BYTE value)
    case 0xF1: printf("%d\n", (signed short)((value << 8) | ws_ioRam[0xF0])); break;
    case 0xF2: printf("%c", value); fflush(stdout); break;
    
+   case 0xB7: break; /* Somwthing to write there, but what? */
+
 	default:
 			unknown_io_port=1;
 	}

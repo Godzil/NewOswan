@@ -23,7 +23,7 @@ typedef struct
 	UINT16	ip;
 
 	INT32	SignVal;
-    UINT32  AuxVal, OverVal, ZeroVal, CarryVal, ParityVal; /* 0 or non-0 valued flags */
+    INT32  AuxVal, OverVal, ZeroVal, CarryVal, ParityVal; /* 0 or non-0 valued flags */
 	UINT8	TF, IF, DF, MF; 	/* 0 or 1 valued flags */	/* OB[19.07.99] added Mode Flag V30 */
 	UINT32	int_vector;
 	UINT32	pending_irq;
@@ -172,8 +172,8 @@ typedef struct
 
 
 #define IncWordReg(Reg) 					\
-	unsigned tmp = (unsigned)I.regs.w[Reg]; \
-	unsigned tmp1 = tmp+1;					\
+	uint16_t tmp = (uint16_t)I.regs.w[Reg]; \
+	uint16_t tmp1 = tmp+1;					\
 	I.OverVal = (tmp == 0x7fff); 			\
 	SetAF(tmp1,tmp,1);						\
 	SetSZPF_Word(tmp1); 					\
@@ -182,8 +182,8 @@ typedef struct
 
 
 #define DecWordReg(Reg) 					\
-	unsigned tmp = (unsigned)I.regs.w[Reg]; \
-    unsigned tmp1 = tmp-1; 					\
+	uint16_t tmp = (uint16_t)I.regs.w[Reg]; \
+    uint16_t tmp1 = tmp-1; 					\
 	I.OverVal = (tmp == 0x8000); 			\
     SetAF(tmp1,tmp,1); 						\
     SetSZPF_Word(tmp1); 					\
@@ -317,8 +317,8 @@ typedef struct
 #define ADD4S {												\
 	int i,v1,v2,result;										\
 	int count = (I.regs.b[CL]+1)/2;							\
-	unsigned di = I.regs.w[IY];								\
-	unsigned si = I.regs.w[IX];								\
+	uint16_t di = I.regs.w[IY];								\
+	uint16_t si = I.regs.w[IX];								\
 	I.ZeroVal = I.CarryVal = 0;								\
 	for (i=0;i<count;i++) {									\
 		tmp = GetMemB(DS, si);								\
@@ -339,8 +339,8 @@ typedef struct
 #define SUB4S {												\
 	int count = (I.regs.b[CL]+1)/2;							\
 	int i,v1,v2,result;										\
-    unsigned di = I.regs.w[IY];								\
-	unsigned si = I.regs.w[IX];								\
+    uint16_t di = I.regs.w[IY];								\
+	uint16_t si = I.regs.w[IX];								\
 	I.ZeroVal = I.CarryVal = 0;								\
 	for (i=0;i<count;i++) {									\
 		tmp = GetMemB(ES, di);								\
@@ -366,8 +366,8 @@ typedef struct
 #define CMP4S {												\
 	int count = (I.regs.b[CL]+1)/2;							\
 	int i,v1,v2,result;										\
-    unsigned di = I.regs.w[IY];								\
-	unsigned si = I.regs.w[IX];								\
+    uint16_t di = I.regs.w[IY];								\
+	uint16_t si = I.regs.w[IX];								\
 	I.ZeroVal = I.CarryVal = 0;								\
 	for (i=0;i<count;i++) {									\
 		tmp = GetMemB(ES, di);								\

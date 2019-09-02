@@ -132,11 +132,11 @@ void nec_int(DWORD wektor)
 	}
 }
 
-static void nec_interrupt(unsigned int_num, /*BOOLEAN*/ int md_flag)
+static void nec_interrupt(uint32_t int_num, /*BOOLEAN*/ int md_flag)
 {
     UINT32 dest_seg, dest_off;
 
-	if (int_num == -1)
+	if (int_num == UINT32_MAX)
 		return;
 
 	 i_pushf();
@@ -303,7 +303,7 @@ OP( 0x5e, i_pop_si  ) { POP(I.regs.w[IX]);					CLK(1); }
 OP( 0x5f, i_pop_di  ) { POP(I.regs.w[IY]);					CLK(1); }
 
 OP( 0x60, i_pusha  ) {
-	unsigned tmp=I.regs.w[SP];
+	uint32_t tmp=I.regs.w[SP];
 	PUSH(I.regs.w[AW]);
 	PUSH(I.regs.w[CW]);
 	PUSH(I.regs.w[DW]);
@@ -315,7 +315,7 @@ OP( 0x60, i_pusha  ) {
 	CLK(9);
 }
 OP( 0x61, i_popa  ) {
-    unsigned tmp;
+    uint32_t tmp;
 	POP(I.regs.w[IY]);
 	POP(I.regs.w[IX]);
 	POP(I.regs.w[BP]);
@@ -324,6 +324,7 @@ OP( 0x61, i_popa  ) {
 	POP(I.regs.w[DW]);
 	POP(I.regs.w[CW]);
 	POP(I.regs.w[AW]);
+	(void)tmp; // We need to uppop something and need tmp
 	CLK(8);
 }
 OP( 0x62, i_chkind  ) {
@@ -560,7 +561,7 @@ OP( 0xbf, i_mov_did16 ) { I.regs.b[IYL] = FETCH; I.regs.b[IYH] = FETCH;	CLK(1); 
 
 OP( 0xc0, i_rotshft_bd8 ) {
 	UINT32 src, dst; UINT8 c;
-	GetModRM; src = (unsigned)GetRMByte(ModRM); dst=src;
+	GetModRM; src = (uint32_t)GetRMByte(ModRM); dst=src;
 	c=FETCH;
 	c&=0x1f;
 	CLKM(5,3);
@@ -578,7 +579,7 @@ OP( 0xc0, i_rotshft_bd8 ) {
 
 OP( 0xc1, i_rotshft_wd8 ) {
 	UINT32 src, dst;  UINT8 c;
-	GetModRM; src = (unsigned)GetRMWord(ModRM); dst=src;
+	GetModRM; src = (uint32_t)GetRMWord(ModRM); dst=src;
 	c=FETCH;
 	c&=0x1f;
 	CLKM(5,3);
@@ -693,11 +694,11 @@ OP( 0xd3, i_rotshft_wcl ) {
 	}
 }
 
-OP( 0xd4, i_aam    ) { UINT32 mult=FETCH; mult=0; I.regs.b[AH] = I.regs.b[AL] / 10; I.regs.b[AL] %= 10; SetSZPF_Word(I.regs.w[AW]); CLK(17); }
-OP( 0xd5, i_aad    ) { UINT32 mult=FETCH; mult=0; I.regs.b[AL] = I.regs.b[AH] * 10 + I.regs.b[AL]; I.regs.b[AH] = 0; SetSZPF_Byte(I.regs.b[AL]); CLK(6); }
+OP( 0xd4, i_aam    ) { /*UINT32 mult=FETCH; mult=0;*/ I.regs.b[AH] = I.regs.b[AL] / 10; I.regs.b[AL] %= 10; SetSZPF_Word(I.regs.w[AW]); CLK(17); }
+OP( 0xd5, i_aad    ) { /*UINT32 mult=FETCH; mult=0;*/ I.regs.b[AL] = I.regs.b[AH] * 10 + I.regs.b[AL]; I.regs.b[AH] = 0; SetSZPF_Byte(I.regs.b[AL]); CLK(6); }
 OP( 0xd6, i_setalc ) { I.regs.b[AL] = (CF)?0xff:0x00; CLK(3);  } /* nop at V30MZ? */
 OP( 0xd7, i_trans  ) { UINT32 dest = (I.regs.w[BW]+I.regs.b[AL])&0xffff; I.regs.b[AL] = GetMemB(DS, dest); CLK(5); }
-OP( 0xd8, i_fpo    ) { GetModRM; CLK(3);	 } /* nop at V30MZ? */
+OP( 0xd8, i_fpo    ) { /*GetModRM;*/ CLK(3);	 } /* nop at V30MZ? */
 
 OP( 0xe0, i_loopne ) { INT8 disp = (INT8)FETCH; I.regs.w[CW]--; if (!ZF && I.regs.w[CW]) { I.ip = (WORD)(I.ip+disp);  CLK(6); } else CLK(3); }
 OP( 0xe1, i_loope  ) { INT8 disp = (INT8)FETCH; I.regs.w[CW]--; if ( ZF && I.regs.w[CW]) { I.ip = (WORD)(I.ip+disp);  CLK(6); } else CLK(3); }
@@ -852,7 +853,7 @@ static void i_invalid(void)
 /*****************************************************************************/
 
 
-unsigned nec_get_reg(int regnum)
+uint32_t nec_get_reg(int regnum)
 {
 	switch( regnum )
 	{
@@ -880,7 +881,7 @@ unsigned nec_get_reg(int regnum)
 
 void nec_set_irq_line(int irqline, int state);
 
-void nec_set_reg(int regnum, unsigned val)
+void nec_set_reg(int regnum, uint32_t val)
 {
 	switch( regnum )
 	{

@@ -36,7 +36,7 @@ struct {
 
 void Assert(UINT nErrorCode)
 {
-    static CHAR szText[80];
+    static char szText[80];
 
     if (nErrorCode != AUDIO_ERROR_NONE) {
         AGetErrorText(nErrorCode, szText, sizeof(szText) - 1);
@@ -194,7 +194,8 @@ int main(int argc, char *argv[])
     State.nVolume = 96;
 
     /* parse command line options */
-    for (n = 1; n < argc && (lpszOption = argv[n])[0] == '-'; n++) {
+    for (n = 1; n < argc && argv[n][0] == '-'; n++) {
+        lpszOption = argv[n];
         lpszOptArg = &lpszOption[2];
         if (strchr("crv", lpszOption[1]) && !lpszOptArg[0] && n < argc - 1)
             lpszOptArg = argv[++n];

@@ -45,14 +45,14 @@ extern "C" {
     typedef unsigned long   DWORD;
 #else
 	typedef void            VOID;
-    typedef int8_t          CHAR;
+    typedef char            CHAR;
     typedef int32_t         INT;
     typedef int32_t         LONG;
     typedef int8_t          BOOL;
 
     typedef uint8_t         BYTE;
     typedef uint16_t        WORD;
-    typedef uint32_t        UINT;
+    typedef uint16_t        UINT;
     typedef uint32_t        DWORD;
 #endif
     typedef VOID*           LPVOID;
@@ -64,8 +64,8 @@ extern "C" {
     typedef WORD*           LPWORD;
     typedef UINT*           LPUINT;
     typedef DWORD*          LPDWORD;
-    typedef CHAR*           LPSTR;
-    typedef DWORD           HANDLE;
+    typedef char*           LPSTR;
+    typedef uintptr_t       HANDLE;
 
 /* helper macros */
 #define LOBYTE(s)       ((BYTE)(s))
@@ -215,7 +215,7 @@ extern "C" {
 /* audio waveform structure */
     typedef struct {
 	LPBYTE  lpData;                             /* data pointer */
-	DWORD   dwHandle;                           /* waveform handle */
+	uintptr_t   dwHandle;                           /* waveform handle */
 	DWORD   dwLength;                           /* waveform length */
 	DWORD   dwLoopStart;                        /* loop start point */
 	DWORD   dwLoopEnd;                          /* loop end point */
@@ -277,7 +277,7 @@ extern "C" {
 
 /* audio module structure */
     typedef struct {
-	CHAR    szModuleName[32];                   /* module name */
+	char    szModuleName[32];                   /* module name */
 	WORD    wFlags;                             /* module flags */
 	WORD    nOrders;                            /* number of orders */
 	WORD    nRestart;                           /* restart position */

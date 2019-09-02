@@ -12,8 +12,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // alternate the commenting of the following defines to get audio port tracing
-#define dbgprintf //
-//#define dbgprintf printf
+#define dbgprintf(...)
+//#define dbgprintf(...) printf(...)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -234,11 +234,13 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
                 ws_audio_set_channel_frequency(3,i);
 				break;
 	case 0x88:
-				dbgprintf("0x88 <- 0x%2x\n", value); fflush(stdout);
+				dbgprintf("0x88 <- 0x%2x\n", value);
+				// fflush(stdout);
 				ws_audio_set_channel_pan(0,(value&0xF0)>>4,value&0x0F);
 				break;
 	case 0x89:
-				dbgprintf("0x89 <- 0x%2x\n", value); fflush(stdout);
+				dbgprintf("0x89 <- 0x%2x\n", value);
+				// fflush(stdout);
 				ws_audio_set_channel_pan(1,(value&0xF0)>>4,value&0x0F);
 				break;
 	case 0x8A:
@@ -256,7 +258,8 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
 				SwpTime=(((unsigned int)value)+1)<<5;
 				break;
 	case 0x8E:
-				dbgprintf("0x8E <- 0x%2x = %d %d %d %d %d %d %d %d \n", value, value & 0x80 ? 1 : 0, value & 0x40 ? 1 : 0, value & 0x20 ? 1 : 0, value & 0x10 ? 1 : 0, value & 8 ? 1 : 0, value & 4 ? 1 : 0, value & 2 ? 1 : 0, value & 1), fflush(stdout); /* ctl */
+				dbgprintf("0x8E <- 0x%2x = %d %d %d %d %d %d %d %d \n", value, value & 0x80 ? 1 : 0, value & 0x40 ? 1 : 0, value & 0x20 ? 1 : 0, value & 0x10 ? 1 : 0, value & 8 ? 1 : 0, value & 4 ? 1 : 0, value & 2 ? 1 : 0, value & 1);
+				//fflush(stdout); /* ctl */
 				if (value & 0x10)
 				{
 					ws_audio_set_channel_pdata(5,value&0x07);
@@ -269,7 +272,8 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
 				WaveMap=((unsigned int)value)<<6;
 				break;
 	case 0x90:
-				dbgprintf("0x90 <- 0x%2x = %d %d %d %d %d %d %d %d \n", value, value & 0x80 ? 1 : 0, value & 0x40 ? 1 : 0, value & 0x20 ? 1 : 0, value & 0x10 ? 1 : 0, value & 8 ? 1 : 0, value & 4 ? 1 : 0, value & 2 ? 1 : 0, value & 1), fflush(stdout); /* ctl */
+				dbgprintf("0x90 <- 0x%2x = %d %d %d %d %d %d %d %d \n", value, value & 0x80 ? 1 : 0, value & 0x40 ? 1 : 0, value & 0x20 ? 1 : 0, value & 0x10 ? 1 : 0, value & 8 ? 1 : 0, value & 4 ? 1 : 0, value & 2 ? 1 : 0, value & 1);
+				//fflush(stdout); /* ctl */
 
 				if (value&0x01)
 				{
@@ -515,9 +519,10 @@ int ws_audio_seal_init(void)
         AGetAudioDevCaps(nDevId, &caps);
         fprintf(log_get(),"audio:   %2d. %s\n", nDevId, caps.szProductName);
     }
+
     /* open audio device */
     //info.nDeviceId = AUDIO_DEVICE_MAPPER;
-    info.nDeviceId = 1;
+    info.nDeviceId = 0;
     info.wFormat   = AUDIO_FORMAT_16BITS | AUDIO_FORMAT_STEREO; // | AUDIO_MIXER_BASS;
     info.nSampleRate = 44100;
     if ((rc = AOpenAudio(&info)) != AUDIO_ERROR_NONE) 
@@ -664,7 +669,7 @@ void ws_audio_seal_done(void)
 	ADestroyAudioData(&ws_audio_sweep_wave);
 
 	// release pcm channels
-	for (i=0;i<6;i++)
+	for (i=0;i<4;i++)
 		ADestroyAudioVoice(ws_audio_pcm_voice[i]);
 
 	// release noise channel
@@ -1091,9 +1096,9 @@ void ws_audio_set_pcm(int Data)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_flash_pcm(void)
 {
-    int result;
-    void *ptr1,*ptr2;
-    DWORD len1,len2;
+    //int result;
+    //void *ptr1,*ptr2;
+    DWORD len1; //,len2;
     
 	const DWORD WrPos[16]=
 	{
@@ -1104,6 +1109,10 @@ void ws_audio_flash_pcm(void)
     };
 
 	len1=BUFSIZEP;
+
+	if (ws_audio_noise_wave.lpData == NULL)
+		return;
+
 	memcpy(&ws_audio_noise_wave.lpData[WrPos[PcmWrPos]], PDataP, len1);
 	AWriteAudioData(&ws_audio_noise_wave,	0, ws_audio_noise_wave.dwLength);
 
@@ -1317,11 +1326,11 @@ void ws_audio_readState(int fp)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_writeState(int fp)
 {
-	long lpdwPosition;
-	long lpdwFrequency;
-	unsigned int lpnVolume;
-	unsigned int lpnPanning;
-	int lpnStatus;
+	int32_t lpdwPosition;
+	int32_t lpdwFrequency;
+	uint16_t lpnVolume;
+	uint16_t lpnPanning;
+	int8_t lpnStatus;
 
 	write(fp,&PCMPos,sizeof(DWORD));
 	write(fp,&TickZ,sizeof(DWORD));

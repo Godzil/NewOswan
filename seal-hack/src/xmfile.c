@@ -184,8 +184,7 @@ UINT AIAPI ALoadModuleXM(LPSTR lpszFileName,
     }
 
     /* initialize module structure */
-    strncpy(lpModule->szModuleName, Header.aModuleName,
-	    sizeof(Header.aModuleName));
+    strncpy(lpModule->szModuleName, Header.aModuleName, sizeof(lpModule->szModuleName));
     if (Header.wFlags & XM_MODULE_LINEAR)
         lpModule->wFlags |= AUDIO_MODULE_LINEAR;
     lpModule->nOrders = Header.nSongLength;
@@ -296,8 +295,7 @@ UINT AIAPI ALoadModuleXM(LPSTR lpszFileName,
         }
 
         /* initialize patch structure */
-        strncpy(lpPatch->szPatchName, Patch.aPatchName,
-		sizeof(Patch.aPatchName));
+        strncpy(lpPatch->szPatchName, Patch.aPatchName, sizeof(lpPatch->szPatchName));
         for (m = 0; m < AUDIO_MAX_NOTES; m++) {
             lpPatch->aSampleNumber[m] = Patch.aSampleNumber[m];
             if (lpPatch->aSampleNumber[m] >= Patch.nSamples)
@@ -365,8 +363,7 @@ UINT AIAPI ALoadModuleXM(LPSTR lpszFileName,
             AIOReadFile(Sample.aSampleName, sizeof(Sample.aSampleName));
             AIOSeekFile(Patch.dwSampleHeaderSize -
 			XM_SAMPLE_HEADER_SIZE, SEEK_CUR);
-            strncpy(lpSample->szSampleName, Sample.aSampleName,
-		    sizeof(Sample.aSampleName));
+            strncpy(lpSample->szSampleName, Sample.aSampleName, sizeof(lpSample->szSampleName));
             lpSample->Wave.dwLength = Sample.dwLength;
             lpSample->Wave.dwLoopStart = Sample.dwLoopStart;
             lpSample->Wave.dwLoopEnd = Sample.dwLoopStart + Sample.dwLoopLength;
