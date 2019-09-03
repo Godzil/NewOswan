@@ -1,5 +1,5 @@
 extern "C"
 {
-long ticker();
+   long ticker();
 };
 

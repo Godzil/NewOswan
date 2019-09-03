@@ -1,9 +1,9 @@
 BYTE	cpu_readport(BYTE);
 void cpu_writeport(DWORD,BYTE);
-#define cpu_readop cpu_readmem20	
-#define cpu_readop_arg cpu_readmem20	
+#define cpu_readop cpu_readmem20
+#define cpu_readop_arg cpu_readmem20
 void cpu_writemem20(DWORD,BYTE);
-BYTE cpu_readmem20(DWORD);	
+BYTE cpu_readmem20(DWORD);
 
 typedef enum { ES, CS, SS, DS } SREGS;
 typedef enum { AW, CW, DW, BW, SP, BP, IX, IY } WREGS;
@@ -11,25 +11,26 @@ typedef enum { AL,AH,CL,CH,DL,DH,BL,BH,SPL,SPH,BPL,BPH,IXL,IXH,IYL,IYH } BREGS;
 
 #pragma pack(1)
 typedef union
-{                   /* eight general registers */
-    UINT16 w[8];    /* viewed as 16 bits registers */
-    UINT8  b[16];   /* or as 8 bit registers */
+{
+   /* eight general registers */
+   UINT16 w[8];    /* viewed as 16 bits registers */
+   UINT8  b[16];   /* or as 8 bit registers */
 } necbasicregs;
 typedef struct
 {
-	necbasicregs regs;
- 	UINT16	sregs[4];
+   necbasicregs regs;
+   UINT16	sregs[4];
 
-	UINT16	ip;
+   UINT16	ip;
 
-	INT32	SignVal;
-    INT32  AuxVal, OverVal, ZeroVal, CarryVal, ParityVal; /* 0 or non-0 valued flags */
-	UINT8	TF, IF, DF, MF; 	/* 0 or 1 valued flags */	/* OB[19.07.99] added Mode Flag V30 */
-	UINT32	int_vector;
-	UINT32	pending_irq;
-	UINT32	nmi_state;
-	UINT32	irq_state;
-	int     (*irq_callback)(int irqline);
+   INT32	SignVal;
+   INT32  AuxVal, OverVal, ZeroVal, CarryVal, ParityVal; /* 0 or non-0 valued flags */
+   UINT8	TF, IF, DF, MF; 	/* 0 or 1 valued flags */	/* OB[19.07.99] added Mode Flag V30 */
+   UINT32	int_vector;
+   UINT32	pending_irq;
+   UINT32	nmi_state;
+   UINT32	irq_state;
+   int     (*irq_callback)(int irqline);
 } nec_Regs;
 #pragma pack()
 
