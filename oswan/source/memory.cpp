@@ -53,7 +53,7 @@ char *internalColorIRom;
 char *internalBWEeprom;
 char *internalColorEeprom;
 
-char *internalEeprom;
+uint16_t *internalEeprom;
 
 extern uint8 *ws_ioRam;
 
@@ -333,10 +333,10 @@ void ws_memory_init(uint8 *rom, uint32 wsRomSize)
       internalColorEeprom = create_file("wsc_ieeprom.bin", COLOR_IEEPROM_SIZE, DefaultColorEEprom);
    }
 
-   internalEeprom = internalBWEeprom;
+   internalEeprom = (uint16_t *)internalBWEeprom;
    if (ws_gpu_operatingInColor)
    {
-      internalEeprom = internalColorEeprom;
+      internalEeprom = (uint16_t *)internalColorEeprom;
    }
    
    ws_haveBWIRom = false;

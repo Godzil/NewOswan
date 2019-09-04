@@ -30,10 +30,37 @@
 extern uint8 *externalEeprom;
 extern uint32 externalEepromAddressMask;
 extern uint32 romAddressMask;
-extern char *internalEeprom;
+extern uint16_t *internalEeprom;
+
+enum
+{
+   EEPROM_SUBCOMMAND = 0,  /* 00 00 */
+   EEPROM_WRITE,           /* 01 xx */
+   EEPROM_READ,            /* 10 xx */
+   EEPROM_ERASE,           /* 11 xx */
+   EEPROM_WRITEDISABLE,    /* 00 00 */
+   EEPROM_WRITEALL,        /* 00 01 */
+   EEPROM_ERASEALL,        /* 00 10 */
+   EEPROM_WRITEENABLE      /* 00 11 */
+};
+
+char *eii_CommandName[] =
+{
+   "SUB",
+   "WRI",
+   "RED",
+   "ERA",
+   "WRD",
+   "WRA",
+   "ERL",
+   "WRE",
+};
 
 uint8_t iee_WriteEnable = false;
-uint8_t iee_SelAddress = 0;
+uint16_t iee_SelAddress = 0;
+uint16_t iee_Databuffer = 0;
+uint8_t iee_Mode = EEPROM_READ;
+
 
 
 uint8 *ws_ioRam=NULL;
@@ -406,10 +433,10 @@ BYTE cpu_readport(BYTE port)
       return ws_ioRam[0xbe]|3;
 
    case 0xba:  // eeprom even byte read
-      return internalEeprom[iee_SelAddress];
+      return iee_Databuffer & 0x00FF;
 
    case 0xbb:  // eeprom odd byte read
-      return internalEeprom[iee_SelAddress + 1];
+      return (iee_Databuffer & 0xFF00) >> 8;
 
    case 0xc0 : // ???
       retVal = ((ws_ioRam[0xc0]&0xf)|0x20);
@@ -577,10 +604,10 @@ void cpu_writeport(DWORD port,BYTE value)
       printf("Writing IEEP %02X <= %02X\n", port, value);
    }*/
 
-   if ((ws_ioRam[port]==value) && (port < 0xF0) && ((port < 0xB0) || (port > 0xBF)) )
+   /*if ((ws_ioRam[port]==value) && (port < 0xF0) && ((port < 0xB0) || (port > 0xBF)) )
    {
       return;
-   }
+   }*/
 
    ws_ioRam[port]=value;
 
@@ -803,80 +830,73 @@ void cpu_writeport(DWORD port,BYTE value)
    /* Internal EEPROM */
 
    case 0xba: /* DATA Low */
-      if (iee_WriteEnable)
-      {
-         printf("@ %X <- %X\n", iee_SelAddress, value);
-         internalEeprom[iee_SelAddress]=value;
-      }
-      msync(internalEeprom, 1024, MS_SYNC);
+      iee_Databuffer = iee_Databuffer & 0xFF00;
+      iee_Databuffer = iee_Databuffer | (value);
       break;
 
    case 0xbb: /* Data High */
-      if (iee_WriteEnable)
-      {
-         printf("@ %X <- %X\n", iee_SelAddress + 1, value);
-         internalEeprom[iee_SelAddress + 1]=value;
-      }
-      msync(internalEeprom, 1024, MS_SYNC);
+      iee_Databuffer = iee_Databuffer & 0x00FF;
+      iee_Databuffer = iee_Databuffer | (value << 8);
       break;
 
    case 0xBC: /* Address Low */
    case 0xBD: /* Address High */
       break;
+
    case 0xBE: /* Command / Status */
       {
-         enum
-         {
-            EEPROM_SUBCOMMAND = 0,
-            EEPROM_WRITE,
-            EEPROM_READ,
-            EEPROM_ERASE,
-            EEPROM_WRITEDISABLE,
-            EEPROM_WRITEALL,
-            EEPROM_ERASEALL,
-            EEPROM_WRITEENABLE
-         };
-         uint8_t address, command, subcmd;
+         uint16_t address, command, subcmd; /*, start;*/
          
-         address = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
+         iee_SelAddress = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
 
          if (ws_gpu_operatingInColor)
          {
-            command = (address >> 11) & 0x3;
-            address = address & 0x3FF;
-            subcmd = (address >> 8) & 0x03;
+            /* 
+            13 00
+               S CCaa AAAA AAAA
+            0001 0011 0000 0000
+
+            */
+            /* S CC aaAAAAAAAA */
+            //start = (iee_SelAddress >> 12) & 0x01;
+            command = (iee_SelAddress >> 10) & 0x3;
+            address = iee_SelAddress & 0x3FF;
+            subcmd = (iee_SelAddress >> 8) & 0x03;
          }
          else
          {
-            command = (address >> 6) & 0x3;
-            address = address & 0x3F;
-            subcmd = (address >> 4) & 0x03;
+            /* S CC aaAAAA */
+            //start = (iee_SelAddress >> 8) & 0x01;
+            command = (iee_SelAddress >> 6) & 0x3;
+            address = iee_SelAddress & 0x3F;
+            subcmd = (iee_SelAddress >> 4) & 0x03;
          }
          
+
          if (command == EEPROM_SUBCOMMAND)
          {
             command = EEPROM_WRITEDISABLE + subcmd;
          }
 
-         printf("IEEP: [%X:%X:%X] -> %X : %d : %d\n", ws_ioRam[0xBC], ws_ioRam[0xBD], ws_ioRam[0xBE], address, command, subcmd);
+         printf("IEEP: RA:%04X RD:%04X A:%03X C:%s", iee_SelAddress, iee_Databuffer, address, eii_CommandName[command]);
 
          if (value & 0x40)
          {
             /* Sub command */
-            printf("IEEP: Sub\n");
+            printf(" - Sub");
             if (command == EEPROM_WRITEENABLE)
             {
-               printf("IEEP: Write Enable\n");
+               printf(" Write Enable\n");
                iee_WriteEnable = true;
             }
             else if (command == EEPROM_WRITEDISABLE)
             {
-               printf("IEEP: Write Disable\n");
+               printf(" Write Disable\n");
                iee_WriteEnable = false; 
             }
             else if (command == EEPROM_ERASEALL)
             {
-               printf("IEEP: Erase All\n");
+               printf(" Erase All\n");
                if (ws_gpu_operatingInColor)
                {
                   memset(internalEeprom, 0, COLOR_IEEPROM_SIZE);
@@ -886,19 +906,33 @@ void cpu_writeport(DWORD port,BYTE value)
                   memset(internalEeprom, 0, BW_IEEPROM_SIZE);
                }
             }
+            else
+            {
+               printf(" Write All?\n");
+            }
          }
          else if (value & 0x20)
          {
             /* Write */
-            printf("IEEP: Write");
-            iee_SelAddress = address;
+            printf(" - Write?");
+            if (iee_WriteEnable)
+            {
+               printf(" Yes : %04X\n", iee_Databuffer);
+               internalEeprom[address] = iee_Databuffer;
+            }
+            else
+            {
+               printf(" No\n");
+            }
          }
          else if (value & 0x10)
          {
             /* Read */
-            printf("IEEP: Read");
-            iee_SelAddress = address;
+            printf(" - Read");
+            iee_Databuffer = internalEeprom[address];
+            printf(" Data : %04X\n", iee_Databuffer);
          }
+         fflush(stdout);
       }
       break;
 
