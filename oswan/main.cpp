@@ -778,11 +778,11 @@ int main(int argc, char *argv[])
 
       if (ws_rom_path)
       {
+         ws_set_system(ws_system);
          if (ws_init(ws_rom_path))
          {
             app_rotated=ws_rotated();
             app_gameRunning=1;
-            ws_set_system(ws_system);
 
             if (ws_system == WS_SYSTEM_COLOR)
             {

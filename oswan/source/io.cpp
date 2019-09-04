@@ -932,6 +932,10 @@ void cpu_writeport(DWORD port,BYTE value)
             iee_Databuffer = internalEeprom[address];
             printf(" Data : %04X\n", iee_Databuffer);
          }
+         else
+         {
+            printf(" Unknown value: %02X\n", value);
+         }
          fflush(stdout);
       }
       break;

@@ -55,6 +55,8 @@ uint32	vblank_count=0;
 
 char *ws_sram_path = NULL;
 extern int ws_sram_dirty;
+extern int ws_gpu_forceColorSystemBool;
+extern int ws_gpu_forceMonoSystemBool;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -118,13 +120,17 @@ int ws_init(char *rompath)
       return(0);
    }
 
-   if (rompath[strlen(rompath)-1]=='c')
+   if ((ws_gpu_forceColorSystemBool == 0) && (ws_gpu_forceMonoSystemBool == 0))
    {
-      ws_gpu_operatingInColor=1;
-   }
-   else
-   {
-      ws_gpu_operatingInColor=0;
+      /* Nothing forced try to "auto detect" */
+      if (rompath[strlen(rompath)-1]=='c')
+      {
+         ws_gpu_operatingInColor=1;
+      }
+      else
+      {
+         ws_gpu_operatingInColor=0;
+      }
    }
 
    ws_memory_init(rom,romSize);

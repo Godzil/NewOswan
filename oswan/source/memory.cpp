@@ -27,7 +27,6 @@
 #include "gpu.h"
 #include "audio.h"
 #include "memory.h"
-#include "ieeprom.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -41,7 +40,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #define IO_ROM_BANK_BASE_SELECTOR   0xC0
-
 
 uint8 *ws_rom;
 uint8 *ws_staticRam;
@@ -264,10 +262,12 @@ char *load_file(char *filename)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-char *create_file(char *filename, uint32_t size, uint8_t *data)
+char *create_file(char *filename, uint32_t size)
 {
     int fd;
+    uint32_t i;
     char *ret_ptr;
+    char buf[] = { 0 };
 
     printf("Trying to create %s, size = %u...\n",filename, size);
     fd = open(filename, O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC);
@@ -277,7 +277,11 @@ char *create_file(char *filename, uint32_t size, uint8_t *data)
 
     fd = open(filename, O_RDWR);
 
-    write(fd, data, size);
+    for(i = 0; i < size; i++)
+    {
+      write(fd, buf, 1);
+    }
+
     close(fd);
     sync();    
 
@@ -324,13 +328,13 @@ void ws_memory_init(uint8 *rom, uint32 wsRomSize)
    internalBWEeprom = load_file("ws_ieeprom.bin");
    if ( internalBWEeprom == NULL )
    {
-      internalBWEeprom = create_file("ws_ieeprom.bin", BW_IEEPROM_SIZE, DefaultBWEEprom);
+      internalBWEeprom = create_file("ws_ieeprom.bin", BW_IEEPROM_SIZE);
    }
 
    internalColorEeprom = load_file("wsc_ieeprom.bin");
    if ( internalColorEeprom == NULL )
    {
-      internalColorEeprom = create_file("wsc_ieeprom.bin", COLOR_IEEPROM_SIZE, DefaultColorEEprom);
+      internalColorEeprom = create_file("wsc_ieeprom.bin", COLOR_IEEPROM_SIZE);
    }
 
    internalEeprom = (uint16_t *)internalBWEeprom;

@@ -30,8 +30,8 @@ void ws_sram_save(char *path);
 
 void dump_memory();
 
-#define BW_IEEPROM_SIZE (1024)
-#define COLOR_IEEPROM_SIZE (1024)
+#define BW_IEEPROM_SIZE (128)
+#define COLOR_IEEPROM_SIZE (2048)
 
 #endif
 
