@@ -45,73 +45,81 @@ if (joystick)
 
    if (SDL_JoystickGetButton(joystick,1))
    {
-      ws_key_button_1=1;
+      ws_key_button_a=1;
    }
    else
    {
-      ws_key_button_1=0;
+      ws_key_button_a=0;
    }
 
    if (SDL_JoystickGetButton(joystick,2))
    {
-      ws_key_button_2=1;
+      ws_key_button_b=1;
    }
    else
    {
-      ws_key_button_2=0;
+      ws_key_button_b=0;
    }
 
 
    if (SDL_JoystickGetAxis(joystick,0)<-7000)
    {
-      ws_key_left=1;
+      ws_key_x4=1;
    }
    else
    {
-      ws_key_left=0;
+      ws_key_x4=0;
    }
 
    if (SDL_JoystickGetAxis(joystick,0)>7000)
    {
-      ws_key_right=1;
+      ws_key_x2=1;
    }
    else
    {
-      ws_key_right=0;
+      ws_key_x2=0;
    }
 
    if (SDL_JoystickGetAxis(joystick,1)<-7000)
    {
-      ws_key_up=1;
+      ws_key_x1=1;
    }
    else
    {
-      ws_key_up=0;
+      ws_key_x1=0;
    }
 
    if (SDL_JoystickGetAxis(joystick,1)>7000)
    {
-      ws_key_down=1;
+      ws_key_x3=1;
    }
    else
    {
-      ws_key_down=0;
+      ws_key_x3=0;
    }
+   ws_key_y4=0;
+   ws_key_y2=0;
+   ws_key_y1=0;
+   ws_key_y3=0;
 }
 else
 {
    ws_key_start=0;
-   ws_key_left=0;
-   ws_key_right=0;
-   ws_key_up=0;
-   ws_key_down=0;
-   ws_key_button_1=0;
-   ws_key_button_2=0;
+   ws_key_x4=0;
+   ws_key_x2=0;
+   ws_key_x1=0;
+   ws_key_x3=0;
+   ws_key_y4=0;
+   ws_key_y2=0;
+   ws_key_y1=0;
+   ws_key_y3=0;
+   ws_key_button_a=0;
+   ws_key_button_b=0;
 }
 
 uint8 *keystate = SDL_GetKeyState(NULL);
 
-if ( keystate[SDLK_d])
+if ( keystate[SDLK_e])
 {
    dump_memory();
 }
@@ -129,22 +137,22 @@ if ( keystate[SDLK_ESCAPE] )
 
 if ( keystate[SDLK_UP] )
 {
-   ws_key_up=1;
+   ws_key_x1=1;
 }
 
 if ( keystate[SDLK_DOWN] )
 {
-   ws_key_down=1;
+   ws_key_x3=1;
 }
 
 if ( keystate[SDLK_RIGHT] )
 {
-   ws_key_right=1;
+   ws_key_x2=1;
 }
 
 if ( keystate[SDLK_LEFT] )
 {
-   ws_key_left=1;
+   ws_key_x4=1;
 }
 
 if (keystate[SDLK_RETURN])
@@ -154,20 +162,40 @@ if (keystate[SDLK_RETURN])
 
 if (keystate[SDLK_c])
 {
-   ws_key_button_1=1;
+   ws_key_button_a=1;
 }
 
 if (keystate[SDLK_x])
 {
-   ws_key_button_2=1;
+   ws_key_button_b=1;
 }
 
-if (keystate[SDLK_p])
+if (keystate[SDLK_w])
+{
+   ws_key_y1=1;
+}
+
+if (keystate[SDLK_a])
+{
+   ws_key_y4=1;
+}
+
+if (keystate[SDLK_s])
+{
+   ws_key_y3=1;
+}
+
+if (keystate[SDLK_d])
+{
+   ws_key_y2=1;
+}
+
+if (keystate[SDLK_o])
 {
    ws_cyclesByLine+=10;
 }
 
-if (keystate[SDLK_o])
+if (keystate[SDLK_l])
 {
    ws_cyclesByLine-=10;
 }
