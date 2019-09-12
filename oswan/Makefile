@@ -14,7 +14,7 @@ OBJS       = $(wonderswan_CXX_SRCS:.cpp=.o)
 
 
 
-all: wonderswan
+all: wonderswan dumpinfo
 
 CXX       = g++
 CXXFLAGS  = -g -O2 `sdl-config --cflags` -Wall -Werror -std=c++98 -Wno-write-strings
@@ -51,6 +51,9 @@ $(EXTRASUBDIRS:%=%/__clean__): dummy
 
 clean:: $(SUBDIRS:%=%/__clean__) $(EXTRASUBDIRS:%=%/__clean__)
 	$(RM) $(CLEAN_FILES) $(RC_SRCS:.rc=.res) $(OBJS) $(EXES:%.exe=%) $(EXES:%=%.so) $(EXES:%=%.spec.o) $(DLLS:%=%.so) $(DLLS:%=%.spec.o)
+
+dumpinfo: dumpinfo.o
+	$(CXX) $(LIBS) -o $@ $(<)
 
 wonderswan: $(OBJS)
 	$(CXX) $(LIBS) -o $@ $(OBJS) -laudio
