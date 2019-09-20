@@ -614,6 +614,11 @@ void cpu_writeport(DWORD port,BYTE value)
          return;
       }
    }
+
+   if ((port == 0xA0) && (ws_ioRam[port] & 0x01) && (~value & 0x01))
+   {
+      value |= 0x01;
+   }
    ws_ioRam[port]=value;
 
    switch (port)
