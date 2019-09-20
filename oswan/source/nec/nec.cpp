@@ -115,20 +115,19 @@ void nec_exit (void)
 
 }
 
+void dump_memory();
 
 
-
-void nec_int(DWORD wektor)
+void nec_int(uint16_t vector)
 {
-
    DWORD dest_seg, dest_off;
 
    if(I.IF)
    {
       i_pushf();
       I.TF = I.IF = 0;
-      dest_off = ReadWord(wektor);
-      dest_seg = ReadWord(wektor+2);
+      dest_off = ReadWord(vector);
+      dest_seg = ReadWord(vector+2);
       PUSH(I.sregs[CS]);
       PUSH(I.ip);
       I.ip = (WORD)dest_off;
@@ -999,6 +998,7 @@ OP( 0x61, i_popa  )
    (void)tmp; // We need to uppop something and need tmp
    CLK(8);
 }
+/* BOUND */
 OP( 0x62, i_chkind  )
 {
    UINT32 low,high,tmp;
@@ -3641,6 +3641,7 @@ OP( 0xfa, i_di    )
 }
 OP( 0xfb, i_ei    )
 {
+   /* STI */
    SetIF(1);
    CLK(4);
 }

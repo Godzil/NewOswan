@@ -1,9 +1,8 @@
-BYTE	cpu_readport(BYTE);
-void cpu_writeport(DWORD,BYTE);
-#define cpu_readop cpu_readmem20
-#define cpu_readop_arg cpu_readmem20
-void cpu_writemem20(DWORD,BYTE);
-BYTE cpu_readmem20(DWORD);
+#ifndef __NEC_H_
+#define __NEC_H_
+
+
+#include "necintrf.h"
 
 typedef enum { ES, CS, SS, DS } SREGS;
 typedef enum { AW, CW, DW, BW, SP, BP, IX, IY } WREGS;
@@ -389,3 +388,5 @@ typedef struct
 		di++;												\
 	}														\
 }
+
+#endif /* __NEC_H_ */
