@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include "types.h"
 #include "log.h"
@@ -31,24 +35,27 @@
 ////////////////////////////////////////////////////////////////////////////////
 uint8	*ws_rom_load(char *path, uint32 *romSize)
 {
-   uint8	*rom=NULL;
-   Uint32 filepos;
-   FILE *fp=fopen(path,"rb");
+    int fd;
+    uint8 *ret_ptr;
+    struct stat FileStat;
 
-   if (fp==NULL)
-   {
-      return(NULL);
-   }
+    fd = open(path, O_RDWR);
 
-   fseek(fp,0,SEEK_END);
-   //fgetpos(fp,&filepos);
-   filepos = ftell(fp);
-   *romSize=(uint32)filepos;
-   fseek(fp,0,SEEK_SET);
-   rom=(uint8*)malloc(*romSize);
-   fread(rom,1,*romSize,fp);
-   fclose(fp);
-   return(rom);
+    fstat(fd, &FileStat);
+
+    *romSize = FileStat.st_size;
+
+    ret_ptr = (uint8 *)mmap(NULL, FileStat.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+
+    close(fd);
+
+    if (ret_ptr == MAP_FAILED)
+    {
+        ret_ptr = NULL;
+        *romSize = 0;
+    }
+
+    return ret_ptr;
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
