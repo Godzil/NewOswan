@@ -221,13 +221,11 @@ int ws_executeLine(int16 *framebuffer, int renderLine)
    {
       ws_gpu_scanline=0;
       {
-         if((ws_ioRam[0xb2]&32))/*VBLANK END INT*/
+         if((ws_ioRam[0xb2]&32)) /* VBLANK Timer */
          {
-            if(ws_ioRam[0xa7]!=0x35)/*Beatmania Fix*/
-            {
-               ws_ioRam[0xb6]&=~32;
-               nec_int((ws_ioRam[0xb0]+5)*4);
-            }
+            /* TODO: REPAIR THAT SHIT */
+            ws_ioRam[0xb6]&=~32;
+            nec_int((ws_ioRam[0xb0]+5)*4);
          }
       }
    }
@@ -237,7 +235,7 @@ int ws_executeLine(int16 *framebuffer, int renderLine)
    if(drawWholeScreen)
    {
 
-      if(ws_ioRam[0xb2]&64) /*VBLANK INT*/
+      if(ws_ioRam[0xb2]&64) /* VBLANK INT */
       {
          ws_ioRam[0xb6]&=~64;
          nec_int((ws_ioRam[0xb0]+6)*4);
@@ -246,9 +244,9 @@ int ws_executeLine(int16 *framebuffer, int renderLine)
       vblank_count++;
    }
 
-   if(ws_ioRam[0xa4]&&(ws_ioRam[0xb2]&128)) /*HBLANK INT*/
+   if(ws_ioRam[0xa4]&&(ws_ioRam[0xb2]&128)) /*HBLANK TMR*/
    {
-
+      /* TODO: Check that shit */
       if(!ws_ioRam[0xa5])
       {
          ws_ioRam[0xa5]=ws_ioRam[0xa4];
