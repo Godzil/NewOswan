@@ -3902,6 +3902,26 @@ void nec_set_reg(int regnum, uint32_t val)
    }
 }
 
+char *instructionsName[256] = 
+{
+   "ADD ", "ADD ", "ADD ", "ADD ", "ADD ", "ADD ", "PUSH", "POP ", "OR  ", "OR  ", "OR  ", "OR  ", "OR  ", "OR  ", "PUSH", "----",
+   "ADC ", "ADC ", "ADC ", "ADC ", "ADC ", "ADC ", "PUSH", "POP ", "SBB ", "SBB ", "SBB ", "SBB ", "SBB ", "SBB ", "PUSH", "POP ",
+   "AND ", "AND ", "AND ", "AND ", "AND ", "AND ", "ES: ", "DAA ", "SUB ", "SUB ", "SUB ", "SUB ", "SUB ", "SUB ", "CS: ", "DAS ",
+   "XOR ", "XOR ", "XOR ", "XOR ", "XOR ", "XOR ", "SS: ", "AAA ", "CMP ", "CMP ", "CMP ", "CMP ", "CMP ", "CMP ", "ES: ", "AAS ",
+   "INC ", "INC ", "INC ", "INC ", "INC ", "INC ", "INC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ",
+   "PUSH", "PUSH", "PUSH", "PUSH", "PUSH", "PUSH", "PUSH", "PUSH", "POP ", "POP ", "POP ", "POP ", "POP ", "POP ", "POP ", "POP ",
+   "PUSA", "POPA", "BOND", "----", "----", "----", "----", "----", "PUSH", "IMUL", "PUSH", "IMUL", "INS ", "INS ", "OUTS", "OUTS",
+   "JO  ", "JNO ", "JB  ", "JNB ", "JZ  ", "JNZ ", "JBE ", "JA  ", "JS  ", "JNS ", "JPE ", "JPO ", "JL  ", "JGE ", "JLE ", "JG  ",
+   "GPR1", "GPR1", "GPR1", "GPR1", "TEST", "TEST", "XCHG", "XCHG", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "LEA ", "MOV ", "POP ",
+   "NOP ", "XCHA", "XCHA", "XCHA", "XCHA", "XCHA", "XCHA", "XCHA", "CBW ", "CWD ", "CALL", "WAIT", "PSHF", "POPF", "SAHF", "LAHF",
+   "MOV ", "MOV ", "MOV ", "MOV ", "MOVS", "MOVS", "CMPS", "CMPS", "TEST", "TEST", "STOS", "STOS", "LODS", "LODS", "SCAS", "SCAS",
+   "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ",
+   "GRP2", "GRP2", "RETN", "RETN", "LES ", "LDS ", "MOV ", "MOV ", "ENTR", "LEAV", "RETF", "RETF", "INT3", "INT ", "INTO", "IRET",
+   "GRP2", "GRP2", "GRP2", "GRP2", "AAM ", "AAD ", "----", "XLAT", "----", "----", "----", "----", "----", "----", "----", "----",
+   "LPNZ", "LPZ ", "LOOP", "JCXZ", "IN  ", "IN  ", "OUT ", "OUT ", "CALL", "JMP ", "JMP ", "JMP ", "IN  ", "IN  ", "OUT ", "OUT ",
+   "LOCK", "----", "RPNZ", "REP ", "HLT ", "CMC ", "GP3A", "GP3B", "CLC ", "STC ", "CLI ", "STI ", "CLD ", "STD ", "GPR4", "GRP5"
+};
+
 
 int nec_execute(int cycles)
 {
