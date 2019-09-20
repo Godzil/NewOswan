@@ -3834,8 +3834,6 @@ uint32_t nec_get_reg(int regnum)
    return 0;
 }
 
-void nec_set_irq_line(int irqline, int state);
-
 void nec_set_reg(int regnum, uint32_t val)
 {
    switch( regnum )
