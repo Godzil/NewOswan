@@ -22,6 +22,7 @@
 #include "log.h"
 #include "rom.h"
 #include "./nec/nec.h"
+#include "./nec/necintrf.h"
 #include "initialIo.h"
 #include "gpu.h"
 #include "audio.h"
@@ -31,6 +32,7 @@ extern uint8 *externalEeprom;
 extern uint32 externalEepromAddressMask;
 extern uint32 romAddressMask;
 extern uint16_t *internalEeprom;
+extern nec_Regs I;
 
 enum
 {
@@ -239,8 +241,6 @@ void close_serial()
    close(serialfd);
    serialfd = -1;
 }
-
-void nec_int(DWORD wektor);
 
 void check_serial_data()
 {
