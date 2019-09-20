@@ -161,8 +161,9 @@ BYTE cpu_readmem20(DWORD addr)
 {
    uint32 offset=addr&0xffff;
    uint32 bank=addr>>16;
-   uint16 romBank;
+   //uint16 romBank;
    uint8_t hwReg;
+   uint32_t temp;
    BYTE ret;
 
    switch (bank)
@@ -183,8 +184,18 @@ BYTE cpu_readmem20(DWORD addr)
       return ws_staticRam[offset&sramAddressMask];
 
    case 2:
+      // Bank 2
+      hwReg = ws_ioRam[0xC2];
+      temp = hwReg << 16;
+      temp += offset;
+      temp &= (romSize - 1);
+      return ws_rom[temp];
    case 3:
-      return ws_rom[offset+((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR+bank]&((romSize>>16)-1))<<16)];
+      hwReg = ws_ioRam[0xC3];
+      temp = hwReg << 16;
+      temp += offset;
+      temp &= (romSize - 1);
+      return ws_rom[temp];
 
    case 0xF:
       hwReg = ws_ioRam[0xA0];
@@ -211,8 +222,11 @@ BYTE cpu_readmem20(DWORD addr)
       // fall through
 
    default:
-      romBank = (256-(((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR]&0xf)<<4)|(bank&0xf)));
-      return ws_rom[(unsigned)(offset+romSize-(romBank<<16))];
+      hwReg = ws_ioRam[0xC0];
+      temp = hwReg << 20;
+      temp += addr & 0xFFFFF;
+      temp &= (romSize - 1);
+      return ws_rom[temp];      
    }
 
    return(0xff);
