@@ -129,17 +129,15 @@ void cpu_writemem20(DWORD addr,BYTE value)
    uint32   offset=addr&0xffff;
    uint32   bank=addr>>16;
 
-   // 0 - RAM - 16 KB (WS) / 64 KB (WSC) internal RAM
    if (!bank)
    {
+      // 0 - RAM - 16 KB (WS) / 64 KB (WSC) internal RAM
       ws_gpu_write_byte(offset,value);
       ws_audio_write_byte(offset,value);
    }
-   else
-
-      // 1 - SRAM (cart)
-      if (bank==1)
+   else if (bank==1)
       {
+        // 1 - SRAM (cart)
          ws_staticRam[offset&sramAddressMask]=value;
          ws_sram_dirty = 1;
       }
