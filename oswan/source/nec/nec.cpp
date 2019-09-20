@@ -128,6 +128,14 @@ void nec_int(uint16_t vector)
       I.TF = I.IF = 0;
       dest_off = ReadWord(vector);
       dest_seg = ReadWord(vector+2);
+
+      if ((dest_off == 0) && (dest_seg == 0))
+      {
+         printf("Something wrong with the interrupt, exiting...\n");
+         //dump_memory();
+         return;
+      }
+
       PUSH(I.sregs[CS]);
       PUSH(I.ip);
       I.ip = (WORD)dest_off;
@@ -150,6 +158,14 @@ static void nec_interrupt(uint32_t int_num, /*BOOLEAN*/ int md_flag)
 
    dest_off = ReadWord((int_num)*4);
    dest_seg = ReadWord((int_num)*4+2);
+
+   if ((dest_off == 0) && (dest_seg == 0))
+   {
+      printf("Something wrong with the interrupt, exiting...\n");
+      //dump_memory();
+      return;
+   }
+
 
    PUSH(I.sregs[CS]);
    PUSH(I.ip);
