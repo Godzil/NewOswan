@@ -227,7 +227,7 @@ BYTE cpu_readmem20(DWORD addr)
       return ws_rom[temp];      
    }
 
-   return(0xff);
+   return(0x90);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
