@@ -625,13 +625,18 @@ void cpu_writeport(DWORD port,BYTE value)
    {
    /* GPU IOs */
    case 0x00:
+      break;
+
+   case 0x04:
+   case 0x07:
+      fprintf(log_get(),"WriteIO(%02X, %02X);\n",port, value);
+      break;
+
    case 0x01:
    case 0x02:
    case 0x03:
-   case 0x04:
    case 0x05:
    case 0x06:
-   case 0x07:
    case 0x08:
    case 0x09:
    case 0x0A:
@@ -773,6 +778,16 @@ void cpu_writeport(DWORD port,BYTE value)
    case 0x92:
    case 0x93:
    case 0x94:
+   case 0x95:
+   case 0x96:
+   case 0x97:
+   case 0x98:
+   case 0x99:
+   case 0x9A:
+   case 0x9B:
+   case 0x9C:
+   case 0x9D:
+   case 0x9E:
       ws_audio_port_write(port,value);
       break;
 
@@ -794,16 +809,21 @@ void cpu_writeport(DWORD port,BYTE value)
    case 0xAB:
       break;
 
-   /* Hardware */
+   /* Intc */
    case 0xB0:
-      break;
-
-   case 0xB1:
-      write_serial(value); /*printf("RS232 TX: %02X\n", value);*/ break;
-
    case 0xB2:
+   case 0xB4:
+   case 0xB6:
+      //fprintf(log_get(),"WriteIO(%02X, %02X);\n",port, value);
       break;
 
+
+
+      break;
+   /* Serial */
+   case 0xB1:
+      write_serial(value); /*printf("RS232 TX: %02X\n", value);*/
+      break;
    case 0xB3:
       printf(">>>>RS232STA: %02X [%c%c%cxx%c%c%c]\n", value,
              (value & 0x80)?'E':'d',
@@ -830,11 +850,8 @@ void cpu_writeport(DWORD port,BYTE value)
 
       break;
 
-   case 0xB5:
-      break;
-
    /* buttons */
-   case 0xB6:
+   case 0xB5:
       break;
 
    /* Internal EEPROM */
@@ -956,11 +973,13 @@ void cpu_writeport(DWORD port,BYTE value)
    case 0xC1:
    case 0xC2:
    case 0xC3:
+      //fprintf(log_get(),"WriteIO(%02X, %02X) [%04X:%04Xh];\n",port, value, I.sregs[CS], I.ip);
       break;
 
    case 0xc4:
       w1=(((((WORD)ws_ioRam[0xc7])<<8)|((WORD)ws_ioRam[0xc6]))<<1)&externalEepromAddressMask;
       externalEeprom[w1]=value;
+      fprintf(log_get(),"WriteIO(%02X, %02X) [%04X:%04Xh];\n",port, value, I.sregs[CS], I.ip);
       return;
 
    case 0xc5:
@@ -1006,7 +1025,7 @@ void cpu_writeport(DWORD port,BYTE value)
 
    if ((ws_gpu_port_write(port,value) == 1) && (unknown_io_port == 1))
    {
-      fprintf(log_get(),"WriteIO(%02X, %02X);\n",port, value);
+      fprintf(log_get(),"WriteIO(%02X, %02X) [%04X:%04Xh];\n",port, value, I.sregs[CS], I.ip);
    }
 
    /*if (port >= 0xC0)
