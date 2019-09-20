@@ -335,6 +335,15 @@ BYTE cpu_readport(BYTE port)
       printf("Reading IEEP %02X\n", port);
    }*/
 
+   if (port > 0x100)
+   {
+      port &= 0xFF;
+      if (port > 0x100)
+      {
+         return 0x00;
+      }
+   }
+
 
    switch (port)
    {
@@ -597,6 +606,14 @@ void cpu_writeport(DWORD port,BYTE value)
       return;
    }*/
 
+   if (port > 0x100)
+   {
+      port &= 0xFF;
+      if (port > 0x100)
+      {
+         return;
+      }
+   }
    ws_ioRam[port]=value;
 
    switch (port)
