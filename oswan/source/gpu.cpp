@@ -267,22 +267,22 @@ void ws_gpu_forceMonoSystem(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_gpu_init(void)
 {
-   ws_tile_cache				= (uint8*)malloc(512*8*8);
+   ws_tile_cache				= (uint8*)malloc(1024*8*8);
    wsc_tile_cache				= (uint8*)malloc(1024*8*8);
 
-   ws_hflipped_tile_cache		= (uint8*)malloc(512*8*8);
+   ws_hflipped_tile_cache		= (uint8*)malloc(1024*8*8);
    wsc_hflipped_tile_cache		= (uint8*)malloc(1024*8*8);
 
-   ws_modified_tile			= (uint8*)malloc(512);
+   ws_modified_tile			    = (uint8*)malloc(1024);
    wsc_modified_tile			= (uint8*)malloc(1024);
 
-   memset(ws_tile_cache,0x00,512*8*8);
+   memset(ws_tile_cache,0x00,1024*8*8);
    memset(wsc_tile_cache,0x00,1024*8*8);
 
-   memset(ws_hflipped_tile_cache,0x00,512*8*8);
+   memset(ws_hflipped_tile_cache,0x00,1024*8*8);
    memset(wsc_hflipped_tile_cache,0x00,1024*8*8);
 
-   memset(ws_modified_tile,0x01,512);
+   memset(ws_modified_tile,0x01,1024);
    memset(wsc_modified_tile,0x01,1024);
 
    ws_gpu_forceColorSystemBool=0;
@@ -362,8 +362,8 @@ void ws_gpu_changeVideoMode(uint8 value)
 //			ws_videoMode=2;
 
       // mark all tiles dirty
-      memset(wsc_modified_tile,0x01,1024);
-      memset(ws_modified_tile,0x01,512);
+      //memset(wsc_modified_tile,0x01,1024);
+      memset(ws_modified_tile,0x01,1024);
    }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -379,8 +379,8 @@ void ws_gpu_changeVideoMode(uint8 value)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_gpu_reset(void)
 {
-   memset(wsc_modified_tile,0x01,1024);
-   memset(ws_modified_tile,0x01,512);
+   //memset(wsc_modified_tile,0x01,1024);
+   memset(ws_modified_tile,0x01,1024);
    ws_gpu_scanline=0;
    ws_gpu_changeVideoMode(0x00);
 }
@@ -397,8 +397,8 @@ void ws_gpu_reset(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_gpu_clearCache(void)
 {
-   memset(wsc_modified_tile,0x01,1024);
-   memset(ws_modified_tile,0x01,512);
+   //memset(wsc_modified_tile,0x01,1024);
+   memset(ws_modified_tile,0x01,1024);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1132,10 +1132,10 @@ void ws_gpu_renderScanline(int16 *framebuffer)
    {
       int ws_sprWindow_x0=ws_ioRam[0x0c];
       int ws_sprWindow_y0=ws_ioRam[0x0d];
-      int ws_sprWindow_x1=ws_ioRam[0x0e];
-      int ws_sprWindow_y1=ws_ioRam[0x0f];
-//		int ws_sprWindow_x1=ws_sprWindow_x0+ws_ioRam[0x0e];
-//		int ws_sprWindow_y1=ws_sprWindow_y0+ws_ioRam[0x0f];
+//      int ws_sprWindow_x1=ws_ioRam[0x0e];
+//      int ws_sprWindow_y1=ws_ioRam[0x0f];
+		int ws_sprWindow_x1=ws_sprWindow_x0+ws_ioRam[0x0e];
+ 		int ws_sprWindow_y1=ws_sprWindow_y0+ws_ioRam[0x0f];
       uint32	*ws_sprRamBase=(uint32*)(internalRam+(((uint32)ws_ioRam[0x04])<<9));
 
       // seek to first sprite

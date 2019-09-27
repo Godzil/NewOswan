@@ -3930,7 +3930,7 @@ int nec_execute(int cycles)
 
    while(nec_ICount>0)
    {
-#if 1
+#if 0
       uint8_t op = cpu_readmem20((I.sregs[CS]<<4) + I.ip);
       printf("[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip,
             op, instructionsName[op], I.IF);
