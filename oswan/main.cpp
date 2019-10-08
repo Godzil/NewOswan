@@ -49,7 +49,7 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-#define		LOG_PATH "wswan.log"
+#define		LOG_PATH "oswan.log"
 
 #define		KEY_ENTER	0x0D
 #define		KEY_SPACE	0x20
@@ -66,7 +66,7 @@
 #define		GUI_COMMAND_SCHEME_CHANGE		2
 #define		GUI_COMMAND_FILTER_CHANGE		3
 
-char		*app_window_title="Oswan 0.70 - Esc to return to GUI";
+char		app_window_title[256];
 int			app_gameRunning=0;
 int			app_terminate=0;
 int			app_fullscreen=0;
@@ -698,8 +698,10 @@ int main(int argc, char *argv[])
       printf("Warning: cannot open log file %s\n",LOG_PATH);
    }
 
-   fprintf(log_get(),"Wonderswan emulator v0.70/portable (built at: %s %s)\n",__DATE__,__TIME__);
-   //fprintf(log_get(),"port hacking by hmaon@bumba.net\n");
+   snprintf(app_window_title, 255, "Oswan %s - Esc to return to GUI", VERSION);
+
+   fprintf(log_get(),"Oswan-unix %s (built at: %s %s)\n",VERSION , __DATE__,__TIME__);
+
    ws_videoEnhancementType=1;
    //ws_system = WS_SYSTEM_AUTODETECT;
    ws_system = WS_SYSTEM_COLOR;
