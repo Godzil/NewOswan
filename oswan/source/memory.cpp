@@ -400,7 +400,7 @@ void ws_memory_reset(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_memory_done(void)
 {
-   free(ws_rom);
+   //free(ws_rom);
    free(ws_staticRam);
    free(internalRam);
    free(externalEeprom);
