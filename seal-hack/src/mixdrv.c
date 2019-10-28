@@ -557,8 +557,8 @@ static UINT AIAPI OpenAudio(LPAUDIOINFO lpInfo)
     Synth.lpMemory = malloc(sizeof(LONG) * 65 * 256 +
                 sizeof(BYTE) * 32 * 256 + 1023);
     if (Synth.lpMemory != NULL) {
-       uint64_t tmp;
-       tmp = ((uint64_t)(Synth.lpMemory) + 1023) & ~1023;
+       uintptr_t tmp;
+       tmp = ((uintptr_t)(Synth.lpMemory) + 1023) & ~1023;
        lpVolumeTable = (LPLONG)(tmp);
        lpFilterTable = (LPBYTE) (lpVolumeTable + 65 * 256);
        ASetAudioMixerValue(AUDIO_MIXER_MASTER_VOLUME, 96);
