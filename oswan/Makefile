@@ -18,12 +18,10 @@ all: wonderswan dumpinfo
 
 CXX       = g++
 CXXFLAGS  = -g -O2 `sdl-config --cflags` -Wall -Werror -std=c++98 -Wno-write-strings
-#-arch i386
-OPTIONS   =  -D_REENTRANT -I. -I../seal-hack/src/ -DVERSION=\"`git describe  --tags --long --dirty`\"
+OPTIONS   =  -D_REENTRANT -I. -DVERSION=\"`git describe  --tags --long --dirty`\"
 
-LIBRARY_PATH = -L../seal-hack/lib/SDL
+LIBRARY_PATH =
 LIBS      = -g $(LIBRARY_PATH) `sdl-config --libs` 
-#-arch i386
 
 ALLCFLAGS = $(CFLAGS) $(CEXTRA) $(OPTIONS) $(ALLFLAGS)
 ALLCXXFLAGS=$(CXXFLAGS) $(CXXEXTRA) $(OPTIONS) $(ALLFLAGS)
@@ -55,4 +53,4 @@ dumpinfo: dumpinfo.o
 	$(CXX) $(LIBS) -o $@ $(<)
 
 wonderswan: $(OBJS)
-	$(CXX) $(LIBS) -o $@ $(OBJS) -laudio
+	$(CXX) $(LIBS) -o $@ $(OBJS)

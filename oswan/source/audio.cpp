@@ -31,8 +31,6 @@
 
 #include "SDL.h"
 
-#include <audio.h>
-
 #define	SNDP	ws_ioRam[0x80]
 #define SNDV	ws_ioRam[0x88]
 #define SNDSWP	ws_ioRam[0x8C]
@@ -115,13 +113,13 @@ const long TblMainVol[4]=  				// 1,1/2,1/4,1/8
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-HAC			ws_audio_pcm_voice[4];
-HAC			ws_audio_noise_voice;
-HAC			ws_audio_sweep_voice;
+//HAC			ws_audio_pcm_voice[4];
+//HAC			ws_audio_noise_voice;
+//HAC			ws_audio_sweep_voice;
 
-AUDIOWAVE	ws_audio_pcm_wave[4];
-AUDIOWAVE	ws_audio_noise_wave;
-AUDIOWAVE	ws_audio_sweep_wave;
+//AUDIOWAVE	ws_audio_pcm_wave[4];
+//AUDIOWAVE	ws_audio_noise_wave;
+//AUDIOWAVE	ws_audio_sweep_wave;
 
 uint32_t		ws_audio_channel_isPlaying[6];
 
@@ -142,7 +140,7 @@ void ws_audio_init(void)
    fprintf(log_get(), "audio init\n");
    fflush(log_get());
    ws_audio_log=0;
-   ws_audio_seal_init();
+   //ws_audio_seal_init();
    ws_audio_reset();
    SDL_PauseAudio(0);
 }
@@ -230,7 +228,6 @@ void ws_audio_port_write(uint32_t port, uint8_t value)
    case 0x81:
       i=(((unsigned int)ws_ioRam[0x81])<<8)+((unsigned int)ws_ioRam[0x80]);
       ws_audio_set_channel_frequency(0,i);
-      dbgprintf("0x%2x ... freq = 0x%x\n", port, i);
       break;
 
    case 0x82:
@@ -416,7 +413,7 @@ void ws_audio_port_write(uint32_t port, uint8_t value)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-BYTE ws_audio_port_read(BYTE port)
+uint8_t ws_audio_port_read(uint8_t port)
 {
    return(ws_ioRam[port]);
 }
@@ -543,6 +540,7 @@ unsigned int ws_audio_mrand(unsigned int Degree)
 ////////////////////////////////////////////////////////////////////////////////
 int ws_audio_seal_init(void)
 {
+#if 0
    int			i, j;
    AUDIOINFO	info;
    AUDIOCAPS	caps;
@@ -682,8 +680,8 @@ int ws_audio_seal_init(void)
 
    fflush(log_get());
 
-
-   return(1);
+#endif
+   return 1;
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -698,6 +696,7 @@ int ws_audio_seal_init(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_seal_done(void)
 {
+#if 0
    int i;
 
    // stop channels
@@ -735,6 +734,8 @@ void ws_audio_seal_done(void)
 
    // close audio
    ACloseAudio();
+#endif
+
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -749,6 +750,7 @@ void ws_audio_seal_done(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_clear_channel(int Channel)
 {
+#if 0
    ChCurVol[Channel]=-1;
    ChCurPer[Channel]=-1;
    ChCurPan[Channel]=-1;
@@ -768,6 +770,7 @@ void ws_audio_clear_channel(int Channel)
       memset(ws_audio_pcm_wave[Channel].lpData,		0, ws_audio_pcm_wave[Channel].dwLength);
       AWriteAudioData(&ws_audio_pcm_wave[Channel],	0, ws_audio_pcm_wave[Channel].dwLength);
    }
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 // start playing a channel
@@ -782,6 +785,7 @@ void ws_audio_clear_channel(int Channel)
 ////////////////////////////////////////////////////////////////////////////////
 int ws_audio_play_channel(int Channel)
 {
+#if 0
    if (ws_audio_channel_isPlaying[Channel])
    {
       return(0);
@@ -803,7 +807,7 @@ int ws_audio_play_channel(int Channel)
       APlayVoice(ws_audio_pcm_voice[Channel], &ws_audio_pcm_wave[Channel]);
       ASetVoiceFrequency(ws_audio_pcm_voice[Channel],3072000/(2048-ChCurPer[Channel]));
    }
-
+#endif
    return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -819,6 +823,7 @@ int ws_audio_play_channel(int Channel)
 ////////////////////////////////////////////////////////////////////////////////
 int ws_audio_stop_channel(int Channel)
 {
+#if 0
    if (!ws_audio_channel_isPlaying[Channel])
    {
       return(0);
@@ -838,7 +843,7 @@ int ws_audio_stop_channel(int Channel)
    {
       AStopVoice(ws_audio_pcm_voice[Channel]);
    }
-
+#endif
    return(0);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -854,7 +859,8 @@ int ws_audio_stop_channel(int Channel)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_set_channel_frequency(int Channel,int Period)
 {
-   DWORD Freq;
+#if 0
+   uint32_t Freq;
 
    if(ChCurPer[Channel]==Period)
    {
@@ -893,6 +899,7 @@ void ws_audio_set_channel_frequency(int Channel,int Period)
    {
       ASetVoiceFrequency(ws_audio_pcm_voice[Channel],Freq);
    }
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -907,6 +914,7 @@ void ws_audio_set_channel_frequency(int Channel,int Period)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_set_channel_volume(int Channel,int Vol)
 {
+#if 0
    long volume;
 
    if(ChCurVol[Channel]==Vol)
@@ -930,6 +938,7 @@ void ws_audio_set_channel_volume(int Channel,int Vol)
    {
       ASetVoiceVolume(ws_audio_pcm_voice[Channel],volume);
    }
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -944,6 +953,7 @@ void ws_audio_set_channel_volume(int Channel,int Vol)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_set_channel_pan(int Channel,int Left,int Right)
 {
+#if 0
    long pan;
 
    const long TblPan[16][16]=
@@ -1003,6 +1013,7 @@ void ws_audio_set_channel_pan(int Channel,int Left,int Right)
    {
       ASetVoicePanning(ws_audio_pcm_voice[Channel],pan);
    }
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1017,6 +1028,7 @@ void ws_audio_set_channel_pan(int Channel,int Left,int Right)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_set_channel_pdata(int Channel,int Index)
 {
+#if 0
    unsigned char *pData;
 
    if(Channel==5)
@@ -1038,6 +1050,7 @@ void ws_audio_set_channel_pdata(int Channel,int Index)
       memcpy(ws_audio_pcm_wave[Channel].lpData,		pData, ws_audio_pcm_wave[Channel].dwLength);
       AWriteAudioData(&ws_audio_pcm_wave[Channel],	0, ws_audio_pcm_wave[Channel].dwLength);
    }
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1052,6 +1065,7 @@ void ws_audio_set_channel_pdata(int Channel,int Index)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_set_channels_pbuf(int Addr,int Data)
 {
+#if 0
    int i,j;
 
    i=(Addr&0x30)>>4;
@@ -1066,6 +1080,7 @@ void ws_audio_set_channels_pbuf(int Addr,int Data)
    {
       ws_audio_set_channel_pdata(i,0);
    }
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1080,11 +1095,13 @@ void ws_audio_set_channels_pbuf(int Addr,int Data)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_rst_channel(int Channel)
 {
+#if 0
    if(Channel==2)
    {
       ws_audio_set_channel_frequency(2,ChPerInit);
       SwpCurPeriod=ChPerInit;
    }
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1099,6 +1116,7 @@ void ws_audio_rst_channel(int Channel)
 ////////////////////////////////////////////////////////////////////////////////
 int ws_audio_int(void)
 {
+#if 0
    unsigned int value;
    static int i;
 
@@ -1136,6 +1154,8 @@ int ws_audio_int(void)
    }
 
    return RandData[i];
+#endif
+   return 1;
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1148,12 +1168,15 @@ int ws_audio_int(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-static DWORD PCMPos=0;
-DWORD TickZ=0,PcmCount;
+#if 0
+static uint32_t PCMPos=0;
+uint32_t TickZ=0,PcmCount;
+#endif
 
 void ws_audio_set_pcm(int Data)
 {
-   DWORD tick;
+#if 0
+   uint32_t tick;
    PDataP[PCMPos++]=(unsigned char)(Data+128);
    tick=SDL_GetTicks();
    PcmCount++;
@@ -1176,6 +1199,7 @@ void ws_audio_set_pcm(int Data)
    {
       ws_audio_flash_pcm();
    }
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1190,9 +1214,10 @@ void ws_audio_set_pcm(int Data)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_flash_pcm(void)
 {
-   DWORD len1;
+#if 0
+   uint32_t len1;
 
-   const DWORD WrPos[16]=
+   const uint32_t WrPos[16]=
    {
       BUFSIZEP*0,BUFSIZEP*1,BUFSIZEP*2,BUFSIZEP*3,
       BUFSIZEP*4,BUFSIZEP*5,BUFSIZEP*6,BUFSIZEP*7,
@@ -1215,7 +1240,7 @@ void ws_audio_flash_pcm(void)
    PcmWrPos&=0xF;
    memset(PDataP,PL,sizeof(PDataP));
    PCMPos=0;
-
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1322,6 +1347,7 @@ void ws_audio_process(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_readState(int fp)
 {
+#if 0
    long lpdwPosition;
    long lpdwFrequency;
    unsigned int lpnVolume;
@@ -1329,9 +1355,9 @@ void ws_audio_readState(int fp)
    int lpnStatus;
    unsigned char *pData;
 
-   read(fp,&PCMPos,sizeof(DWORD));
-   read(fp,&TickZ,sizeof(DWORD));
-   read(fp,&PcmCount,sizeof(DWORD));
+   read(fp,&PCMPos,sizeof(uint32_t));
+   read(fp,&TickZ,sizeof(uint32_t));
+   read(fp,&PcmCount,sizeof(uint32_t));
    read(fp,&WaveMap,sizeof(int));
    read(fp,&ChPerInit,sizeof(int));
    read(fp,&SwpTime,sizeof(int));
@@ -1406,6 +1432,7 @@ void ws_audio_readState(int fp)
    read(fp,&lpnVolume,sizeof(unsigned int));
    read(fp,&lpnPanning,sizeof(unsigned int));
    read(fp,&lpnStatus,sizeof(int));
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1420,15 +1447,16 @@ void ws_audio_readState(int fp)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_writeState(int fp)
 {
+#if 0
    int32_t lpdwPosition;
    int32_t lpdwFrequency;
    uint16_t lpnVolume;
    uint16_t lpnPanning;
    int8_t lpnStatus;
 
-   write(fp,&PCMPos,sizeof(DWORD));
-   write(fp,&TickZ,sizeof(DWORD));
-   write(fp,&PcmCount,sizeof(DWORD));
+   write(fp,&PCMPos,sizeof(uint32_t));
+   write(fp,&TickZ,sizeof(uint32_t));
+   write(fp,&PcmCount,sizeof(uint32_t));
    write(fp,&WaveMap,sizeof(int));
    write(fp,&ChPerInit,sizeof(int));
    write(fp,&SwpTime,sizeof(int));
@@ -1483,4 +1511,5 @@ void ws_audio_writeState(int fp)
    write(fp,&lpnVolume,sizeof(unsigned int));
    write(fp,&lpnPanning,sizeof(unsigned int));
    write(fp,&lpnStatus,sizeof(int));
+#endif
 }
