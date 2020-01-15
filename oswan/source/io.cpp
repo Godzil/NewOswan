@@ -998,21 +998,92 @@ void cpu_writeport(DWORD port,BYTE value)
       //fprintf(log_get(),"WriteIO(%02X, %02X) [%04X:%04Xh];\n",port, value, I.sregs[CS], I.ip);
       break;
 
-   case 0xc4:
-      w1=(((((WORD)ws_ioRam[0xc7])<<8)|((WORD)ws_ioRam[0xc6]))<<1)&externalEepromAddressMask;
-      externalEeprom[w1]=value;
-      fprintf(log_get(),"WriteIO(%02X, %02X) [%04X:%04Xh];\n",port, value, I.sregs[CS], I.ip);
-      return;
+   /* Cart EEPROM */
+   case 0xC4: /* Data High */
+       cee_Databuffer = cee_Databuffer & 0xFF00;
+       cee_Databuffer = cee_Databuffer | (value);
+       break;
 
-   case 0xc5:
-      w1=(((((WORD)ws_ioRam[0xc7])<<8)|((WORD)ws_ioRam[0xc6]))<<1)&externalEepromAddressMask;
-      externalEeprom[w1+1]=value;
-      return;
+   case 0xC5: /* Data High */
+       cee_Databuffer = cee_Databuffer & 0x00FF;
+       cee_Databuffer = cee_Databuffer | (value << 8);
+       break;
 
-   case 0xC6:
-   case 0xC7:
-   case 0xC8:
-      break;
+   case 0xC6: /* Address Low */
+   case 0xC7: /* Address High */
+       break;
+
+   case 0xC8: /* Command / Status */
+   {
+       uint16_t address, command, subcmd; /*, start;*/
+
+       cee_SelAddress = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
+
+       /* S CC aaAAAA */
+       //start = (cee_SelAddress >> 8) & 0x01;
+       command = (cee_SelAddress >> 6) & 0x3;
+       address = cee_SelAddress & 0x3F;
+       subcmd = (cee_SelAddress >> 4) & 0x03;
+
+
+       if (command == EEPROM_SUBCOMMAND)
+       {
+           command = EEPROM_WRITEDISABLE + subcmd;
+       }
+
+       printf("CEEP: RA:%04X RD:%04X A:%03X C:%s", cee_SelAddress, cee_Databuffer, address, eii_CommandName[command]);
+
+       if (value & 0x40)
+       {
+           /* Sub command */
+           printf(" - Sub");
+           if (command == EEPROM_WRITEENABLE)
+           {
+               printf(" Write Enable\n");
+               cee_WriteEnable = true;
+           }
+           else if (command == EEPROM_WRITEDISABLE)
+           {
+               printf(" Write Disable\n");
+               cee_WriteEnable = false;
+           }
+           else if (command == EEPROM_ERASEALL)
+           {
+               printf(" Erase All\n");
+               /* Nothing here at the moment */
+           }
+           else
+           {
+               printf(" Write All?\n");
+           }
+       }
+       else if (value & 0x20)
+       {
+           /* Write */
+           printf(" - Write?");
+           if (cee_WriteEnable)
+           {
+               printf(" Yes : %04X\n", cee_Databuffer);
+               externalEeprom[address] = cee_Databuffer;
+           }
+           else
+           {
+               printf(" No\n");
+           }
+       }
+       else if (value & 0x10)
+       {
+           /* Read */
+           printf(" - Read");
+           cee_Databuffer = externalEeprom[address];
+           printf(" Data : %04X\n", cee_Databuffer);
+       }
+       else
+       {
+           printf(" Unknown value: %02X\n", value);
+       }
+       fflush(stdout);
+   }
 
    case 0xca:
       if(value==0x15)
