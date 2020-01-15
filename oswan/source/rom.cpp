@@ -146,9 +146,8 @@ void	ws_rom_dumpInfo(uint8 *wsrom, uint32 romSize)
 ////////////////////////////////////////////////////////////////////////////////
 ws_romHeaderStruct		*ws_rom_getHeader(uint8 *wsrom, uint32 wsromSize)
 {
-   ws_romHeaderStruct *wsromHeader=(ws_romHeaderStruct *)malloc(sizeof(ws_romHeaderStruct));
+    ws_romHeaderStruct *wsromHeader = (ws_romHeaderStruct *)(wsrom + wsromSize - 10);
 
-   memcpy(wsromHeader,wsrom+(wsromSize-10),10);
    return(wsromHeader);
 }
 ////////////////////////////////////////////////////////////////////////////////
