@@ -30,4 +30,9 @@ int		ws_loadState(char *statepath);
 int		ws_saveState(char *statepath);
 void	ws_done(void);
 
+extern char *ws_sram_path;
+extern char *ws_ieep_path;
+extern char *ws_rom_path;
+
+
 #endif

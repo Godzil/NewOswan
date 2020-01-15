@@ -329,8 +329,6 @@ void ws_memory_init(uint8 *rom, uint32 wsRomSize)
    ws_romHeader=ws_rom_getHeader(ws_rom,romSize);
    ws_rom_checksum=ws_romHeader->checksum;
    internalRam=(uint8*)malloc(0x10000);
-   ws_staticRam=(uint8*)malloc(0x10000);
-   externalEeprom=(uint8*)malloc(131072);//ws_rom_eepromSize(ws_rom,romSize));
    sramAddressMask=ws_rom_sramSize(ws_rom,romSize)-1;
    externalEepromAddressMask=ws_rom_eepromSize(ws_rom,romSize)-1;
 
@@ -401,9 +399,9 @@ void ws_memory_reset(void)
 void ws_memory_done(void)
 {
    //free(ws_rom);
-   free(ws_staticRam);
+   //free(ws_staticRam);
    free(internalRam);
-   free(externalEeprom);
+   //free(externalEeprom);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -450,42 +448,3 @@ uint16   memory_getRomCrc(void)
 {
    return(ws_rom_checksum);
 }
-
-
-void ws_sram_load(char *path)
-{
-   FILE *f;
-   //size_t read;
-
-   f = fopen(path, "r");
-
-   if (NULL == f)
-   {
-      memset(ws_staticRam, 0, 0x10000);
-      return;
-   }
-
-   /*read = */fread(ws_staticRam, 1, 0x8000, f);
-   //fprintf(log_get(), "read 0x%x (of 0x%x?) bytes of save ram from %s\n", read, ws_rom_sramSize(ws_rom, romSize), path);
-   fclose(f);
-}
-
-void ws_sram_save(char *path)
-{
-   FILE *f;
-   //size_t wrote;
-
-   f = fopen(path, "wb");
-
-   if (NULL == f)
-   {
-      fprintf(log_get(), "error opening %s for writing save ram. (%s)\n", path, strerror(errno));
-      return;
-   }
-
-   /*wrote = */fwrite(ws_staticRam, 1, 0x8000, f);
-   fflush(f);
-   //fprintf(log_get(), "wrote 0x%x bytes of save ram to %s\n", wrote, path);
-   fclose(f);
-}
-

@@ -54,6 +54,8 @@ uint32	ws_cyclesByLine=0;
 uint32	vblank_count=0;
 
 char *ws_sram_path = NULL;
+char *ws_ieep_path = NULL;
+char *ws_rom_path  = NULL;
 extern int ws_sram_dirty;
 extern int ws_gpu_forceColorSystemBool;
 extern int ws_gpu_forceMonoSystemBool;
@@ -72,8 +74,8 @@ extern int ws_gpu_forceMonoSystemBool;
 void ws_patchRom(void)
 {
 
-   uint8	*rom=memory_getRom();
-   uint32	romSize=memory_getRomSize();
+   uint8_t	*rom=memory_getRom();
+   uint32_t	romSize=memory_getRomSize();
 
    fprintf(log_get(),"developper Id: 0x%.2x\nGame Id: 0x%.2x\n",rom[romSize-10],rom[romSize-8]);
 
@@ -111,8 +113,8 @@ void ws_patchRom(void)
 ////////////////////////////////////////////////////////////////////////////////
 int ws_init(char *rompath)
 {
-   uint8	*rom;
-   uint32	romSize;
+   uint8_t	*rom;
+   uint32_t	romSize;
 
    if ((rom=ws_rom_load(rompath,&romSize))==NULL)
    {
@@ -133,9 +135,31 @@ int ws_init(char *rompath)
       }
    }
 
-   ws_memory_init(rom,romSize);
+   ws_memory_init(rom, romSize);
    ws_patchRom();
-   ws_sram_load(ws_sram_path);
+   ws_staticRam = (uint8_t *)load_file(ws_ieep_path);
+   if (ws_staticRam == NULL)
+   {
+      ws_staticRam = (uint8_t *)create_file(ws_sram_path, 0x10000);
+   }
+
+   if (ws_staticRam == NULL)
+   {
+      printf("Card SRAM load error!\n");
+      return 0;
+   }
+
+   externalEeprom = (uint8_t *)load_file(ws_ieep_path);
+   if (externalEeprom == NULL)
+   {
+      externalEeprom = (uint8_t *)create_file(ws_ieep_path, 0x100000);
+   }
+   if (externalEeprom == NULL)
+   {
+      printf("Card EEPROM load error!\n");
+      return 0;
+   }
+
    ws_io_init();
    ws_audio_init();
    ws_gpu_init();
@@ -274,7 +298,7 @@ int ws_executeLine(int16 *framebuffer, int renderLine)
 
    if (drawWholeScreen && ws_sram_dirty)
    {
-      ws_sram_save(ws_sram_path);
+      //ws_sram_save(ws_sram_path);
       ws_sram_dirty = 0;
    }
 
