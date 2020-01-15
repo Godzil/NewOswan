@@ -30,15 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/*
-#define UINT8 unsigned char
-#define UINT16 unsigned short
-#define UINT32 unsigned int
-#define INT8 signed char
-#define INT16 signed short
-#define INT32 signed int
-*/
-
 #include "source/types.h"
 
 #include "nec.h"

@@ -189,6 +189,7 @@ BYTE cpu_readmem20(DWORD addr)
       temp &= (romSize - 1);
       return ws_rom[temp];
    case 3:
+      // Bank 3
       hwReg = ws_ioRam[0xC3];
       temp = hwReg << 16;
       temp += offset;
@@ -383,7 +384,6 @@ void ws_memory_init(uint8 *rom, uint32 wsRomSize)
 void ws_memory_reset(void)
 {
    memset(internalRam,0,0x10000);
-   //memset(ws_staticRam,0,0x10000); // should the sram really be cleared? ...
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -398,10 +398,7 @@ void ws_memory_reset(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_memory_done(void)
 {
-   //free(ws_rom);
-   //free(ws_staticRam);
    free(internalRam);
-   //free(externalEeprom);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //

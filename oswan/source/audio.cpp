@@ -28,9 +28,6 @@
 #include "io.h"
 #include "audio.h"
 
-// seal's retarded definitions conflict with types.h
-#undef DWORD
-
 #include <audio.h>
 
 #define	SNDP	ws_ioRam[0x80]
@@ -193,8 +190,6 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
 {
    Uint32 n,i,j,k,b;
 
-   //printf("0x%2x <- 0x%2x\n", port, (Uint32)value);
-
    ws_ioRam[port]=value;
 
    switch (port)
@@ -255,14 +250,10 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
       break;
 
    case 0x88:
-      dbgprintf("0x88 <- 0x%2x\n", value);
-      // fflush(stdout);
       ws_audio_set_channel_pan(0,(value&0xF0)>>4,value&0x0F);
       break;
 
    case 0x89:
-      dbgprintf("0x89 <- 0x%2x\n", value);
-      // fflush(stdout);
       ws_audio_set_channel_pan(1,(value&0xF0)>>4,value&0x0F);
       break;
 
@@ -280,14 +271,10 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
       break;
 
    case 0x8D:
-      //SwpTime=(((unsigned int)value)+1)<<5;
       SwpTime=(((unsigned int)value)+1)<<5;
       break;
 
    case 0x8E:
-      dbgprintf("0x8E <- 0x%2x = %d %d %d %d %d %d %d %d \n", value, value & 0x80 ? 1 : 0, value & 0x40 ? 1 : 0, value & 0x20 ? 1 : 0, value & 0x10 ? 1 : 0, value & 8 ? 1 : 0, value & 4 ? 1 : 0, value & 2 ? 1 : 0, value & 1);
-
-      //fflush(stdout); /* ctl */
       if (value & 0x10)
       {
          ws_audio_set_channel_pdata(5,value&0x07);
@@ -304,16 +291,9 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
       break;
 
    case 0x90:
-      dbgprintf("0x90 <- 0x%2x = %d %d %d %d %d %d %d %d \n", value, value & 0x80 ? 1 : 0, value & 0x40 ? 1 : 0, value & 0x20 ? 1 : 0, value & 0x10 ? 1 : 0, value & 8 ? 1 : 0, value & 4 ? 1 : 0, value & 2 ? 1 : 0, value & 1);
-
-      //fflush(stdout); /* ctl */
-
       if (value&0x01)
       {
          ws_audio_play_channel(0);
-//					for(int ii=0;ii<32;ii++)
-//						fprintf(log_get(),"%02X ",PData[0][ii]);
-//					fprintf(log_get(),"\n");
       }
       else
       {
@@ -359,18 +339,6 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
       break;
 
    case 0x91:
-      /*				printf("Channels [ %c %c %c %c %c %c %c %c ]\n",
-      				       (value>>0)&1?'S':'M',
-      				       (value>>1)&1?'H':'l',
-      				       (value>>2)&1?'H':'l',
-      				       (value>>3)&1?'E':' ',
-      				       (value>>4)&1?'4':' ',
-      				       (value>>5)&1?'5':' ',
-      				       (value>>6)&1?'6':' ',
-      				       (value>>7)&1?'E':' ');
-      				//0x91 <- %x\n", value);
-      				fflush(stdout);*/
-      //MainVol=0;
       value|=0x80;
       HardVol = (value>>1)&0x3;
 
@@ -428,6 +396,9 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
 
       ws_audio_set_channel_pan(5,(value&0xF0)>>4,value&0x0F);
 
+      break;
+
+   case 0x9A:
       break;
    }
 }
@@ -589,7 +560,6 @@ int ws_audio_seal_init(void)
    }
 
    /* open audio device */
-   //info.nDeviceId = AUDIO_DEVICE_MAPPER;
    info.nDeviceId = 0;
    info.wFormat   = AUDIO_FORMAT_16BITS | AUDIO_FORMAT_STEREO; // | AUDIO_MIXER_BASS;
    info.nSampleRate = 44100;
@@ -920,8 +890,6 @@ void ws_audio_set_channel_frequency(int Channel,int Period)
    {
       ASetVoiceFrequency(ws_audio_pcm_voice[Channel],Freq);
    }
-
-//	fprintf(log_get(),"Frequency of Channel[%d] is %lu\n",Channel,Freq/32);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -945,11 +913,6 @@ void ws_audio_set_channel_volume(int Channel,int Vol)
 
    ChCurVol[Channel]=Vol;
 
-   //volume=TblChVol[ChCurVol[Channel]]+TblMainVol[MainVol];
-   /*	if (volume>10000) volume=10000;
-   	volume=((volume+10000)*0x3f)/20000;
-   	if(volume<-10000)
-       	volume=-10000;*/
    volume=(Vol+1)*(MainVol+1)*(HardVol+1)/16-1;
 
    if (Channel==5)
@@ -963,7 +926,6 @@ void ws_audio_set_channel_volume(int Channel,int Vol)
    else
    {
       ASetVoiceVolume(ws_audio_pcm_voice[Channel],volume);
-//		fprintf(log_get(),"set Channel[%d] volume to %02X (%02X*%02X)\n",Channel,volume,Vol,MainVol);
    }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -1093,8 +1055,6 @@ void ws_audio_set_channels_pbuf(int Addr,int Data)
 
    for(j=(Addr&0x0F)<<1; j<BUFSIZE; j+=32)
    {
-// 		PData[i][j]   = (unsigned char)(POFF+PDIV*((Data&0x0F)-7));
-//	  	PData[i][j+1] = (unsigned char)(POFF+PDIV*(((Data&0xF0)>>4)-7));
       PData[i][j] = (Data&0x0f)*17-128;
       PData[i][j+1] = ((Data>>4)&0x0f)*17-128;
    }
@@ -1192,7 +1152,6 @@ void ws_audio_set_pcm(int Data)
 {
    DWORD tick;
    PDataP[PCMPos++]=(unsigned char)(Data+128);
-   //tick=GetTickCount();
    tick=SDL_GetTicks();
    PcmCount++;
 
@@ -1228,9 +1187,7 @@ void ws_audio_set_pcm(int Data)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_flash_pcm(void)
 {
-   //int result;
-   //void *ptr1,*ptr2;
-   DWORD len1; //,len2;
+   DWORD len1;
 
    const DWORD WrPos[16]=
    {
@@ -1294,29 +1251,6 @@ void ws_audio_process(void)
    PCSRL=(Uint8)(i&0xFF);
    PCSRH=(Uint8)((i>>8)&0xFF);
 
-   /*if ((SDMACTL & 0x98) == 0x98)
-   { // Hyper voice
-     v = Page[SDMASB + b][SDMASA + index++];
-     if ((SDMASA + index) == 0)
-     {
-        b++;
-     }
-     if (v < 0x80)
-     {
-        v += 0x80;
-     }
-     else
-     {
-        v -= 0x80;
-     }
-     if (SDMACNT <= index)
-     {
-        index = 0;
-        b = 0;
-     }
-     return v;
-   }
-   else */
    if((SDMACTL&0x88)==0x80)
    {
       i=(SDMACH<<8)|SDMACL;

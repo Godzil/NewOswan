@@ -116,11 +116,6 @@ void ws_io_reset(void)
       ws_ioRam[i]= initialIoValue[i];
    }
 
-   /*for (i=0; i<0xc9; i++)
-   {
-      cpu_writeport(i,initialIoValue[i]);
-   }*/
-
    rtcDataRegisterReadCount=0;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -274,7 +269,7 @@ void check_serial_data()
       if(ws_ioRam[0xB2] & 0x04)
       {
          ws_ioRam[0xb6] &= ~ 0x04;
-         printf("INNNNNTTTT!!!!!!!");
+         printf("SERIAL INNNNNTTTT!!!!!!!");
          nec_int((ws_ioRam[0xb0]+3)*4);
       }
    }
@@ -333,11 +328,6 @@ BYTE cpu_readport(BYTE port)
    int w1,w2;
    BYTE retVal = 0;
 
-   /*if ((port >= 0xBA) && (port <= 0xBE))
-   {
-      printf("Reading IEEP %02X\n", port);
-   }*/
-
    if (port > 0x100)
    {
       port &= 0xFF;
@@ -378,15 +368,6 @@ BYTE cpu_readport(BYTE port)
       retVal = ws_audio_port_read(port);
       break;
 
-   //case 0xaa:   return 0xff;
-   /*case 0xb3:   // ???
-            if (ws_ioRam[0xb3]<0x80)
-               return 0;
-
-            if (ws_ioRam[0xb3]<0xc0)
-               return 0x84;
-
-            return 0xc4;*/
    case 0xb5:
       w1=ws_ioRam[0xb5];
 
@@ -394,7 +375,6 @@ BYTE cpu_readport(BYTE port)
       {
          w2=0x00;
          w2=(ws_key_start<<1)|(ws_key_button_a<<2)|(ws_key_button_b<<3);
-         //printf("2 - %02X\n", w2);
          retVal = (uint8)((w1&0xf0)|w2);
          break;
       }
@@ -403,7 +383,6 @@ BYTE cpu_readport(BYTE port)
       {
          w2=0x00;
          w2=(ws_key_x1<<0)|(ws_key_x2<<1)|(ws_key_x3<<2)|(ws_key_x4<<3);
-         //printf("2 - %02X\n", w2);
          retVal = (uint8)((w1&0xf0)|w2);
          break;
       }
@@ -412,7 +391,6 @@ BYTE cpu_readport(BYTE port)
       {
          w2=0x00;
          w2=(ws_key_y1<<0)|(ws_key_y2<<1)|(ws_key_y3<<2)|(ws_key_y4<<3);
-         //printf("1 - %02X\n", w2);
          retVal = (uint8)((w1&0xf0)|w2);
       }
 
@@ -617,19 +595,8 @@ exit:
 ////////////////////////////////////////////////////////////////////////////////
 void cpu_writeport(DWORD port,BYTE value)
 {
-   //unsigned short F0dbg = 0;
-   //int w1; //,w2;
    int unknown_io_port=0;
 
-   /*if ((port >= 0xBA) && (port <= 0xBE))
-   {
-      printf("Writing IEEP %02X <= %02X\n", port, value);
-   }*/
-
-   /*if ((ws_ioRam[port]==value) && (port < 0xF0) && ((port < 0xB0) || (port > 0xBF)) )
-   {
-      return;
-   }*/
 
    if (port > 0x100)
    {
@@ -644,6 +611,7 @@ void cpu_writeport(DWORD port,BYTE value)
    {
       value |= 0x01;
    }
+ 
    ws_ioRam[port]=value;
 
    switch (port)
@@ -812,14 +780,14 @@ void cpu_writeport(DWORD port,BYTE value)
    case 0x9E:
       ws_audio_port_write(port,value);
       break;
-
+      
    /* Hardware */
    case 0xA0:
       /* Force cart handshake to be set */
       ws_ioRam[port] |= 0x80;
       break;
 
-   /*Timers */
+   /* Timers */
    case 0xA2:
    case 0xA4:
    case 0xA5:
@@ -831,21 +799,19 @@ void cpu_writeport(DWORD port,BYTE value)
    case 0xAB:
       break;
 
+   
    /* Intc */
    case 0xB0:
    case 0xB2:
    case 0xB4:
    case 0xB6:
-      //fprintf(log_get(),"WriteIO(%02X, %02X);\n",port, value);
       break;
 
-
-
-      break;
    /* Serial */
    case 0xB1:
-      write_serial(value); /*printf("RS232 TX: %02X\n", value);*/
+      write_serial(value);
       break;
+   
    case 0xB3:
       printf(">>>>RS232STA: %02X [%c%c%cxx%c%c%c]\n", value,
              (value & 0x80)?'E':'d',
@@ -877,7 +843,6 @@ void cpu_writeport(DWORD port,BYTE value)
       break;
 
    /* Internal EEPROM */
-
    case 0xba: /* DATA Low */
       iee_Databuffer = iee_Databuffer & 0xFF00;
       iee_Databuffer = iee_Databuffer | (value);
@@ -894,7 +859,7 @@ void cpu_writeport(DWORD port,BYTE value)
 
    case 0xBE: /* Command / Status */
       {
-         uint16_t address, command, subcmd; /*, start;*/
+         uint16_t address, command, subcmd;
          
          iee_SelAddress = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
 
@@ -907,7 +872,6 @@ void cpu_writeport(DWORD port,BYTE value)
 
             */
             /* S CC aaAAAAAAAA */
-            //start = (iee_SelAddress >> 12) & 0x01;
             command = (iee_SelAddress >> 10) & 0x3;
             address = iee_SelAddress & 0x3FF;
             subcmd = (iee_SelAddress >> 8) & 0x03;
@@ -915,7 +879,6 @@ void cpu_writeport(DWORD port,BYTE value)
          else
          {
             /* S CC aaAAAA */
-            //start = (iee_SelAddress >> 8) & 0x01;
             command = (iee_SelAddress >> 6) & 0x3;
             address = iee_SelAddress & 0x3F;
             subcmd = (iee_SelAddress >> 4) & 0x03;
@@ -995,7 +958,6 @@ void cpu_writeport(DWORD port,BYTE value)
    case 0xC1:
    case 0xC2:
    case 0xC3:
-      //fprintf(log_get(),"WriteIO(%02X, %02X) [%04X:%04Xh];\n",port, value, I.sregs[CS], I.ip);
       break;
 
    /* Cart EEPROM */
@@ -1020,7 +982,6 @@ void cpu_writeport(DWORD port,BYTE value)
        cee_SelAddress = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
 
        /* S CC aaAAAA */
-       //start = (cee_SelAddress >> 8) & 0x01;
        command = (cee_SelAddress >> 6) & 0x3;
        address = cee_SelAddress & 0x3F;
        subcmd = (cee_SelAddress >> 4) & 0x03;
@@ -1121,13 +1082,8 @@ void cpu_writeport(DWORD port,BYTE value)
       fprintf(log_get(),"WriteIO(%02X, %02X) [%04X:%04Xh];\n",port, value, I.sregs[CS], I.ip);
    }
 
-   /*if (port >= 0xC0)
+   if (port >= 0xC4)
    {
      fprintf(log_get(),"WriteMBCIO(%02X, %02X);\n",port, value);
-   }*/
-
-// if ((ws_gpu_unknownPort)&&(unknown_io_port))
-// {
-//    fprintf(log_get(),"io: writing 0x%.2x to unknown port 0x%.2x\n",value,port);
-// }
+   }
 }

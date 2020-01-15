@@ -269,7 +269,6 @@ public:
          throw Error(SDL_GetError());
       }
 
-      //flags = (SDL_HWSURFACE|SDL_HWPALETTE|SDL_FULLSCREEN);
       flags = (SDL_HWSURFACE|SDL_HWPALETTE);
 
       if (fullscreen)

@@ -30,12 +30,6 @@
 #include "audio.h"
 #include "ws.h"
 
-#ifndef O_BINARY
-// silly windows systems with their CR/LF screwiness...
-#define O_BINARY 0
-#endif
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +50,6 @@ uint32	vblank_count=0;
 char *ws_sram_path = NULL;
 char *ws_ieep_path = NULL;
 char *ws_rom_path  = NULL;
-extern int ws_sram_dirty;
 extern int ws_gpu_forceColorSystemBool;
 extern int ws_gpu_forceMonoSystemBool;
 
@@ -78,21 +71,6 @@ void ws_patchRom(void)
    uint32_t	romSize=memory_getRomSize();
 
    fprintf(log_get(),"developper Id: 0x%.2x\nGame Id: 0x%.2x\n",rom[romSize-10],rom[romSize-8]);
-
-   /*
-   if((rom[romSize-10]==0x01)&&(rom[romSize-8]==0x27)) // Detective Conan
-   {
-   	// WS cpu is using cache/pipeline or
-   	//   there's protected ROM bank where
-   	//   pointing CS
-
-   	rom[0xfffe8]=0xea;
-   	rom[0xfffe9]=0x00;
-   	rom[0xfffea]=0x00;
-   	rom[0xfffeb]=0x00;
-   	rom[0xfffec]=0x20;
-
-   }*/
 
    if (!ws_cyclesByLine)
    {
@@ -137,6 +115,7 @@ int ws_init(char *rompath)
 
    ws_memory_init(rom, romSize);
    ws_patchRom();
+
    ws_staticRam = (uint8_t *)load_file(ws_ieep_path);
    if (ws_staticRam == NULL)
    {
@@ -286,7 +265,6 @@ int ws_executeLine(int16 *framebuffer, int renderLine)
 
          ws_ioRam[0xb6]&=~128;
          nec_int((ws_ioRam[0xb0]+7)*4);
-
       }
    }
 
@@ -294,12 +272,6 @@ int ws_executeLine(int16 *framebuffer, int renderLine)
    {
       ws_ioRam[0xb6]&=~16;
       nec_int((ws_ioRam[0xb0]+4)*4);
-   }
-
-   if (drawWholeScreen && ws_sram_dirty)
-   {
-      //ws_sram_save(ws_sram_path);
-      ws_sram_dirty = 0;
    }
 
    return(drawWholeScreen);

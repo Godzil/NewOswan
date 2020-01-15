@@ -16,7 +16,6 @@
 #define WS_SYSTEM_COLOR			1
 #define WS_SYSTEM_AUTODETECT    2
 
-// à supprimer !
 extern uint32	ws_cyclesByLine;
 
 int		ws_init(char *rompath);

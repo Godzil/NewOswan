@@ -140,14 +140,10 @@ int main(int argc, char *argv[])
 
    fprintf(log_get(),"Oswan-unix %s (built at: %s %s)\n",VERSION , __DATE__,__TIME__);
 
-   //ws_system = WS_SYSTEM_AUTODETECT;
    ws_system = WS_SYSTEM_COLOR;
 
    ws_rom_path = NULL;
-   /*gui_hInstance=hInstance;
-   gui_open();*/
 
-   // the hard-core UI, a command line:
    for (int n = 1; n < argc; ++n)
    {
       if (argv[n][0] == '-')
@@ -198,8 +194,7 @@ int main(int argc, char *argv[])
       if (!ws_rom_path)
       {
          app_gameRunning=0;
-         //gui_open();
-         exit(0); // nothing to wait for at the moment...
+         exit(0);
       }
 
       if (ws_rom_path)

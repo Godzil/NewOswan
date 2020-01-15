@@ -24,7 +24,9 @@ typedef struct
 
    INT32	SignVal;
    INT32  AuxVal, OverVal, ZeroVal, CarryVal, ParityVal; /* 0 or non-0 valued flags */
-   UINT8	TF, IF, DF, MF; 	/* 0 or 1 valued flags */	/* OB[19.07.99] added Mode Flag V30 */
+
+   UINT32	TF, IF, DF, MF; 	/* 0 or 1 valued flags */	/* OB[19.07.99] added Mode Flag V30 */
+
    UINT32	int_vector;
    UINT32	pending_irq;
    UINT32	nmi_state;

@@ -55,6 +55,5 @@ ws_romHeaderStruct	*ws_rom_getHeader(uint8 *wsrom, uint32 wsromSize);
 uint32				ws_rom_sramSize(uint8 *wsrom, uint32 wsromSize);
 uint32				ws_rom_eepromSize(uint8 *wsrom, uint32 wsromSize);
 
-
 #endif
 

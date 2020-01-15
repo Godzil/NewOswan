@@ -358,11 +358,6 @@ void ws_gpu_changeVideoMode(uint8 value)
    if (ws_videoMode != (value>>5))
    {
       ws_videoMode = value >> 5;
-//		if (ws_videoMode==4)
-//			ws_videoMode=2;
-
-      // mark all tiles dirty
-      //memset(wsc_modified_tile,0x01,1024);
       memset(ws_modified_tile,0x01,1024);
    }
 }
@@ -379,7 +374,6 @@ void ws_gpu_changeVideoMode(uint8 value)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_gpu_reset(void)
 {
-   //memset(wsc_modified_tile,0x01,1024);
    memset(ws_modified_tile,0x01,1024);
    ws_gpu_scanline=0;
    ws_gpu_changeVideoMode(0x00);
@@ -397,8 +391,7 @@ void ws_gpu_reset(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_gpu_clearCache(void)
 {
-   //memset(wsc_modified_tile,0x01,1024);
-   memset(ws_modified_tile,0x01,1024);
+    memset(ws_modified_tile,0x01,1024);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -680,8 +673,6 @@ void ws_drawClippedSpriteLine(int16 *framebuffer, uint16 scanline,
       return;
    }
 
-//	if (!((y+7<clip_y0)||(y>=clip_y1)))
-//		return;
    if(scanline>clip_y0 && scanline<clip_y1)
    {
       return;
@@ -1132,8 +1123,6 @@ void ws_gpu_renderScanline(int16 *framebuffer)
    {
       int ws_sprWindow_x0=ws_ioRam[0x0c];
       int ws_sprWindow_y0=ws_ioRam[0x0d];
-//      int ws_sprWindow_x1=ws_ioRam[0x0e];
-//      int ws_sprWindow_y1=ws_ioRam[0x0f];
 		int ws_sprWindow_x1=ws_sprWindow_x0+ws_ioRam[0x0e];
  		int ws_sprWindow_y1=ws_sprWindow_y0+ws_ioRam[0x0f];
       uint32	*ws_sprRamBase=(uint32*)(internalRam+(((uint32)ws_ioRam[0x04])<<9));
@@ -1173,13 +1162,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
    if (ws_ioRam[0x00]&0x02)
    {
       int ws_fgWindow_x0=ws_ioRam[0x08];
-      //int ws_fgWindow_y0=ws_ioRam[0x09];
       int ws_fgWindow_x1=ws_ioRam[0x0a];
-      //int ws_fgWindow_y1=ws_ioRam[0x0b];
       int ws_fgScroll_x=ws_ioRam[0x12];
       int ws_fgScroll_y=ws_ioRam[0x13];
 
-      int windowMode=ws_ioRam[0x00]&0x30;
+      int windowMode = ws_ioRam[0x00]&0x30;
 
       // seek to the first tile
       ws_fgScroll_y=(ws_fgScroll_y+ws_gpu_scanline)&0xff;
@@ -1205,8 +1192,12 @@ void ws_gpu_renderScanline(int16 *framebuffer)
             {
                uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                ws_currentTile++;
-               uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
-                                 tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
+               uint8	*ws_tileRow=ws_tileCache_getTileRow(
+                                 tileInfo&0x1ff, lineInTile,
+                                 tileInfo&0x8000,
+                                 tileInfo&0x4000,
+                                 tileInfo&0x2000);
+
                int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
                ws_tileRow+=columnInTile;
@@ -2096,8 +2087,6 @@ void ws_gpu_renderScanline(int16 *framebuffer)
       int ws_sprWindow_y0=ws_ioRam[0x0d];
       int ws_sprWindow_x1=ws_ioRam[0x0e];
       int ws_sprWindow_y1=ws_ioRam[0x0f];
-//		int ws_sprWindow_x1=ws_sprWindow_x0+ws_ioRam[0x0e];
-//		int ws_sprWindow_y1=ws_sprWindow_y0+ws_ioRam[0x0f];
       uint32	*ws_sprRamBase=(uint32*)(internalRam+(((uint32)ws_ioRam[0x04])<<9));
 
       // seek to first sprite
