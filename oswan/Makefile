@@ -1,11 +1,11 @@
 
 wonderswan_CXX_SRCS   = main.cpp \
-			source/2xSaI.cpp \
 			source/audio.cpp \
 			source/gpu.cpp \
 			source/io.cpp \
 			source/log.cpp \
 			source/memory.cpp \
+			source/emulate.cpp \
 			source/rom.cpp \
 			source/ws.cpp \
 			source/nec/nec.cpp
@@ -32,8 +32,7 @@ CLEAN_FILES = wonderswan
 
 .SUFFIXES: .cpp 
 
-main.o: main.cpp source/filters/2xsai.h source/filters/doubled.h source/filters/filter_partA.h source/filters/filter_partB.h source/filters/filter_partC.h source/filters/filter_partD.h source/filters/filter_partE.h source/filters/halfscanlines.h source/filters/interpolate.h source/filters/scanlines.h source/filters/special.h source/filters/standard.h source/filters/super2xsai.h source/filters/supereagle.h source/SDLptc.h
-	$(CXX) -c $(ALLCXXFLAGS) -o $@ $<
+main.o: main.cpp
 
 .c.o:
 	$(CC) -c $(ALLCFLAGS) -o $@ $<

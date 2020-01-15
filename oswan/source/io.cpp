@@ -28,9 +28,8 @@
 #include "audio.h"
 #include "memory.h"
 
-extern uint8 *externalEeprom;
-extern uint32 externalEepromAddressMask;
-extern uint32 romAddressMask;
+extern uint8_t *externalEeprom;
+extern uint32_t romAddressMask;
 extern uint16_t *internalEeprom;
 extern nec_Regs I;
 
@@ -63,22 +62,26 @@ uint16_t iee_SelAddress = 0;
 uint16_t iee_Databuffer = 0;
 uint8_t iee_Mode = EEPROM_READ;
 
+uint8_t cee_WriteEnable = true;
+uint16_t cee_SelAddress = 0;
+uint16_t cee_Databuffer = 0;
+uint8_t cee_Mode = EEPROM_READ;
 
 
-uint8 *ws_ioRam=NULL;
+uint8_t *ws_ioRam=NULL;
 
-uint8 ws_key_start;
-uint8 ws_key_x4;
-uint8 ws_key_x2;
-uint8 ws_key_x1;
-uint8 ws_key_x3;
-uint8 ws_key_y4;
-uint8 ws_key_y2;
-uint8 ws_key_y1;
-uint8 ws_key_y3;
-uint8 ws_key_button_a;
-uint8 ws_key_button_b;
-uint8 ws_key_flipped;
+uint8_t ws_key_start;
+uint8_t ws_key_x4;
+uint8_t ws_key_x2;
+uint8_t ws_key_x1;
+uint8_t ws_key_x3;
+uint8_t ws_key_y4;
+uint8_t ws_key_y2;
+uint8_t ws_key_y1;
+uint8_t ws_key_y3;
+uint8_t ws_key_button_a;
+uint8_t ws_key_button_b;
+uint8_t ws_key_flipped;
 
 int      rtcDataRegisterReadCount=0;
 
@@ -372,7 +375,8 @@ BYTE cpu_readport(BYTE port)
    case 0x92:
    case 0x93:
    case 0x94:
-      return(ws_audio_port_read(port));
+      retVal = ws_audio_port_read(port);
+      break;
 
    //case 0xaa:   return 0xff;
    /*case 0xb3:   // ???
@@ -391,7 +395,8 @@ BYTE cpu_readport(BYTE port)
          w2=0x00;
          w2=(ws_key_start<<1)|(ws_key_button_a<<2)|(ws_key_button_b<<3);
          //printf("2 - %02X\n", w2);
-         return (uint8)((w1&0xf0)|w2);
+         retVal = (uint8)((w1&0xf0)|w2);
+         break;
       }
 
       if(w1&0x20)
@@ -399,7 +404,8 @@ BYTE cpu_readport(BYTE port)
          w2=0x00;
          w2=(ws_key_x1<<0)|(ws_key_x2<<1)|(ws_key_x3<<2)|(ws_key_x4<<3);
          //printf("2 - %02X\n", w2);
-         return (uint8)((w1&0xf0)|w2);
+         retVal = (uint8)((w1&0xf0)|w2);
+         break;
       }
 
       if(w1&0x10)
@@ -407,7 +413,7 @@ BYTE cpu_readport(BYTE port)
          w2=0x00;
          w2=(ws_key_y1<<0)|(ws_key_y2<<1)|(ws_key_y3<<2)|(ws_key_y4<<3);
          //printf("1 - %02X\n", w2);
-         return (uint8)((w1&0xf0)|w2);
+         retVal = (uint8)((w1&0xf0)|w2);
       }
 
       break;
@@ -417,57 +423,58 @@ BYTE cpu_readport(BYTE port)
       // ack eeprom write
       if(ws_ioRam[0xbe]&0x20)
       {
-         return ws_ioRam[0xbe]|2;
+         retVal = ws_ioRam[0xbe]|2;
+         break;
       }
 
       // ack eeprom read
       if(ws_ioRam[0xbe]&0x10)
       {
-         return ws_ioRam[0xbe]|1;
+         retVal = ws_ioRam[0xbe]|1;
+         break;
       }
 
       // else ack both
-      return ws_ioRam[0xbe]|3;
+      retVal = ws_ioRam[0xbe]|3;
+      break;
 
    case 0xba:  // eeprom even byte read
-      return iee_Databuffer & 0x00FF;
+      retVal = iee_Databuffer & 0x00FF;
+      break;
 
    case 0xbb:  // eeprom odd byte read
-      return (iee_Databuffer & 0xFF00) >> 8;
+      retVal = (iee_Databuffer & 0xFF00) >> 8;
+      break;
 
    case 0xc0 : // ???
       retVal = ((ws_ioRam[0xc0]&0xf)|0x20);
       goto exit;
 
-   case 0xc4:  // external eeprom even byte read
-      w1=(((((WORD)ws_ioRam[0xc7])<<8)|((WORD)ws_ioRam[0xc6]))<<1)&(externalEepromAddressMask);
-      retVal =  externalEeprom[w1];
-      goto exit;
 
-   case 0xc5:  // external eeprom odd byte read
-      w1=(((((WORD)ws_ioRam[0xc7])<<8)|((WORD)ws_ioRam[0xc6]))<<1)&(externalEepromAddressMask);
-      retVal =  externalEeprom[w1+1];
-      goto exit;
+   case 0xC8:
+       // ack eeprom write
+       if(ws_ioRam[0xbe]&0x20)
+       {
+           retVal = ws_ioRam[0xbe]|2;
+           break;
+       }
 
-   case 0xc8:  // external eeprom status/command register
+       // ack eeprom read
+       if(ws_ioRam[0xbe]&0x10)
+       {
+           retVal = ws_ioRam[0xbe]|1;
+           break;
+       }
 
-      // ack eeprom write
-      if(ws_ioRam[0xc8]&0x20)
-      {
-         retVal =  ws_ioRam[0xc8]|2;
-         goto exit;
-      }
+       // else ack both
+       retVal = ws_ioRam[0xbe]|3;
+       break;
 
-      // ack eeprom read
-      if(ws_ioRam[0xc8]&0x10)
-      {
-         retVal = ws_ioRam[0xc8]|1;
-         goto exit;
-      }
+   case 0xC4:  // eeprom even byte read
+       return cee_Databuffer & 0x00FF;
 
-      // else ack both
-      retVal = ws_ioRam[0xc8]|3;
-      goto exit;
+   case 0xC5:  // eeprom odd byte read
+       return (cee_Databuffer & 0xFF00) >> 8;
 
    case 0xca : // RTC Command and status register
       // set ack to always 1
@@ -564,17 +571,35 @@ BYTE cpu_readport(BYTE port)
             );
       goto exit;
 
+   case 0xCC:
+   case 0xCD:
+      retVal = 0;
+      break;
+
    default:
+      retVal = ws_ioRam[port];
       if (port > 0xD0)
       {
          printf("ReadIO %02X <= %02X\n", port, retVal);
       }
+      break;
 
+   case 0xA0:
+   case 0xAA:
+   case 0xAB:
+   case 0xAC:
+   case 0xAD:
+      retVal = ws_gpu_port_read(port);
       break;
 
    }
 
-   retVal = ws_gpu_port_read(port);
+
+   if (port >= 0xC4)
+   {
+      printf("ReadMBCIO(%02X) <= %02X\n", port, retVal);
+   }
+
 
 exit:
    return retVal;
@@ -593,7 +618,7 @@ exit:
 void cpu_writeport(DWORD port,BYTE value)
 {
    //unsigned short F0dbg = 0;
-   int w1; //,w2;
+   //int w1; //,w2;
    int unknown_io_port=0;
 
    /*if ((port >= 0xBA) && (port <= 0xBE))
@@ -629,9 +654,6 @@ void cpu_writeport(DWORD port,BYTE value)
 
    case 0x04:
    case 0x07:
-      fprintf(log_get(),"WriteIO(%02X, %02X);\n",port, value);
-      break;
-
    case 0x01:
    case 0x02:
    case 0x03:

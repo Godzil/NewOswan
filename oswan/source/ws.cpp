@@ -353,10 +353,10 @@ void	ws_set_system(int system)
 int	ws_loadState(char *statepath)
 {
    fprintf(log_get(),"loading %s\n",statepath);
-   uint16	crc=memory_getRomCrc();
-   uint16	newCrc;
+   uint16_t	crc=memory_getRomCrc();
+   uint16_t	newCrc;
    unsigned	value;
-   uint8	ws_newVideoMode;
+   uint8_t	ws_newVideoMode;
 
    int fp = open(statepath,O_BINARY|O_RDONLY);
 
@@ -518,8 +518,8 @@ int	ws_saveState(char *statepath)
 ////////////////////////////////////////////////////////////////////////////////
 int ws_rotated(void)
 {
-   uint8	*rom=memory_getRom();
-   uint32	romSize=memory_getRomSize();
+   uint8_t	*rom=memory_getRom();
+   uint32_t	romSize=memory_getRomSize();
 
    return(rom[romSize-4]&1);
 }
