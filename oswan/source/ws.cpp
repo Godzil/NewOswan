@@ -354,7 +354,7 @@ int	ws_loadState(char *statepath)
    unsigned	value;
    uint8_t	ws_newVideoMode;
 
-   int fp = open(statepath,O_BINARY|O_RDONLY);
+   int fp = open(statepath, O_RDONLY);
 
    if (fp == -1)
    {
@@ -458,7 +458,7 @@ int	ws_saveState(char *statepath)
       }
    }
 
-   int	fp=open(newPath,O_BINARY|O_RDWR|O_CREAT);
+   int	fp=open(newPath, O_RDWR|O_CREAT);
    delete newPath;
 
    if (fp==-1)
