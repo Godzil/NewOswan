@@ -5,8 +5,19 @@
 *.bin
 *.wsc
 *~
-seal-hack/src/mp
-testserial
-wonderswan
 *.orig
 *.rej
+rom/
+.idea/
+*.zip
+*.sav
+*.iep
+*.tags
+*#
+*.bck
+*-
+
+# Executables:
+dumpinfo
+testserial
+wonderswan
