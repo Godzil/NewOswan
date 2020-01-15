@@ -1,13 +1,11 @@
 
 /* Some simple emulation classes to get PTC code running on SDL */
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "SDL.h"
-
-typedef Uint8 char8;
-typedef Sint32 int32;
 
 #define randomize()	srand(time(NULL))
 #define random(max)	(rand()%(max))
@@ -154,7 +152,7 @@ public:
       return surface->pitch;
    }
 
-   virtual void palette(int32 *pcolors)
+   virtual void palette(int32_t *pcolors)
    {
       SDL_Color colors[256];
 
@@ -262,7 +260,7 @@ public:
    }
    void open(const char *title, int width, int height, const Format &format)
    {
-      Uint32 flags;
+      uint32_t flags;
 
       if ( SDL_InitSubSystem(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK) < 0 )
       {

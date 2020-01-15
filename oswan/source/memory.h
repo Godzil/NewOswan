@@ -16,7 +16,7 @@ extern uint8_t	*ws_staticRam;
 extern uint8_t	*internalRam;
 extern uint8_t	*externalEeprom;
 
-void	ws_memory_init(uint8 *rom, uint32_t romSize);
+void	ws_memory_init(uint8_t *rom, uint32_t romSize);
 void	ws_memory_reset(void);
 uint8_t	*memory_getRom(void);
 uint32_t	memory_getRomSize(void);

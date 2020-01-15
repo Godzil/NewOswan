@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
@@ -133,7 +134,7 @@ void ws_io_init(void)
 {
    if (ws_ioRam==NULL)
    {
-      ws_ioRam=(uint8*)malloc(0x100);
+      ws_ioRam=(uint8_t*)malloc(0x100);
    }
 
    ws_io_reset();
@@ -323,10 +324,10 @@ void write_serial(unsigned char value)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-BYTE cpu_readport(BYTE port)
+uint8_t cpu_readport(uint8_t port)
 {
    int w1,w2;
-   BYTE retVal = 0;
+   uint8_t retVal = 0;
 
    if (port > 0x100)
    {
@@ -375,7 +376,7 @@ BYTE cpu_readport(BYTE port)
       {
          w2=0x00;
          w2=(ws_key_start<<1)|(ws_key_button_a<<2)|(ws_key_button_b<<3);
-         retVal = (uint8)((w1&0xf0)|w2);
+         retVal = (uint8_t)((w1&0xf0)|w2);
          break;
       }
 
@@ -383,7 +384,7 @@ BYTE cpu_readport(BYTE port)
       {
          w2=0x00;
          w2=(ws_key_x1<<0)|(ws_key_x2<<1)|(ws_key_x3<<2)|(ws_key_x4<<3);
-         retVal = (uint8)((w1&0xf0)|w2);
+         retVal = (uint8_t)((w1&0xf0)|w2);
          break;
       }
 
@@ -391,7 +392,7 @@ BYTE cpu_readport(BYTE port)
       {
          w2=0x00;
          w2=(ws_key_y1<<0)|(ws_key_y2<<1)|(ws_key_y3<<2)|(ws_key_y4<<3);
-         retVal = (uint8)((w1&0xf0)|w2);
+         retVal = (uint8_t)((w1&0xf0)|w2);
       }
 
       break;
@@ -593,7 +594,7 @@ exit:
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void cpu_writeport(DWORD port,BYTE value)
+void cpu_writeport(uint32_t port,uint8_t value)
 {
    int unknown_io_port=0;
 
@@ -708,9 +709,9 @@ void cpu_writeport(DWORD port,BYTE value)
       // bit 7 set to start dma transfer
       if(value&0x80)
       {
-         int dma_start = (((DWORD)ws_ioRam[0x41])<<8)|(((DWORD)ws_ioRam[0x40]))|(((DWORD)ws_ioRam[0x42])<<16);
-         int dma_end   = (((DWORD)ws_ioRam[0x45])<<8)|(((DWORD)ws_ioRam[0x44]))|(((DWORD)ws_ioRam[0x43])<<16);
-         int dma_size  = (((DWORD)ws_ioRam[0x47])<<8)|(((DWORD)ws_ioRam[0x46]));
+         int dma_start = (((uint32_t)ws_ioRam[0x41])<<8)|(((uint32_t)ws_ioRam[0x40]))|(((uint32_t)ws_ioRam[0x42])<<16);
+         int dma_end   = (((uint32_t)ws_ioRam[0x45])<<8)|(((uint32_t)ws_ioRam[0x44]))|(((uint32_t)ws_ioRam[0x43])<<16);
+         int dma_size  = (((uint32_t)ws_ioRam[0x47])<<8)|(((uint32_t)ws_ioRam[0x46]));
 
          for(int ix=0; ix<dma_size; ix++)
          {
@@ -719,10 +720,10 @@ void cpu_writeport(DWORD port,BYTE value)
 
          ws_ioRam[0x47]=0;
          ws_ioRam[0x46]=0;
-         ws_ioRam[0x41]=(BYTE)(dma_start>>8);
-         ws_ioRam[0x40]=(BYTE)(dma_start&0xff);
-         ws_ioRam[0x45]=(BYTE)(dma_end>>8);
-         ws_ioRam[0x44]=(BYTE)(dma_end&0xff);
+         ws_ioRam[0x41]=(uint8_t)(dma_start>>8);
+         ws_ioRam[0x40]=(uint8_t)(dma_start&0xff);
+         ws_ioRam[0x45]=(uint8_t)(dma_end>>8);
+         ws_ioRam[0x44]=(uint8_t)(dma_end&0xff);
          ws_ioRam[0x48]=0;
       }
 

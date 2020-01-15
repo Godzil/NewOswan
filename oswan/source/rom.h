@@ -12,8 +12,6 @@
 #ifndef __ROM_H__
 #define __ROM_H__
 
-#include "types.h"
-
 #define WS_SYSTEM_MONO			0
 #define WS_SYSTEM_COLOR			1
 
@@ -38,22 +36,22 @@
 
 typedef struct ws_romHeaderStruct
 {
-   uint8	developperId;
-   uint8	minimumSupportSystem;
-   uint8	cartId;
-   uint8	romSize;
-   uint8	eepromSize;
-   uint8	additionnalCapabilities;
-   uint8	realtimeClock;
-   uint16	checksum;
+   uint8_t	developperId;
+   uint8_t	minimumSupportSystem;
+   uint8_t	cartId;
+   uint8_t	romSize;
+   uint8_t	eepromSize;
+   uint8_t	additionnalCapabilities;
+   uint8_t	realtimeClock;
+   uint16_t	checksum;
 } ws_romHeaderStruct;
 
 
-uint8				*ws_rom_load(char *path, uint32 *romSize);
-void				ws_rom_dumpInfo(uint8 *wsrom, uint32 wsromSize);
-ws_romHeaderStruct	*ws_rom_getHeader(uint8 *wsrom, uint32 wsromSize);
-uint32				ws_rom_sramSize(uint8 *wsrom, uint32 wsromSize);
-uint32				ws_rom_eepromSize(uint8 *wsrom, uint32 wsromSize);
+uint8_t				*ws_rom_load(char *path, uint32_t *romSize);
+void				ws_rom_dumpInfo(uint8_t *wsrom, uint32_t wsromSize);
+ws_romHeaderStruct	*ws_rom_getHeader(uint8_t *wsrom, uint32_t wsromSize);
+uint32_t				ws_rom_sramSize(uint8_t *wsrom, uint32_t wsromSize);
+uint32_t				ws_rom_eepromSize(uint8_t *wsrom, uint32_t wsromSize);
 
 #endif
 

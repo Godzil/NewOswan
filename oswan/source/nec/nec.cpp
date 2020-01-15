@@ -29,8 +29,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#include "source/types.h"
+#include <stdint.h>
 
 #include "nec.h"
 #include "necintrf.h"
@@ -43,14 +42,13 @@ int nec_ICount;
 
 nec_Regs I;
 
-static UINT32 cpu_type;
-static UINT32 prefix_base;	/* base address of the latest prefix segment */
+static uint32_t cpu_type;
+static uint32_t prefix_base;	/* base address of the latest prefix segment */
 char seg_prefix;		/* prefix segment indicator */
 
 
 /* The interrupt number of a pending external interrupt pending NMI is 2.	*/
 /* For INTR interrupts, the level is caught on the bus during an INTA cycle */
-
 
 #include "necinstr.h"
 #include "necea.h"
@@ -58,7 +56,7 @@ char seg_prefix;		/* prefix segment indicator */
 
 static int no_interrupt;
 
-static UINT8 parity_table[256];
+static uint8_t parity_table[256];
 
 /***************************************************************************/
 
@@ -111,7 +109,7 @@ void dump_memory();
 
 void nec_int(uint16_t vector)
 {
-   DWORD dest_seg, dest_off;
+   uint32_t dest_seg, dest_off;
 
    if(I.IF)
    {
@@ -129,14 +127,14 @@ void nec_int(uint16_t vector)
 
       PUSH(I.sregs[CS]);
       PUSH(I.ip);
-      I.ip = (WORD)dest_off;
-      I.sregs[CS] = (WORD)dest_seg;
+      I.ip = (int16_t)dest_off;
+      I.sregs[CS] = (int16_t)dest_seg;
    }
 }
 
 static void nec_interrupt(uint32_t int_num, /*BOOLEAN*/ int md_flag)
 {
-   UINT32 dest_seg, dest_off;
+   uint32_t dest_seg, dest_off;
 
    if (int_num == UINT32_MAX)
    {
@@ -160,8 +158,8 @@ static void nec_interrupt(uint32_t int_num, /*BOOLEAN*/ int md_flag)
 
    PUSH(I.sregs[CS]);
    PUSH(I.ip);
-   I.ip = (WORD)dest_off;
-   I.sregs[CS] = (WORD)dest_seg;
+   I.ip = (int16_t)dest_off;
+   I.sregs[CS] = (int16_t)dest_seg;
 
 }
 
@@ -275,7 +273,7 @@ OP( 0x0e, i_push_cs  )
 }
 OP( 0x0f, i_pre_nec  )
 {
-   UINT32 ModRM, tmp, tmp2; /* pop cs at V30MZ? */
+   uint32_t ModRM, tmp, tmp2; /* pop cs at V30MZ? */
 
    switch (FETCH)
    {
@@ -1008,7 +1006,7 @@ OP( 0x61, i_popa  )
 /* BOUND */
 OP( 0x62, i_chkind  )
 {
-   UINT32 low,high,tmp;
+   uint32_t low,high,tmp;
    GetModRM;
    low = GetRMWord(ModRM);
    high= GetnextRMWord;
@@ -1026,8 +1024,8 @@ OP( 0x62, i_chkind  )
 /* OP 0x64 - 0x67 is nop at V30MZ */
 OP( 0x64, i_repnc  )
 {
-   UINT32 next = FETCHOP;
-   UINT16 c = I.regs.w[CW];
+   uint32_t next = FETCHOP;
+   uint16_t c = I.regs.w[CW];
 
    switch(next)   /* Segments */
    {
@@ -1253,8 +1251,8 @@ OP( 0x64, i_repnc  )
 
 OP( 0x65, i_repc  )
 {
-   UINT32 next = FETCHOP;
-   UINT16 c = I.regs.w[CW];
+   uint32_t next = FETCHOP;
+   uint16_t c = I.regs.w[CW];
 
    switch(next)   /* Segments */
    {
@@ -1480,35 +1478,35 @@ OP( 0x65, i_repc  )
 
 OP( 0x68, i_push_d16 )
 {
-   UINT32 tmp;
+   uint32_t tmp;
    FETCHWORD(tmp);
    PUSH(tmp);
    CLK(1);
 }
 OP( 0x69, i_imul_d16 )
 {
-   UINT32 tmp;
+   uint32_t tmp;
    DEF_r16w;
    FETCHWORD(tmp);
-   dst = (INT32)((INT16)src)*(INT32)((INT16)tmp);
-   I.CarryVal = I.OverVal = (((INT32)dst) >> 15 != 0) && (((INT32)dst) >> 15 != -1);
-   RegWord(ModRM)=(WORD)dst;
+   dst = (int32_t)((int16_t)src)*(int32_t)((int16_t)tmp);
+   I.CarryVal = I.OverVal = (((int32_t)dst) >> 15 != 0) && (((int32_t)dst) >> 15 != -1);
+   RegWord(ModRM)=(int16_t)dst;
    CLKM(4,3);
 }
 OP( 0x6a, i_push_d8  )
 {
-   UINT32 tmp = (WORD)((INT16)((INT8)FETCH));
+   uint32_t tmp = (int16_t)((int16_t)((int8_t)FETCH));
    PUSH(tmp);
    CLK(1);
 }
 OP( 0x6b, i_imul_d8  )
 {
-   UINT32 src2;
+   uint32_t src2;
    DEF_r16w;
-   src2= (WORD)((INT16)((INT8)FETCH));
-   dst = (INT32)((INT16)src)*(INT32)((INT16)src2);
-   I.CarryVal = I.OverVal = (((INT32)dst) >> 15 != 0) && (((INT32)dst) >> 15 != -1);
-   RegWord(ModRM)=(WORD)dst;
+   src2= (int16_t)((int16_t)((int8_t)FETCH));
+   dst = (int32_t)((int16_t)src)*(int32_t)((int16_t)src2);
+   I.CarryVal = I.OverVal = (((int32_t)dst) >> 15 != 0) && (((int32_t)dst) >> 15 != -1);
+   RegWord(ModRM)=(int16_t)dst;
    CLKM(4,3);
 }
 OP( 0x6c, i_insb     )
@@ -1621,7 +1619,7 @@ OP( 0x7f, i_jnle    )
 
 OP( 0x80, i_80pre   )
 {
-   UINT32 dst, src;
+   uint32_t dst, src;
    GetModRM;
    dst = GetRMByte(ModRM);
    src = FETCH;
@@ -1674,7 +1672,7 @@ OP( 0x80, i_80pre   )
 
 OP( 0x81, i_81pre   )
 {
-   UINT32 dst, src;
+   uint32_t dst, src;
    GetModRM;
    dst = GetRMWord(ModRM);
    src = FETCH;
@@ -1728,10 +1726,10 @@ OP( 0x81, i_81pre   )
 
 OP( 0x82, i_82pre   )
 {
-   UINT32 dst, src;
+   uint32_t dst, src;
    GetModRM;
    dst = GetRMByte(ModRM);
-   src = (BYTE)((INT8)FETCH);
+   src = (uint8_t)((int8_t)FETCH);
    CLKM(3,1)
 
    switch (ModRM & 0x38)
@@ -1781,10 +1779,10 @@ OP( 0x82, i_82pre   )
 
 OP( 0x83, i_83pre   )
 {
-   UINT32 dst, src;
+   uint32_t dst, src;
    GetModRM;
    dst = GetRMWord(ModRM);
-   src = (WORD)((INT16)((INT8)FETCH));
+   src = (int16_t)((int16_t)((int8_t)FETCH));
    CLKM(3,1)
 
    switch (ModRM & 0x38)
@@ -1861,7 +1859,7 @@ OP( 0x87, i_xchg_wr16 )
 
 OP( 0x88, i_mov_br8   )
 {
-   UINT8  src;
+   uint8_t  src;
    GetModRM;
    src = RegByte(ModRM);
    PutRMByte(ModRM,src);
@@ -1869,7 +1867,7 @@ OP( 0x88, i_mov_br8   )
 }
 OP( 0x89, i_mov_wr16  )
 {
-   UINT16 src;
+   uint16_t src;
    GetModRM;
    src = RegWord(ModRM);
    PutRMWord(ModRM,src);
@@ -1877,7 +1875,7 @@ OP( 0x89, i_mov_wr16  )
 }
 OP( 0x8a, i_mov_r8b   )
 {
-   UINT8  src;
+   uint8_t  src;
    GetModRM;
    src = GetRMByte(ModRM);
    RegByte(ModRM)=src;
@@ -1885,7 +1883,7 @@ OP( 0x8a, i_mov_r8b   )
 }
 OP( 0x8b, i_mov_r16w  )
 {
-   UINT16 src;
+   uint16_t src;
    GetModRM;
    src = GetRMWord(ModRM);
    RegWord(ModRM)=src;
@@ -1899,14 +1897,14 @@ OP( 0x8c, i_mov_wsreg )
 }
 OP( 0x8d, i_lea       )
 {
-   UINT16 ModRM = FETCH;
+   uint16_t ModRM = FETCH;
    (void)(*GetEA[ModRM])();
    RegWord(ModRM)=EO;
    CLK(1);
 }
 OP( 0x8e, i_mov_sregw )
 {
-   UINT16 src;
+   uint16_t src;
    GetModRM;
    src = GetRMWord(ModRM);
    CLKM(3,2);
@@ -1937,7 +1935,7 @@ OP( 0x8e, i_mov_sregw )
 }
 OP( 0x8f, i_popw )
 {
-   UINT16 tmp;
+   uint16_t tmp;
    GetModRM;
    POP(tmp);
    PutRMWord(ModRM,tmp);
@@ -2001,13 +1999,13 @@ OP( 0x99, i_cwd       )
 }
 OP( 0x9a, i_call_far  )
 {
-   UINT32 tmp, tmp2;
+   uint32_t tmp, tmp2;
    FETCHWORD(tmp);
    FETCHWORD(tmp2);
    PUSH(I.sregs[CS]);
    PUSH(I.ip);
-   I.ip = (WORD)tmp;
-   I.sregs[CS] = (WORD)tmp2;
+   I.ip = (int16_t)tmp;
+   I.sregs[CS] = (int16_t)tmp2;
    CLK(10);
 }
 OP( 0x9b, i_wait      ) { ; }
@@ -2018,14 +2016,14 @@ OP( 0x9c, i_pushf     )
 }
 OP( 0x9d, i_popf      )
 {
-   UINT32 tmp;
+   uint32_t tmp;
    POP(tmp);
    ExpandFlags(tmp);
    CLK(3);
 }
 OP( 0x9e, i_sahf      )
 {
-   UINT32 tmp = (CompressFlags() & 0xff00) | (I.regs.b[AH] & 0xd5);
+   uint32_t tmp = (CompressFlags() & 0xff00) | (I.regs.b[AH] & 0xd5);
    ExpandFlags(tmp);
    CLK(4);
 }
@@ -2037,14 +2035,14 @@ OP( 0x9f, i_lahf      )
 
 OP( 0xa0, i_mov_aldisp )
 {
-   UINT32 addr;
+   uint32_t addr;
    FETCHWORD(addr);
    I.regs.b[AL] = GetMemB(DS, addr);
    CLK(1);
 }
 OP( 0xa1, i_mov_axdisp )
 {
-   UINT32 addr;
+   uint32_t addr;
    FETCHWORD(addr);
    I.regs.b[AL] = GetMemB(DS, addr);
    I.regs.b[AH] = GetMemB(DS, (addr+1)&0xffff);
@@ -2052,14 +2050,14 @@ OP( 0xa1, i_mov_axdisp )
 }
 OP( 0xa2, i_mov_dispal )
 {
-   UINT32 addr;
+   uint32_t addr;
    FETCHWORD(addr);
    PutMemB(DS, addr, I.regs.b[AL]);
    CLK(1);
 }
 OP( 0xa3, i_mov_dispax )
 {
-   UINT32 addr;
+   uint32_t addr;
    FETCHWORD(addr);
    PutMemB(DS, addr, I.regs.b[AL]);
    PutMemB(DS, (addr+1)&0xffff, I.regs.b[AH]);
@@ -2067,7 +2065,7 @@ OP( 0xa3, i_mov_dispax )
 }
 OP( 0xa4, i_movsb      )
 {
-   UINT32 tmp = GetMemB(DS,I.regs.w[IX]);
+   uint32_t tmp = GetMemB(DS,I.regs.w[IX]);
    PutMemB(ES,I.regs.w[IY], tmp);
    I.regs.w[IY] += -2 * I.DF + 1;
    I.regs.w[IX] += -2 * I.DF + 1;
@@ -2075,7 +2073,7 @@ OP( 0xa4, i_movsb      )
 }
 OP( 0xa5, i_movsw      )
 {
-   UINT32 tmp = GetMemW(DS,I.regs.w[IX]);
+   uint32_t tmp = GetMemW(DS,I.regs.w[IX]);
    PutMemW(ES,I.regs.w[IY], tmp);
    I.regs.w[IY] += -4 * I.DF + 2;
    I.regs.w[IX] += -4 * I.DF + 2;
@@ -2083,8 +2081,8 @@ OP( 0xa5, i_movsw      )
 }
 OP( 0xa6, i_cmpsb      )
 {
-   UINT32 src = GetMemB(ES, I.regs.w[IY]);
-   UINT32 dst = GetMemB(DS, I.regs.w[IX]);
+   uint32_t src = GetMemB(ES, I.regs.w[IY]);
+   uint32_t dst = GetMemB(DS, I.regs.w[IX]);
    SUBB;
    I.regs.w[IY] += -2 * I.DF + 1;
    I.regs.w[IX] += -2 * I.DF + 1;
@@ -2092,8 +2090,8 @@ OP( 0xa6, i_cmpsb      )
 }
 OP( 0xa7, i_cmpsw      )
 {
-   UINT32 src = GetMemW(ES, I.regs.w[IY]);
-   UINT32 dst = GetMemW(DS, I.regs.w[IX]);
+   uint32_t src = GetMemW(ES, I.regs.w[IY]);
+   uint32_t dst = GetMemW(DS, I.regs.w[IX]);
    SUBW;
    I.regs.w[IY] += -4 * I.DF + 2;
    I.regs.w[IX] += -4 * I.DF + 2;
@@ -2138,16 +2136,16 @@ OP( 0xad, i_lodsw      )
 }
 OP( 0xae, i_scasb      )
 {
-   UINT32 src = GetMemB(ES, I.regs.w[IY]);
-   UINT32 dst = I.regs.b[AL];
+   uint32_t src = GetMemB(ES, I.regs.w[IY]);
+   uint32_t dst = I.regs.b[AL];
    SUBB;
    I.regs.w[IY] += -2 * I.DF + 1;
    CLK(4);
 }
 OP( 0xaf, i_scasw      )
 {
-   UINT32 src = GetMemW(ES, I.regs.w[IY]);
-   UINT32 dst = I.regs.w[AW];
+   uint32_t src = GetMemW(ES, I.regs.w[IY]);
+   uint32_t dst = I.regs.w[AW];
    SUBW;
    I.regs.w[IY] += -4 * I.DF + 2;
    CLK(4);
@@ -2245,8 +2243,8 @@ OP( 0xbf, i_mov_did16 )
 
 OP( 0xc0, i_rotshft_bd8 )
 {
-   UINT32 src, dst;
-   UINT8 c;
+   uint32_t src, dst;
+   uint8_t c;
    GetModRM;
    src = (uint32_t)GetRMByte(ModRM);
    dst=src;
@@ -2264,7 +2262,7 @@ OP( 0xc0, i_rotshft_bd8 )
          }
          while (c>0);
 
-         PutbackRMByte(ModRM,(BYTE)dst);
+         PutbackRMByte(ModRM,(uint8_t)dst);
          break;
 
       case 0x08:
@@ -2275,7 +2273,7 @@ OP( 0xc0, i_rotshft_bd8 )
          }
          while (c>0);
 
-         PutbackRMByte(ModRM,(BYTE)dst);
+         PutbackRMByte(ModRM,(uint8_t)dst);
          break;
 
       case 0x10:
@@ -2286,7 +2284,7 @@ OP( 0xc0, i_rotshft_bd8 )
          }
          while (c>0);
 
-         PutbackRMByte(ModRM,(BYTE)dst);
+         PutbackRMByte(ModRM,(uint8_t)dst);
          break;
 
       case 0x18:
@@ -2297,7 +2295,7 @@ OP( 0xc0, i_rotshft_bd8 )
          }
          while (c>0);
 
-         PutbackRMByte(ModRM,(BYTE)dst);
+         PutbackRMByte(ModRM,(uint8_t)dst);
          break;
 
       case 0x20:
@@ -2321,8 +2319,8 @@ OP( 0xc0, i_rotshft_bd8 )
 
 OP( 0xc1, i_rotshft_wd8 )
 {
-   UINT32 src, dst;
-   UINT8 c;
+   uint32_t src, dst;
+   uint8_t c;
    GetModRM;
    src = (uint32_t)GetRMWord(ModRM);
    dst=src;
@@ -2340,7 +2338,7 @@ OP( 0xc1, i_rotshft_wd8 )
          }
          while (c>0);
 
-         PutbackRMWord(ModRM,(WORD)dst);
+         PutbackRMWord(ModRM,(int16_t)dst);
          break;
 
       case 0x08:
@@ -2351,7 +2349,7 @@ OP( 0xc1, i_rotshft_wd8 )
          }
          while (c>0);
 
-         PutbackRMWord(ModRM,(WORD)dst);
+         PutbackRMWord(ModRM,(int16_t)dst);
          break;
 
       case 0x10:
@@ -2362,7 +2360,7 @@ OP( 0xc1, i_rotshft_wd8 )
          }
          while (c>0);
 
-         PutbackRMWord(ModRM,(WORD)dst);
+         PutbackRMWord(ModRM,(int16_t)dst);
          break;
 
       case 0x18:
@@ -2373,7 +2371,7 @@ OP( 0xc1, i_rotshft_wd8 )
          }
          while (c>0);
 
-         PutbackRMWord(ModRM,(WORD)dst);
+         PutbackRMWord(ModRM,(int16_t)dst);
          break;
 
       case 0x20:
@@ -2397,7 +2395,7 @@ OP( 0xc1, i_rotshft_wd8 )
 
 OP( 0xc2, i_ret_d16  )
 {
-   UINT32 count = FETCH;
+   uint32_t count = FETCH;
    count += FETCH << 8;
    POP(I.ip);
    I.regs.w[SP]+=count;
@@ -2411,7 +2409,7 @@ OP( 0xc3, i_ret      )
 OP( 0xc4, i_les_dw   )
 {
    GetModRM;
-   WORD tmp = GetRMWord(ModRM);
+   int16_t tmp = GetRMWord(ModRM);
    RegWord(ModRM)=tmp;
    I.sregs[ES] = GetnextRMWord;
    CLK(6);
@@ -2419,7 +2417,7 @@ OP( 0xc4, i_les_dw   )
 OP( 0xc5, i_lds_dw   )
 {
    GetModRM;
-   WORD tmp = GetRMWord(ModRM);
+   int16_t tmp = GetRMWord(ModRM);
    RegWord(ModRM)=tmp;
    I.sregs[DS] = GetnextRMWord;
    CLK(6);
@@ -2439,8 +2437,8 @@ OP( 0xc7, i_mov_wd16 )
 
 OP( 0xc8, i_enter )
 {
-   UINT32 nb = FETCH;
-   UINT32 i,level;
+   uint32_t nb = FETCH;
+   uint32_t i,level;
 
    CLK(19);
    nb += FETCH << 8;
@@ -2468,7 +2466,7 @@ OP( 0xc9, i_leave )
 }
 OP( 0xca, i_retf_d16  )
 {
-   UINT32 count = FETCH;
+   uint32_t count = FETCH;
    count += FETCH << 8;
    POP(I.ip);
    POP(I.sregs[CS]);
@@ -2513,9 +2511,9 @@ OP( 0xcf, i_iret      )
 
 OP( 0xd0, i_rotshft_b )
 {
-   UINT32 src, dst;
+   uint32_t src, dst;
    GetModRM;
-   src = (UINT32)GetRMByte(ModRM);
+   src = (uint32_t)GetRMByte(ModRM);
    dst=src;
    CLKM(3,1);
 
@@ -2523,25 +2521,25 @@ OP( 0xd0, i_rotshft_b )
    {
    case 0x00:
       ROL_BYTE;
-      PutbackRMByte(ModRM,(BYTE)dst);
+      PutbackRMByte(ModRM,(uint8_t)dst);
       I.OverVal = (src^dst)&0x80;
       break;
 
    case 0x08:
       ROR_BYTE;
-      PutbackRMByte(ModRM,(BYTE)dst);
+      PutbackRMByte(ModRM,(uint8_t)dst);
       I.OverVal = (src^dst)&0x80;
       break;
 
    case 0x10:
       ROLC_BYTE;
-      PutbackRMByte(ModRM,(BYTE)dst);
+      PutbackRMByte(ModRM,(uint8_t)dst);
       I.OverVal = (src^dst)&0x80;
       break;
 
    case 0x18:
       RORC_BYTE;
-      PutbackRMByte(ModRM,(BYTE)dst);
+      PutbackRMByte(ModRM,(uint8_t)dst);
       I.OverVal = (src^dst)&0x80;
       break;
 
@@ -2569,9 +2567,9 @@ OP( 0xd0, i_rotshft_b )
 
 OP( 0xd1, i_rotshft_w )
 {
-   UINT32 src, dst;
+   uint32_t src, dst;
    GetModRM;
-   src = (UINT32)GetRMWord(ModRM);
+   src = (uint32_t)GetRMWord(ModRM);
    dst=src;
    CLKM(3,1);
 
@@ -2579,25 +2577,25 @@ OP( 0xd1, i_rotshft_w )
    {
    case 0x00:
       ROL_WORD;
-      PutbackRMWord(ModRM,(WORD)dst);
+      PutbackRMWord(ModRM,(int16_t)dst);
       I.OverVal = (src^dst)&0x8000;
       break;
 
    case 0x08:
       ROR_WORD;
-      PutbackRMWord(ModRM,(WORD)dst);
+      PutbackRMWord(ModRM,(int16_t)dst);
       I.OverVal = (src^dst)&0x8000;
       break;
 
    case 0x10:
       ROLC_WORD;
-      PutbackRMWord(ModRM,(WORD)dst);
+      PutbackRMWord(ModRM,(int16_t)dst);
       I.OverVal = (src^dst)&0x8000;
       break;
 
    case 0x18:
       RORC_WORD;
-      PutbackRMWord(ModRM,(WORD)dst);
+      PutbackRMWord(ModRM,(int16_t)dst);
       I.OverVal = (src^dst)&0x8000;
       break;
 
@@ -2626,10 +2624,10 @@ OP( 0xd1, i_rotshft_w )
 
 OP( 0xd2, i_rotshft_bcl )
 {
-   UINT32 src, dst;
-   UINT8 c;
+   uint32_t src, dst;
+   uint8_t c;
    GetModRM;
-   src = (UINT32)GetRMByte(ModRM);
+   src = (uint32_t)GetRMByte(ModRM);
    dst=src;
    c=I.regs.b[CL];
    CLKM(5,3);
@@ -2646,7 +2644,7 @@ OP( 0xd2, i_rotshft_bcl )
          }
          while (c>0);
 
-         PutbackRMByte(ModRM,(BYTE)dst);
+         PutbackRMByte(ModRM,(uint8_t)dst);
          break;
 
       case 0x08:
@@ -2658,7 +2656,7 @@ OP( 0xd2, i_rotshft_bcl )
          }
          while (c>0);
 
-         PutbackRMByte(ModRM,(BYTE)dst);
+         PutbackRMByte(ModRM,(uint8_t)dst);
          break;
 
       case 0x10:
@@ -2670,7 +2668,7 @@ OP( 0xd2, i_rotshft_bcl )
          }
          while (c>0);
 
-         PutbackRMByte(ModRM,(BYTE)dst);
+         PutbackRMByte(ModRM,(uint8_t)dst);
          break;
 
       case 0x18:
@@ -2682,7 +2680,7 @@ OP( 0xd2, i_rotshft_bcl )
          }
          while (c>0);
 
-         PutbackRMByte(ModRM,(BYTE)dst);
+         PutbackRMByte(ModRM,(uint8_t)dst);
          break;
 
       case 0x20:
@@ -2706,10 +2704,10 @@ OP( 0xd2, i_rotshft_bcl )
 
 OP( 0xd3, i_rotshft_wcl )
 {
-   UINT32 src, dst;
-   UINT8 c;
+   uint32_t src, dst;
+   uint8_t c;
    GetModRM;
-   src = (UINT32)GetRMWord(ModRM);
+   src = (uint32_t)GetRMWord(ModRM);
    dst=src;
    c=I.regs.b[CL];
    c&=0x1f;
@@ -2726,7 +2724,7 @@ OP( 0xd3, i_rotshft_wcl )
          }
          while (c>0);
 
-         PutbackRMWord(ModRM,(WORD)dst);
+         PutbackRMWord(ModRM,(int16_t)dst);
          break;
 
       case 0x08:
@@ -2738,7 +2736,7 @@ OP( 0xd3, i_rotshft_wcl )
          }
          while (c>0);
 
-         PutbackRMWord(ModRM,(WORD)dst);
+         PutbackRMWord(ModRM,(int16_t)dst);
          break;
 
       case 0x10:
@@ -2750,7 +2748,7 @@ OP( 0xd3, i_rotshft_wcl )
          }
          while (c>0);
 
-         PutbackRMWord(ModRM,(WORD)dst);
+         PutbackRMWord(ModRM,(int16_t)dst);
          break;
 
       case 0x18:
@@ -2762,7 +2760,7 @@ OP( 0xd3, i_rotshft_wcl )
          }
          while (c>0);
 
-         PutbackRMWord(ModRM,(WORD)dst);
+         PutbackRMWord(ModRM,(int16_t)dst);
          break;
 
       case 0x20:
@@ -2786,14 +2784,14 @@ OP( 0xd3, i_rotshft_wcl )
 
 OP( 0xd4, i_aam    )
 {
-   /*UINT32 mult=FETCH; mult=0;*/ I.regs.b[AH] = I.regs.b[AL] / 10;
+   /*uint32_t mult=FETCH; mult=0;*/ I.regs.b[AH] = I.regs.b[AL] / 10;
    I.regs.b[AL] %= 10;
    SetSZPF_Word(I.regs.w[AW]);
    CLK(17);
 }
 OP( 0xd5, i_aad    )
 {
-   /*UINT32 mult=FETCH; mult=0;*/ I.regs.b[AL] = I.regs.b[AH] * 10 + I.regs.b[AL];
+   /*uint32_t mult=FETCH; mult=0;*/ I.regs.b[AL] = I.regs.b[AH] * 10 + I.regs.b[AL];
    I.regs.b[AH] = 0;
    SetSZPF_Byte(I.regs.b[AL]);
    CLK(6);
@@ -2805,7 +2803,7 @@ OP( 0xd6, i_setalc )
 }
 OP( 0xd7, i_trans  )
 {
-   UINT32 dest = (I.regs.w[BW]+I.regs.b[AL])&0xffff;
+   uint32_t dest = (I.regs.w[BW]+I.regs.b[AL])&0xffff;
    I.regs.b[AL] = GetMemB(DS, dest);
    CLK(5);
 }
@@ -2816,12 +2814,12 @@ OP( 0xd8, i_fpo    )
 
 OP( 0xe0, i_loopne )
 {
-   INT8 disp = (INT8)FETCH;
+   int8_t disp = (int8_t)FETCH;
    I.regs.w[CW]--;
 
    if (!ZF && I.regs.w[CW])
    {
-      I.ip = (WORD)(I.ip+disp);
+      I.ip = (int16_t)(I.ip+disp);
       CLK(6);
    }
    else
@@ -2831,12 +2829,12 @@ OP( 0xe0, i_loopne )
 }
 OP( 0xe1, i_loope  )
 {
-   INT8 disp = (INT8)FETCH;
+   int8_t disp = (int8_t)FETCH;
    I.regs.w[CW]--;
 
    if ( ZF && I.regs.w[CW])
    {
-      I.ip = (WORD)(I.ip+disp);
+      I.ip = (int16_t)(I.ip+disp);
       CLK(6);
    }
    else
@@ -2846,12 +2844,12 @@ OP( 0xe1, i_loope  )
 }
 OP( 0xe2, i_loop   )
 {
-   INT8 disp = (INT8)FETCH;
+   int8_t disp = (int8_t)FETCH;
    I.regs.w[CW]--;
 
    if (I.regs.w[CW])
    {
-      I.ip = (WORD)(I.ip+disp);
+      I.ip = (int16_t)(I.ip+disp);
       CLK(5);
    }
    else
@@ -2861,11 +2859,11 @@ OP( 0xe2, i_loop   )
 }
 OP( 0xe3, i_jcxz   )
 {
-   INT8 disp = (INT8)FETCH;
+   int8_t disp = (int8_t)FETCH;
 
    if (I.regs.w[CW] == 0)
    {
-      I.ip = (WORD)(I.ip+disp);
+      I.ip = (int16_t)(I.ip+disp);
       CLK(4);
    }
    else
@@ -2875,26 +2873,26 @@ OP( 0xe3, i_jcxz   )
 }
 OP( 0xe4, i_inal   )
 {
-   UINT8 port = FETCH;
+   uint8_t port = FETCH;
    I.regs.b[AL] = read_port(port);
    CLK(6);
 }
 OP( 0xe5, i_inax   )
 {
-   UINT8 port = FETCH;
+   uint8_t port = FETCH;
    I.regs.b[AL] = read_port(port);
    I.regs.b[AH] = read_port(port+1);
    CLK(6);
 }
 OP( 0xe6, i_outal  )
 {
-   UINT8 port = FETCH;
+   uint8_t port = FETCH;
    write_port(port, I.regs.b[AL]);
    CLK(6);
 }
 OP( 0xe7, i_outax  )
 {
-   UINT8 port = FETCH;
+   uint8_t port = FETCH;
    write_port(port, I.regs.b[AL]);
    write_port(port+1, I.regs.b[AH]);
    CLK(6);
@@ -2902,32 +2900,32 @@ OP( 0xe7, i_outax  )
 
 OP( 0xe8, i_call_d16 )
 {
-   UINT32 tmp;
+   uint32_t tmp;
    FETCHWORD(tmp);
    PUSH(I.ip);
-   I.ip = (WORD)(I.ip+(INT16)tmp);
+   I.ip = (int16_t)(I.ip+(int16_t)tmp);
    CLK(5);
 }
 OP( 0xe9, i_jmp_d16  )
 {
-   UINT32 tmp;
+   uint32_t tmp;
    FETCHWORD(tmp);
    //printf("@ %04X -> %04X\n", I.ip-3, tmp);
-   I.ip = (WORD)(I.ip+(INT16)tmp);
+   I.ip = (int16_t)(I.ip+(int16_t)tmp);
    CLK(4);
 }
 OP( 0xea, i_jmp_far  )
 {
-   UINT32 tmp,tmp1;
+   uint32_t tmp,tmp1;
    FETCHWORD(tmp);
    FETCHWORD(tmp1);
-   I.sregs[CS] = (WORD)tmp1;
-   I.ip = (WORD)tmp;
+   I.sregs[CS] = (int16_t)tmp1;
+   I.ip = (int16_t)tmp;
    CLK(7);
 }
 OP( 0xeb, i_jmp_d8   )
 {
-   int tmp = (int)((INT8)FETCH);
+   int tmp = (int)((int8_t)FETCH);
    CLK(4);
 
    if (tmp==-2 && no_interrupt==0 && nec_ICount>0)
@@ -2935,7 +2933,7 @@ OP( 0xeb, i_jmp_d8   )
       nec_ICount%=12;   /* cycle skip */
    }
 
-   I.ip = (WORD)(I.ip+tmp);
+   I.ip = (int16_t)(I.ip+tmp);
 }
 OP( 0xec, i_inaldx   )
 {
@@ -2944,7 +2942,7 @@ OP( 0xec, i_inaldx   )
 }
 OP( 0xed, i_inaxdx   )
 {
-   UINT32 port = I.regs.w[DW];
+   uint32_t port = I.regs.w[DW];
    I.regs.b[AL] = read_port(port);
    I.regs.b[AH] = read_port(port+1);
    CLK(6);
@@ -2956,7 +2954,7 @@ OP( 0xee, i_outdxal  )
 }
 OP( 0xef, i_outdxax  )
 {
-   UINT32 port = I.regs.w[DW];
+   uint32_t port = I.regs.w[DW];
    write_port(port, I.regs.b[AL]);
    write_port(port+1, I.regs.b[AH]);
    CLK(6);
@@ -2970,15 +2968,15 @@ OP( 0xf0, i_lock     )
 #define THROUGH 				\
 	if(nec_ICount<0){			\
 		if(seg_prefix)			\
-			I.ip-=(UINT16)3;	\
+			I.ip-=(uint16_t)3;	\
 		else					\
-			I.ip-=(UINT16)2;	\
+			I.ip-=(uint16_t)2;	\
 		break;}
 
 OP( 0xf2, i_repne    )
 {
-   UINT32 next = FETCHOP;
-   UINT16 c = I.regs.w[CW];
+   uint32_t next = FETCHOP;
+   uint16_t c = I.regs.w[CW];
 
    switch(next)   /* Segments */
    {
@@ -3211,8 +3209,8 @@ OP( 0xf2, i_repne    )
 }
 OP( 0xf3, i_repe     )
 {
-   UINT32 next = FETCHOP;
-   UINT16 c = I.regs.w[CW];
+   uint32_t next = FETCHOP;
+   uint16_t c = I.regs.w[CW];
 
    switch(next)   /* Segments */
    {
@@ -3480,9 +3478,9 @@ OP( 0xf5, i_cmc )
 }
 OP( 0xf6, i_f6pre )
 {
-   UINT32 tmp;
-   UINT32 uresult,uresult2;
-   INT32 result,result2;
+   uint32_t tmp;
+   uint32_t uresult,uresult2;
+   int32_t result,result2;
    GetModRM;
    tmp = GetRMByte(ModRM);
 
@@ -3513,14 +3511,14 @@ OP( 0xf6, i_f6pre )
 
    case 0x20:
       uresult = I.regs.b[AL]*tmp;
-      I.regs.w[AW]=(WORD)uresult;
+      I.regs.w[AW]=(int16_t)uresult;
       I.CarryVal=I.OverVal=(I.regs.b[AH]!=0);
       CLKM(4,3);
       break; /* MULU */
 
    case 0x28:
-      result = (INT16)((INT8)I.regs.b[AL])*(INT16)((INT8)tmp);
-      I.regs.w[AW]=(WORD)result;
+      result = (int16_t)((int8_t)I.regs.b[AL])*(int16_t)((int8_t)tmp);
+      I.regs.w[AW]=(int16_t)result;
       I.CarryVal=I.OverVal=(I.regs.b[AH]!=0);
       CLKM(4,3);
       break; /* MUL */
@@ -3555,9 +3553,9 @@ OP( 0xf6, i_f6pre )
 
 OP( 0xf7, i_f7pre   )
 {
-   UINT32 tmp,tmp2;
-   UINT32 uresult,uresult2;
-   INT32 result,result2;
+   uint32_t tmp,tmp2;
+   uint32_t uresult,uresult2;
+   int32_t result,result2;
    GetModRM;
    tmp = GetRMWord(ModRM);
 
@@ -3590,13 +3588,13 @@ OP( 0xf7, i_f7pre   )
    case 0x20:
       uresult = I.regs.w[AW]*tmp;
       I.regs.w[AW]=uresult&0xffff;
-      I.regs.w[DW]=((UINT32)uresult)>>16;
+      I.regs.w[DW]=((uint32_t)uresult)>>16;
       I.CarryVal=I.OverVal=(I.regs.w[DW]!=0);
       CLKM(4,3);
       break; /* MULU */
 
    case 0x28:
-      result = (INT32)((INT16)I.regs.w[AW])*(INT32)((INT16)tmp);
+      result = (int32_t)((int16_t)I.regs.w[AW])*(int32_t)((int16_t)tmp);
       I.regs.w[AW]=result&0xffff;
       I.regs.w[DW]=result>>16;
       I.CarryVal=I.OverVal=(I.regs.w[DW]!=0);
@@ -3664,7 +3662,7 @@ OP( 0xfd, i_std   )
 }
 OP( 0xfe, i_fepre )
 {
-   UINT32 tmp, tmp1;
+   uint32_t tmp, tmp1;
    GetModRM;
    tmp=GetRMByte(ModRM);
 
@@ -3675,7 +3673,7 @@ OP( 0xfe, i_fepre )
       I.OverVal = (tmp==0x7f);
       SetAF(tmp1,tmp,1);
       SetSZPF_Byte(tmp1);
-      PutbackRMByte(ModRM,(BYTE)tmp1);
+      PutbackRMByte(ModRM,(uint8_t)tmp1);
       CLKM(3,1);
       break; /* INC */
 
@@ -3684,14 +3682,14 @@ OP( 0xfe, i_fepre )
       I.OverVal = (tmp==0x80);
       SetAF(tmp1,tmp,1);
       SetSZPF_Byte(tmp1);
-      PutbackRMByte(ModRM,(BYTE)tmp1);
+      PutbackRMByte(ModRM,(uint8_t)tmp1);
       CLKM(3,1);
       break; /* DEC */
    }
 }
 OP( 0xff, i_ffpre )
 {
-   UINT32 tmp, tmp1;
+   uint32_t tmp, tmp1;
    GetModRM;
    tmp=GetRMWord(ModRM);
 
@@ -3702,7 +3700,7 @@ OP( 0xff, i_ffpre )
       I.OverVal = (tmp==0x7fff);
       SetAF(tmp1,tmp,1);
       SetSZPF_Word(tmp1);
-      PutbackRMWord(ModRM,(WORD)tmp1);
+      PutbackRMWord(ModRM,(int16_t)tmp1);
       CLKM(3,1);
       break; /* INC */
 
@@ -3711,13 +3709,13 @@ OP( 0xff, i_ffpre )
       I.OverVal = (tmp==0x8000);
       SetAF(tmp1,tmp,1);
       SetSZPF_Word(tmp1);
-      PutbackRMWord(ModRM,(WORD)tmp1);
+      PutbackRMWord(ModRM,(int16_t)tmp1);
       CLKM(3,1);
       break; /* DEC */
 
    case 0x10:
       PUSH(I.ip);
-      I.ip = (WORD)tmp;
+      I.ip = (int16_t)tmp;
       CLKM(6,5);
       break; /* CALL */
 

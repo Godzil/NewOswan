@@ -16,7 +16,6 @@
 #include <time.h>
 #include <unistd.h>
 #include "SDL.h"
-#include "source/types.h"
 #include "source/SDLptc.h"
 #include "source/log.h"
 #include "source/rom.h"

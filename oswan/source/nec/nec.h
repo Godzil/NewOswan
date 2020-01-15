@@ -12,25 +12,25 @@ typedef enum { AL,AH,CL,CH,DL,DH,BL,BH,SPL,SPH,BPL,BPH,IXL,IXH,IYL,IYH } BREGS;
 typedef union
 {
    /* eight general registers */
-   UINT16 w[8];    /* viewed as 16 bits registers */
-   UINT8  b[16];   /* or as 8 bit registers */
+   uint16_t w[8];    /* viewed as 16 bits registers */
+   uint8_t  b[16];   /* or as 8 bit registers */
 } necbasicregs;
 typedef struct
 {
    necbasicregs regs;
-   UINT16	sregs[4];
+   uint16_t	sregs[4];
 
-   UINT16	ip;
+   uint16_t	ip;
 
-   INT32	SignVal;
-   INT32  AuxVal, OverVal, ZeroVal, CarryVal, ParityVal; /* 0 or non-0 valued flags */
+   int32_t	SignVal;
+   int32_t  AuxVal, OverVal, ZeroVal, CarryVal, ParityVal; /* 0 or non-0 valued flags */
 
-   UINT32	TF, IF, DF, MF; 	/* 0 or 1 valued flags */	/* OB[19.07.99] added Mode Flag V30 */
+   uint32_t	TF, IF, DF, MF; 	/* 0 or 1 valued flags */	/* OB[19.07.99] added Mode Flag V30 */
 
-   UINT32	int_vector;
-   UINT32	pending_irq;
-   UINT32	nmi_state;
-   UINT32	irq_state;
+   uint32_t	int_vector;
+   uint32_t	pending_irq;
+   uint32_t	nmi_state;
+   uint32_t	irq_state;
    int     (*irq_callback)(int irqline);
 } nec_Regs;
 #pragma pack()
@@ -66,19 +66,19 @@ typedef struct
 #define SetZF(x)		(I.ZeroVal = (x))
 #define SetPF(x)		(I.ParityVal = (x))
 
-#define SetSZPF_Byte(x) (I.SignVal=I.ZeroVal=I.ParityVal=(INT8)(x))
-#define SetSZPF_Word(x) (I.SignVal=I.ZeroVal=I.ParityVal=(INT16)(x))
+#define SetSZPF_Byte(x) (I.SignVal=I.ZeroVal=I.ParityVal=(int8_t)(x))
+#define SetSZPF_Word(x) (I.SignVal=I.ZeroVal=I.ParityVal=(int16_t)(x))
 
 #define SetOFW_Add(x,y,z)	(I.OverVal = ((x) ^ (y)) & ((x) ^ (z)) & 0x8000)
 #define SetOFB_Add(x,y,z)	(I.OverVal = ((x) ^ (y)) & ((x) ^ (z)) & 0x80)
 #define SetOFW_Sub(x,y,z)	(I.OverVal = ((z) ^ (y)) & ((z) ^ (x)) & 0x8000)
 #define SetOFB_Sub(x,y,z)	(I.OverVal = ((z) ^ (y)) & ((z) ^ (x)) & 0x80)
 
-#define ADDB { UINT32 res=dst+src; SetCFB(res); SetOFB_Add(res,src,dst); SetAF(res,src,dst); SetSZPF_Byte(res); dst=(BYTE)res; }
-#define ADDW { UINT32 res=dst+src; SetCFW(res); SetOFW_Add(res,src,dst); SetAF(res,src,dst); SetSZPF_Word(res); dst=(WORD)res; }
+#define ADDB { uint32_t res=dst+src; SetCFB(res); SetOFB_Add(res,src,dst); SetAF(res,src,dst); SetSZPF_Byte(res); dst=(uint8_t)res; }
+#define ADDW { uint32_t res=dst+src; SetCFW(res); SetOFW_Add(res,src,dst); SetAF(res,src,dst); SetSZPF_Word(res); dst=(uint16_t)res; }
 
-#define SUBB { UINT32 res=dst-src; SetCFB(res); SetOFB_Sub(res,src,dst); SetAF(res,src,dst); SetSZPF_Byte(res); dst=(BYTE)res; }
-#define SUBW { UINT32 res=dst-src; SetCFW(res); SetOFW_Sub(res,src,dst); SetAF(res,src,dst); SetSZPF_Word(res); dst=(WORD)res; }
+#define SUBB { uint32_t res=dst-src; SetCFB(res); SetOFB_Sub(res,src,dst); SetAF(res,src,dst); SetSZPF_Byte(res); dst=(uint8_t)res; }
+#define SUBW { uint32_t res=dst-src; SetCFW(res); SetOFW_Sub(res,src,dst); SetAF(res,src,dst); SetSZPF_Word(res); dst=(uint16_t)res; }
 
 #define ORB dst|=src; I.CarryVal=I.OverVal=I.AuxVal=0; SetSZPF_Byte(dst)
 #define ORW dst|=src; I.CarryVal=I.OverVal=I.AuxVal=0; SetSZPF_Word(dst)
@@ -92,7 +92,7 @@ typedef struct
 #define CF		(I.CarryVal!=0)
 #define SF		(I.SignVal<0)
 #define ZF		(I.ZeroVal==0)
-#define PF		parity_table[(BYTE)I.ParityVal]
+#define PF		parity_table[(uint8_t)I.ParityVal]
 #define AF		(I.AuxVal!=0)
 #define OF		(I.OverVal!=0)
 #define MD		(I.MF!=0)
@@ -103,17 +103,17 @@ typedef struct
 
 #define DefaultBase(Seg) ((seg_prefix && (Seg==DS || Seg==SS)) ? prefix_base : I.sregs[Seg] << 4)
 
-#define GetMemB(Seg,Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (UINT8)cpu_readmem20((DefaultBase(Seg)+(Off))))
-#define GetMemW(Seg,Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (UINT16) cpu_readmem20((DefaultBase(Seg)+(Off))) + (cpu_readmem20((DefaultBase(Seg)+((Off)+1)))<<8) )
+#define GetMemB(Seg,Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint8_t)cpu_readmem20((DefaultBase(Seg)+(Off))))
+#define GetMemW(Seg,Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint16_t) cpu_readmem20((DefaultBase(Seg)+(Off))) + (cpu_readmem20((DefaultBase(Seg)+((Off)+1)))<<8) )
 
 #define PutMemB(Seg,Off,x) { /*nec_ICount-=((Off)&1)?1:0*/; cpu_writemem20((DefaultBase(Seg)+(Off)),(x)); }
-#define PutMemW(Seg,Off,x) { /*nec_ICount-=((Off)&1)?1:0*/; PutMemB(Seg,Off,(x)&0xff); PutMemB(Seg,(Off)+1,(BYTE)((x)>>8)); }
+#define PutMemW(Seg,Off,x) { /*nec_ICount-=((Off)&1)?1:0*/; PutMemB(Seg,Off,(x)&0xff); PutMemB(Seg,(Off)+1,(uint8_t)((x)>>8)); }
 
 /* Todo:  Remove these later - plus readword could overflow */
-#define ReadByte(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ (BYTE)cpu_readmem20((ea)))
+#define ReadByte(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ (uint8_t)cpu_readmem20((ea)))
 #define ReadWord(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ cpu_readmem20((ea))+(cpu_readmem20(((ea)+1))<<8))
 #define WriteByte(ea,val) { /*nec_ICount-=((ea)&1)?1:0*/; cpu_writemem20((ea),val); }
-#define WriteWord(ea,val) { /*nec_ICount-=((ea)&1)?1:0*/; cpu_writemem20((ea),(BYTE)(val)); cpu_writemem20(((ea)+1),(val)>>8); }
+#define WriteWord(ea,val) { /*nec_ICount-=((ea)&1)?1:0*/; cpu_writemem20((ea),(uint8_t)(val)); cpu_writemem20(((ea)+1),(val)>>8); }
 
 #define read_port(port) cpu_readport(port)
 #define write_port(port,val) cpu_writeport(port,val)
@@ -123,10 +123,10 @@ typedef struct
 #define FETCHWORD(var) { var=cpu_readop_arg((((I.sregs[CS]<<4)+I.ip)))+(cpu_readop_arg((((I.sregs[CS]<<4)+I.ip+1)))<<8); I.ip+=2; }
 #define PUSH(val) { I.regs.w[SP]-=2; WriteWord((((I.sregs[SS]<<4)+I.regs.w[SP])),val); }
 #define POP(var) { var = ReadWord((((I.sregs[SS]<<4)+I.regs.w[SP]))); I.regs.w[SP]+=2; }
-#define PEEK(addr) ((BYTE)cpu_readop_arg(addr))
-#define PEEKOP(addr) ((BYTE)cpu_readop(addr))
+#define PEEK(addr) ((uint8_t)cpu_readop_arg(addr))
+#define PEEKOP(addr) ((uint8_t)cpu_readop(addr))
 
-#define GetModRM UINT32 ModRM=cpu_readop_arg((I.sregs[CS]<<4)+I.ip++)
+#define GetModRM uint32_t ModRM=cpu_readop_arg((I.sregs[CS]<<4)+I.ip++)
 
 /* Cycle count macros:
 	CLK  - cycle count is the same on all processors
@@ -140,19 +140,19 @@ typedef struct
 	Extra cycles for PUSH'ing or POP'ing registers to odd addresses is not emulated.
 
 #define CLK(all) nec_ICount-=all
-#define CLKS(v20,v30,v33) { const UINT32 ccount=(v20<<16)|(v30<<8)|v33; nec_ICount-=(ccount>>cpu_type)&0x7f; }
-#define CLKW(v20o,v30o,v33o,v20e,v30e,v33e) { const UINT32 ocount=(v20o<<16)|(v30o<<8)|v33o, ecount=(v20e<<16)|(v30e<<8)|v33e; nec_ICount-=(I.ip&1)?((ocount>>cpu_type)&0x7f):((ecount>>cpu_type)&0x7f); }
-#define CLKM(v20,v30,v33,v20m,v30m,v33m) { const UINT32 ccount=(v20<<16)|(v30<<8)|v33, mcount=(v20m<<16)|(v30m<<8)|v33m; nec_ICount-=( ModRM >=0xc0 )?((ccount>>cpu_type)&0x7f):((mcount>>cpu_type)&0x7f); }
-#define CLKR(v20o,v30o,v33o,v20e,v30e,v33e,vall) { const UINT32 ocount=(v20o<<16)|(v30o<<8)|v33o, ecount=(v20e<<16)|(v30e<<8)|v33e; if (ModRM >=0xc0) nec_ICount-=vall; else nec_ICount-=(I.ip&1)?((ocount>>cpu_type)&0x7f):((ecount>>cpu_type)&0x7f); }
+#define CLKS(v20,v30,v33) { const uint32_t ccount=(v20<<16)|(v30<<8)|v33; nec_ICount-=(ccount>>cpu_type)&0x7f; }
+#define CLKW(v20o,v30o,v33o,v20e,v30e,v33e) { const uint32_t ocount=(v20o<<16)|(v30o<<8)|v33o, ecount=(v20e<<16)|(v30e<<8)|v33e; nec_ICount-=(I.ip&1)?((ocount>>cpu_type)&0x7f):((ecount>>cpu_type)&0x7f); }
+#define CLKM(v20,v30,v33,v20m,v30m,v33m) { const uint32_t ccount=(v20<<16)|(v30<<8)|v33, mcount=(v20m<<16)|(v30m<<8)|v33m; nec_ICount-=( ModRM >=0xc0 )?((ccount>>cpu_type)&0x7f):((mcount>>cpu_type)&0x7f); }
+#define CLKR(v20o,v30o,v33o,v20e,v30e,v33e,vall) { const uint32_t ocount=(v20o<<16)|(v30o<<8)|v33o, ecount=(v20e<<16)|(v30e<<8)|v33e; if (ModRM >=0xc0) nec_ICount-=vall; else nec_ICount-=(I.ip&1)?((ocount>>cpu_type)&0x7f):((ecount>>cpu_type)&0x7f); }
 */
-#define CLKS(v20,v30,v33) { const UINT32 ccount=(v20<<16)|(v30<<8)|v33; nec_ICount-=(ccount>>cpu_type)&0x7f; }
+#define CLKS(v20,v30,v33) { const uint32_t ccount=(v20<<16)|(v30<<8)|v33; nec_ICount-=(ccount>>cpu_type)&0x7f; }
 
 #define CLK(all) nec_ICount-=all
 #define CLKW(v30MZo,v30MZe) { nec_ICount-=(I.ip&1)?v30MZo:v30MZe; }
 #define CLKM(v30MZm,v30MZ) { nec_ICount-=( ModRM >=0xc0 )?v30MZ:v30MZm; }
 #define CLKR(v30MZo,v30MZe,vall) { if (ModRM >=0xc0) nec_ICount-=vall; else nec_ICount-=(I.ip&1)?v30MZo:v30MZe; }
 
-#define CompressFlags() (WORD)(CF | (PF << 2) | (AF << 4) | (ZF << 6) \
+#define CompressFlags() (uint16_t)(CF | (PF << 2) | (AF << 4) | (ZF << 6) \
 				| (SF << 7) | (I.TF << 8) | (I.IF << 9) \
 				| (I.DF << 10) | (OF << 11))
 
@@ -192,10 +192,10 @@ typedef struct
 	I.regs.w[Reg]=tmp1
 
 #define JMP(flag)							\
-	int tmp = (int)((INT8)FETCH);			\
+	int tmp = (int)((int8_t)FETCH);			\
 	if (flag)								\
 	{										\
-		I.ip = (WORD)(I.ip+tmp);			\
+		I.ip = (uint16_t)(I.ip+tmp);			\
 		nec_ICount-=3;						\
 		return;								\
 	}
@@ -256,7 +256,7 @@ typedef struct
 		tmp |= (1<<tmp2)
 
 #define XchgAWReg(Reg) 						\
-    WORD tmp; 								\
+    uint16_t tmp; 								\
 	tmp = I.regs.w[Reg]; 					\
 	I.regs.w[Reg] = I.regs.w[AW]; 			\
 	I.regs.w[AW] = tmp
@@ -269,12 +269,12 @@ typedef struct
 #define ROLC_WORD dst = (dst << 1) + CF; SetCFW(dst)
 #define RORC_BYTE dst = (CF<<8)+dst; I.CarryVal = dst & 0x01; dst >>= 1
 #define RORC_WORD dst = (CF<<16)+dst; I.CarryVal = dst & 0x01; dst >>= 1
-#define SHL_BYTE(c) dst <<= c;	SetCFB(dst); SetSZPF_Byte(dst);	PutbackRMByte(ModRM,(BYTE)dst)
-#define SHL_WORD(c) dst <<= c;	SetCFW(dst); SetSZPF_Word(dst);	PutbackRMWord(ModRM,(WORD)dst)
-#define SHR_BYTE(c) dst >>= c-1; I.CarryVal = dst & 0x1; dst >>= 1; SetSZPF_Byte(dst); PutbackRMByte(ModRM,(BYTE)dst)
-#define SHR_WORD(c) dst >>= c-1; I.CarryVal = dst & 0x1; dst >>= 1; SetSZPF_Word(dst); PutbackRMWord(ModRM,(WORD)dst)
-#define SHRA_BYTE(c) dst = ((INT8)dst) >> (c-1);	I.CarryVal = dst & 0x1;	dst = ((INT8)((BYTE)dst)) >> 1; SetSZPF_Byte(dst); PutbackRMByte(ModRM,(BYTE)dst)
-#define SHRA_WORD(c) dst = ((INT16)dst) >> (c-1);	I.CarryVal = dst & 0x1;	dst = ((INT16)((WORD)dst)) >> 1; SetSZPF_Word(dst); PutbackRMWord(ModRM,(WORD)dst)
+#define SHL_BYTE(c) dst <<= c;	SetCFB(dst); SetSZPF_Byte(dst);	PutbackRMByte(ModRM,(uint8_t)dst)
+#define SHL_WORD(c) dst <<= c;	SetCFW(dst); SetSZPF_Word(dst);	PutbackRMWord(ModRM,(uint16_t)dst)
+#define SHR_BYTE(c) dst >>= c-1; I.CarryVal = dst & 0x1; dst >>= 1; SetSZPF_Byte(dst); PutbackRMByte(ModRM,(uint8_t)dst)
+#define SHR_WORD(c) dst >>= c-1; I.CarryVal = dst & 0x1; dst >>= 1; SetSZPF_Word(dst); PutbackRMWord(ModRM,(uint16_t)dst)
+#define SHRA_BYTE(c) dst = ((int8_t)dst) >> (c-1);	I.CarryVal = dst & 0x1;	dst = ((int8_t)((uint8_t)dst)) >> 1; SetSZPF_Byte(dst); PutbackRMByte(ModRM,(uint8_t)dst)
+#define SHRA_WORD(c) dst = ((int16_t)dst) >> (c-1);	I.CarryVal = dst & 0x1;	dst = ((int16_t)((uint16_t)dst)) >> 1; SetSZPF_Word(dst); PutbackRMWord(ModRM,(uint16_t)dst)
 
 #define DIVUB												\
 	uresult = I.regs.w[AW];									\
@@ -287,9 +287,9 @@ typedef struct
 	}
 
 #define DIVB												\
-	result = (INT16)I.regs.w[AW];							\
-	result2 = result % (INT16)((INT8)tmp);					\
-	if ((result /= (INT16)((INT8)tmp)) > 0xff) {			\
+	result = (int16_t)I.regs.w[AW];							\
+	result2 = result % (int16_t)((int8_t)tmp);					\
+	if ((result /= (int16_t)((int8_t)tmp)) > 0xff) {			\
 		nec_interrupt(0,0); break;							\
 	} else {												\
 		I.regs.b[AL] = result;								\
@@ -297,7 +297,7 @@ typedef struct
 	}
 
 #define DIVUW												\
-	uresult = (((UINT32)I.regs.w[DW]) << 16) | I.regs.w[AW];\
+	uresult = (((uint32_t)I.regs.w[DW]) << 16) | I.regs.w[AW];\
 	uresult2 = uresult % tmp;								\
 	if ((uresult /= tmp) > 0xffff) {						\
 		nec_interrupt(0,0); break;							\
@@ -307,9 +307,9 @@ typedef struct
 	}
 
 #define DIVW												\
-	result = ((UINT32)I.regs.w[DW] << 16) + I.regs.w[AW];	\
-	result2 = result % (INT32)((INT16)tmp);					\
-	if ((result /= (INT32)((INT16)tmp)) > 0xffff) {			\
+	result = ((uint32_t)I.regs.w[DW] << 16) + I.regs.w[AW];	\
+	result2 = result % (int32_t)((int16_t)tmp);					\
+	if ((result /= (int32_t)((int16_t)tmp)) > 0xffff) {			\
 		nec_interrupt(0,0); break;							\
 	} else {												\
 		I.regs.w[AW]=result;								\

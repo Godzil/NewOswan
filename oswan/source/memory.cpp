@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
@@ -41,10 +42,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 #define IO_ROM_BANK_BASE_SELECTOR   0xC0
 
-uint8 *ws_rom;
-uint8 *ws_staticRam;
-uint8 *internalRam;
-uint8 *externalEeprom;
+uint8_t *ws_rom;
+uint8_t *ws_staticRam;
+uint8_t *internalRam;
+uint8_t *externalEeprom;
 char *internalBWIRom;
 char *internalColorIRom;
 
@@ -53,17 +54,17 @@ char *internalColorEeprom;
 
 uint16_t *internalEeprom;
 
-extern uint8 *ws_ioRam;
+extern uint8_t *ws_ioRam;
 
-uint16  ws_rom_checksum;
+uint16_t  ws_rom_checksum;
 
-uint8   ws_haveColorIRom;
-uint8   ws_haveBWIRom;
+uint8_t   ws_haveColorIRom;
+uint8_t   ws_haveBWIRom;
 
-uint32  sramAddressMask;
-uint32  externalEepromAddressMask;
-uint32  romAddressMask;
-uint32  romSize;
+uint32_t  sramAddressMask;
+uint32_t  externalEepromAddressMask;
+uint32_t  romAddressMask;
+uint32_t  romSize;
 
 int ws_sram_dirty = 0;
 
@@ -124,10 +125,10 @@ void dump_memory()
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void cpu_writemem20(DWORD addr,BYTE value)
+void cpu_writemem20(uint32_t addr, uint8_t value)
 {
-   uint32   offset=addr&0xffff;
-   uint32   bank=addr>>16;
+   uint32_t   offset=addr&0xffff;
+   uint32_t   bank=addr>>16;
 
    if (!bank)
    {
@@ -155,14 +156,14 @@ void cpu_writemem20(DWORD addr,BYTE value)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-BYTE cpu_readmem20(DWORD addr)
+uint8_t cpu_readmem20(uint32_t addr)
 {
-   uint32 offset=addr&0xffff;
-   uint32 bank=addr>>16;
-   //uint16 romBank;
+   uint32_t offset=addr&0xffff;
+   uint32_t bank=addr>>16;
+   //uint16_t romBank;
    uint8_t hwReg;
    uint32_t temp;
-   BYTE ret;
+   uint8_t ret;
 
    switch (bank)
    {
@@ -321,7 +322,7 @@ char *create_file(char *filename, uint32_t size)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_memory_init(uint8 *rom, uint32 wsRomSize)
+void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
 {
    ws_romHeaderStruct   *ws_romHeader;
 
@@ -329,7 +330,7 @@ void ws_memory_init(uint8 *rom, uint32 wsRomSize)
    romSize=wsRomSize;
    ws_romHeader=ws_rom_getHeader(ws_rom,romSize);
    ws_rom_checksum=ws_romHeader->checksum;
-   internalRam=(uint8*)malloc(0x10000);
+   internalRam=(uint8_t*)malloc(0x10000);
    sramAddressMask=ws_rom_sramSize(ws_rom,romSize)-1;
    externalEepromAddressMask=ws_rom_eepromSize(ws_rom,romSize)-1;
 
@@ -411,7 +412,7 @@ void ws_memory_done(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint8 *memory_getRom(void)
+uint8_t *memory_getRom(void)
 {
    return(ws_rom);
 }
@@ -426,7 +427,7 @@ uint8 *memory_getRom(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint32   memory_getRomSize(void)
+uint32_t   memory_getRomSize(void)
 {
    return(romSize);
 }
@@ -441,7 +442,7 @@ uint32   memory_getRomSize(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint16   memory_getRomCrc(void)
+uint16_t   memory_getRomCrc(void)
 {
    return(ws_rom_checksum);
 }

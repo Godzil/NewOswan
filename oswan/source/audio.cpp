@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
@@ -27,6 +28,8 @@
 #include "memory.h"
 #include "io.h"
 #include "audio.h"
+
+#include "SDL.h"
 
 #include <audio.h>
 
@@ -120,7 +123,7 @@ AUDIOWAVE	ws_audio_pcm_wave[4];
 AUDIOWAVE	ws_audio_noise_wave;
 AUDIOWAVE	ws_audio_sweep_wave;
 
-UINT32		ws_audio_channel_isPlaying[6];
+uint32_t		ws_audio_channel_isPlaying[6];
 
 static unsigned int ws_audio_log;
 ////////////////////////////////////////////////////////////////////////////////
@@ -186,9 +189,9 @@ void ws_audio_reset(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_audio_port_write(Uint32 port, Uint8 value)
+void ws_audio_port_write(uint32_t port, uint8_t value)
 {
-   Uint32 n,i,j,k,b;
+   uint32_t n,i,j,k,b;
 
    ws_ioRam[port]=value;
 
@@ -210,14 +213,14 @@ void ws_audio_port_write(Uint32 port, Uint8 value)
          }
 
          n=0;
-         DMASB=(Uint8)((i>>16)&0xFF);
-         DMASH=(Uint8)((i>>8)&0xFF);
-         DMASL=(Uint8)(i&0xFF);
-         DMADB=(Uint8)((j>>16)&0xFF);
-         DMADH=(Uint8)((j>>8)&0xFF);
-         DMADL=(Uint8)(j&0xFF);
-         DMACH=(Uint8)((n>>8)&0xFF);
-         DMACL=(Uint8)(n&0xFF);
+         DMASB=(uint8_t)((i>>16)&0xFF);
+         DMASH=(uint8_t)((i>>8)&0xFF);
+         DMASL=(uint8_t)(i&0xFF);
+         DMADB=(uint8_t)((j>>16)&0xFF);
+         DMADH=(uint8_t)((j>>8)&0xFF);
+         DMADL=(uint8_t)(j&0xFF);
+         DMACH=(uint8_t)((n>>8)&0xFF);
+         DMACL=(uint8_t)(n&0xFF);
          value&=0x7F;
       }
 
@@ -543,8 +546,8 @@ int ws_audio_seal_init(void)
    int			i, j;
    AUDIOINFO	info;
    AUDIOCAPS	caps;
-   UINT		rc;
-   UINT		nDevId;
+   uint32_t		rc;
+   uint32_t		nDevId;
 
    fprintf(log_get(),"audio: using seal audio library\n");
    /* initialize audio library */
@@ -1225,7 +1228,7 @@ void ws_audio_flash_pcm(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_audio_write_byte(Uint32 offset, Uint8 value)
+void ws_audio_write_byte(uint32_t offset, uint8_t value)
 {
    if (!((offset-WaveMap)&0xFFC0))
    {
@@ -1246,10 +1249,10 @@ void ws_audio_write_byte(Uint32 offset, Uint8 value)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_process(void)
 {
-   Uint32 i, j, b;
+   uint32_t i, j, b;
    i=ws_audio_int();
-   PCSRL=(Uint8)(i&0xFF);
-   PCSRH=(Uint8)((i>>8)&0xFF);
+   PCSRL=(uint8_t)(i&0xFF);
+   PCSRH=(uint8_t)((i>>8)&0xFF);
 
    if((SDMACTL&0x88)==0x80)
    {
@@ -1272,11 +1275,11 @@ void ws_audio_process(void)
          SDMACTL&=0x7F;
       }
 
-      SDMASB=(Uint8)((j>>16)&0xFF);
-      SDMASH=(Uint8)((j>>8)&0xFF);
-      SDMASL=(Uint8)(j&0xFF);
-      SDMACH=(Uint8)((i>>8)&0xFF);
-      SDMACL=(Uint8)(i&0xFF);
+      SDMASB=(uint8_t)((j>>16)&0xFF);
+      SDMASH=(uint8_t)((j>>8)&0xFF);
+      SDMASL=(uint8_t)(j&0xFF);
+      SDMACH=(uint8_t)((i>>8)&0xFF);
+      SDMACL=(uint8_t)(i&0xFF);
    }
    else if((SNDMOD&0x22)==0x22)
    {
@@ -1338,7 +1341,7 @@ void ws_audio_readState(int fp)
    read(fp,&CntSwp,sizeof(int));
    read(fp,&PcmWrPos,sizeof(int));
 
-   read(fp,ws_audio_channel_isPlaying,sizeof(UINT32)*6);
+   read(fp,ws_audio_channel_isPlaying,sizeof(uint32_t)*6);
 
    read(fp,PData,sizeof(unsigned char)*4*BUFSIZE);
    read(fp,PDataP,sizeof(unsigned char)*(BUFSIZEP<<4));
@@ -1435,7 +1438,7 @@ void ws_audio_writeState(int fp)
    write(fp,&CntSwp,sizeof(int));
    write(fp,&PcmWrPos,sizeof(int));
 
-   write(fp,ws_audio_channel_isPlaying,sizeof(UINT32)*6);
+   write(fp,ws_audio_channel_isPlaying,sizeof(uint32_t)*6);
 
    write(fp,PData,sizeof(unsigned char)*4*BUFSIZE);
    write(fp,PDataP,sizeof(unsigned char)*(BUFSIZEP<<4));

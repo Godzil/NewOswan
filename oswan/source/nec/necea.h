@@ -1,7 +1,7 @@
 
-static UINT32 EA;
-static UINT16 EO;
-static UINT16 E16;
+static uint32_t EA;
+static uint16_t EO;
+static uint16_t E16;
 
 static unsigned EA_000(void)
 {
@@ -55,49 +55,49 @@ static unsigned EA_007(void)
 
 static unsigned EA_100(void)
 {
-   EO=(I.regs.w[BW]+I.regs.w[IX]+(INT8)FETCH);
+   EO=(I.regs.w[BW]+I.regs.w[IX]+(int8_t)FETCH);
    EA=DefaultBase(DS)+EO;
    return EA;
 }
 static unsigned EA_101(void)
 {
-   EO=(I.regs.w[BW]+I.regs.w[IY]+(INT8)FETCH);
+   EO=(I.regs.w[BW]+I.regs.w[IY]+(int8_t)FETCH);
    EA=DefaultBase(DS)+EO;
    return EA;
 }
 static unsigned EA_102(void)
 {
-   EO=(I.regs.w[BP]+I.regs.w[IX]+(INT8)FETCH);
+   EO=(I.regs.w[BP]+I.regs.w[IX]+(int8_t)FETCH);
    EA=DefaultBase(SS)+EO;
    return EA;
 }
 static unsigned EA_103(void)
 {
-   EO=(I.regs.w[BP]+I.regs.w[IY]+(INT8)FETCH);
+   EO=(I.regs.w[BP]+I.regs.w[IY]+(int8_t)FETCH);
    EA=DefaultBase(SS)+EO;
    return EA;
 }
 static unsigned EA_104(void)
 {
-   EO=(I.regs.w[IX]+(INT8)FETCH);
+   EO=(I.regs.w[IX]+(int8_t)FETCH);
    EA=DefaultBase(DS)+EO;
    return EA;
 }
 static unsigned EA_105(void)
 {
-   EO=(I.regs.w[IY]+(INT8)FETCH);
+   EO=(I.regs.w[IY]+(int8_t)FETCH);
    EA=DefaultBase(DS)+EO;
    return EA;
 }
 static unsigned EA_106(void)
 {
-   EO=(I.regs.w[BP]+(INT8)FETCH);
+   EO=(I.regs.w[BP]+(int8_t)FETCH);
    EA=DefaultBase(SS)+EO;
    return EA;
 }
 static unsigned EA_107(void)
 {
-   EO=(I.regs.w[BW]+(INT8)FETCH);
+   EO=(I.regs.w[BW]+(int8_t)FETCH);
    EA=DefaultBase(DS)+EO;
    return EA;
 }
@@ -106,7 +106,7 @@ static unsigned EA_200(void)
 {
    E16=FETCH;
    E16+=FETCH<<8;
-   EO=I.regs.w[BW]+I.regs.w[IX]+(INT16)E16;
+   EO=I.regs.w[BW]+I.regs.w[IX]+(int16_t)E16;
    EA=DefaultBase(DS)+EO;
    return EA;
 }
@@ -114,7 +114,7 @@ static unsigned EA_201(void)
 {
    E16=FETCH;
    E16+=FETCH<<8;
-   EO=I.regs.w[BW]+I.regs.w[IY]+(INT16)E16;
+   EO=I.regs.w[BW]+I.regs.w[IY]+(int16_t)E16;
    EA=DefaultBase(DS)+EO;
    return EA;
 }
@@ -122,7 +122,7 @@ static unsigned EA_202(void)
 {
    E16=FETCH;
    E16+=FETCH<<8;
-   EO=I.regs.w[BP]+I.regs.w[IX]+(INT16)E16;
+   EO=I.regs.w[BP]+I.regs.w[IX]+(int16_t)E16;
    EA=DefaultBase(SS)+EO;
    return EA;
 }
@@ -130,7 +130,7 @@ static unsigned EA_203(void)
 {
    E16=FETCH;
    E16+=FETCH<<8;
-   EO=I.regs.w[BP]+I.regs.w[IY]+(INT16)E16;
+   EO=I.regs.w[BP]+I.regs.w[IY]+(int16_t)E16;
    EA=DefaultBase(SS)+EO;
    return EA;
 }
@@ -138,7 +138,7 @@ static unsigned EA_204(void)
 {
    E16=FETCH;
    E16+=FETCH<<8;
-   EO=I.regs.w[IX]+(INT16)E16;
+   EO=I.regs.w[IX]+(int16_t)E16;
    EA=DefaultBase(DS)+EO;
    return EA;
 }
@@ -146,7 +146,7 @@ static unsigned EA_205(void)
 {
    E16=FETCH;
    E16+=FETCH<<8;
-   EO=I.regs.w[IY]+(INT16)E16;
+   EO=I.regs.w[IY]+(int16_t)E16;
    EA=DefaultBase(DS)+EO;
    return EA;
 }
@@ -154,7 +154,7 @@ static unsigned EA_206(void)
 {
    E16=FETCH;
    E16+=FETCH<<8;
-   EO=I.regs.w[BP]+(INT16)E16;
+   EO=I.regs.w[BP]+(int16_t)E16;
    EA=DefaultBase(SS)+EO;
    return EA;
 }
@@ -162,7 +162,7 @@ static unsigned EA_207(void)
 {
    E16=FETCH;
    E16+=FETCH<<8;
-   EO=I.regs.w[BW]+(INT16)E16;
+   EO=I.regs.w[BW]+(int16_t)E16;
    EA=DefaultBase(DS)+EO;
    return EA;
 }

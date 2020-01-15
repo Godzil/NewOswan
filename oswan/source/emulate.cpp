@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
@@ -20,7 +21,6 @@
 #include <sys/mman.h>
 
 #include "SDL.h"
-#include "types.h"
 #include "SDLptc.h"
 #include "log.h"
 #include "io.h"
@@ -165,7 +165,7 @@ static void read_keys()
        ws_key_button_b=0;
     }
 
-    uint8 *keystate = SDL_GetKeyState(NULL);
+    uint8_t *keystate = SDL_GetKeyState(NULL);
 
     if ( keystate[SDLK_e])
     {
@@ -261,10 +261,10 @@ static void read_keys()
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-static void ws_drawDoubledScanline(int16 *vs, int16 *backbuffer_alias)
+static void ws_drawDoubledScanline(int16_t *vs, int16_t *backbuffer_alias)
 {
-    register int32 *vs_alias = (int32 *)vs;
-    register int32 data;
+    register int32_t *vs_alias = (int32_t *)vs;
+    register int32_t data;
 
     for (int pixel = 0 ; pixel < 224 ; pixel += 8)
     {
@@ -306,10 +306,10 @@ static void ws_drawDoubledScanline(int16 *vs, int16 *backbuffer_alias)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-static void ws_drawDoubledRotatedScanline(int16 *vs, int16 *backbuffer_alias)
+static void ws_drawDoubledRotatedScanline(int16_t *vs, int16_t *backbuffer_alias)
 {
-    register int32 *vs_alias = (int32 *)vs;
-    register int32 data;
+    register int32_t *vs_alias = (int32_t *)vs;
+    register int32_t data;
 
     for (int pixel = 0 ; pixel < 144 ; pixel += 8)
     {
@@ -350,7 +350,7 @@ static void ws_drawDoubledRotatedScanline(int16 *vs, int16 *backbuffer_alias)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_rotate_backbuffer(int16 *backbuffer)
+void ws_rotate_backbuffer(int16_t *backbuffer)
 {
    static int16_t temp[224*144];
    
@@ -389,8 +389,8 @@ void ws_emulate(void)
     if (app_rotated)
     {
         surface = new Surface(144 * 2, 224 * 2, format);
-        int16 *backbuffer = (int16 *)malloc(224 * 144 * sizeof(int16));
-        memset(backbuffer, 0x00, 224 * 144 * sizeof(int16));
+        int16_t *backbuffer = (int16_t *)malloc(224 * 144 * sizeof(int16_t));
+        memset(backbuffer, 0x00, 224 * 144 * sizeof(int16_t));
         surfacePitch = (surface->pitch() >> 1);
 
         dNormalLast = (double)SDL_GetTicks();
@@ -403,7 +403,7 @@ void ws_emulate(void)
             dTemp = (double)SDL_GetTicks();
             dTime = dTemp - dNormalLast;
 
-            nCount = (Sint32)(dTime * 0.07547); // does this calculation make sense?
+            nCount = (int32_t)(dTime * 0.07547); // does this calculation make sense?
 
             if (nCount <= 0)
             {
@@ -451,8 +451,8 @@ void ws_emulate(void)
 
                 ws_rotate_backbuffer(backbuffer);
 
-                int16 *vs = (int16 *)surface->lock();
-                int16 *backbuffer_alias = backbuffer;
+                int16_t *vs = (int16_t *)surface->lock();
+                int16_t *backbuffer_alias = backbuffer;
 
                 for (int line = 0 ; line < 224 ; line++)
                 {
@@ -476,8 +476,8 @@ void ws_emulate(void)
     else
     {
         surface = new Surface(224 * 2, 144 * 2, format);
-        int16 *backbuffer = (int16 *)malloc(224 * 144 * sizeof(int16));
-        memset(backbuffer, 0x00, 224 * 144 * sizeof(int16));
+        int16_t *backbuffer = (int16_t *)malloc(224 * 144 * sizeof(int16_t));
+        memset(backbuffer, 0x00, 224 * 144 * sizeof(int16_t));
         surfacePitch = (surface->pitch() >> 1);
 
         dNormalLast = (double)SDL_GetTicks();
@@ -491,7 +491,7 @@ void ws_emulate(void)
             dTime = dTemp - dNormalLast;
 
 
-            nCount = (Sint32)(dTime * 0.07547); // does this calculation make sense?
+            nCount = (int32_t)(dTime * 0.07547); // does this calculation make sense?
 
             if (nCount <= 0)
             {
@@ -536,8 +536,8 @@ void ws_emulate(void)
                 {
                 }
 
-                int16 *vs = (int16 *)surface->lock();
-                int16 *backbuffer_alias = backbuffer;
+                int16_t *vs = (int16_t *)surface->lock();
+                int16_t *backbuffer_alias = backbuffer;
 
                 for (int line = 0 ; line < 144 ; line++)
                 {

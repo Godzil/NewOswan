@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
@@ -41,7 +42,7 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-extern uint8	*internalRam;
+extern uint8_t	*internalRam;
 
 enum VideoModes
 {
@@ -92,13 +93,13 @@ long	ws_priority_1_sprites_rendering_time=0;
 ////////////////////////////////////////////////////////////////////////////////
 #define RGB555(R,G,B) ((((int)(R))<<10)|(((int)(G))<<5)|((int)(B)))
 
-uint8	ws_gpu_operatingInColor;
-uint8	ws_videoMode;
-uint8	ws_gpu_scanline=0;
-int16	ws_palette[16*4];
-int8	ws_paletteColors[8];
-int16	wsc_palette[16*16];
-int16	ws_shades[16];
+uint8_t	ws_gpu_operatingInColor;
+uint8_t	ws_videoMode;
+uint8_t	ws_gpu_scanline=0;
+int16_t	ws_palette[16*4];
+int8_t	ws_paletteColors[8];
+int16_t	wsc_palette[16*16];
+int16_t	ws_shades[16];
 int		ws_gpu_forceColorSystemBool=0;
 int		ws_gpu_forceMonoSystemBool=0;
 
@@ -109,7 +110,7 @@ int		ws_gpu_forceMonoSystemBool=0;
 #define SHADE_COLOR_GREEN	1.00
 #define SHADE_COLOR_BLUE	1.00
 
-int16	ws_colour_scheme_default[16]=
+int16_t	ws_colour_scheme_default[16]=
 {
    RGB555(SHADE_COLOR_RED*30,SHADE_COLOR_GREEN*30,SHADE_COLOR_BLUE*30),
    RGB555(SHADE_COLOR_RED*28,SHADE_COLOR_GREEN*28,SHADE_COLOR_BLUE*28),
@@ -136,7 +137,7 @@ int16	ws_colour_scheme_default[16]=
 #define SHADE_COLOR_GREEN	0.90
 #define SHADE_COLOR_BLUE	0.20
 
-int16	ws_colour_scheme_green[16]=
+int16_t	ws_colour_scheme_green[16]=
 {
    RGB555(SHADE_COLOR_RED*30,SHADE_COLOR_GREEN*30,SHADE_COLOR_BLUE*30),
    RGB555(SHADE_COLOR_RED*28,SHADE_COLOR_GREEN*28,SHADE_COLOR_BLUE*28),
@@ -163,7 +164,7 @@ int16	ws_colour_scheme_green[16]=
 #define SHADE_COLOR_GREEN	0.61
 #define SHADE_COLOR_BLUE	0.00
 
-int16	ws_colour_scheme_amber[16]=
+int16_t	ws_colour_scheme_amber[16]=
 {
    RGB555(SHADE_COLOR_RED*30,SHADE_COLOR_GREEN*30,SHADE_COLOR_BLUE*30),
    RGB555(SHADE_COLOR_RED*28,SHADE_COLOR_GREEN*28,SHADE_COLOR_BLUE*28),
@@ -183,14 +184,14 @@ int16	ws_colour_scheme_amber[16]=
    RGB555(SHADE_COLOR_RED*0,SHADE_COLOR_GREEN*0,SHADE_COLOR_BLUE*0)
 };
 
-uint8	*ws_tile_cache;
-uint8	*ws_hflipped_tile_cache;
+uint8_t	*ws_tile_cache;
+uint8_t	*ws_hflipped_tile_cache;
 
-uint8	*wsc_tile_cache;
-uint8	*wsc_hflipped_tile_cache;
+uint8_t	*wsc_tile_cache;
+uint8_t	*wsc_hflipped_tile_cache;
 
-uint8	*ws_modified_tile;
-uint8	*wsc_modified_tile;
+uint8_t	*ws_modified_tile;
+uint8_t	*wsc_modified_tile;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -208,15 +209,15 @@ void ws_gpu_set_colour_scheme(int scheme)
    switch (scheme)
    {
    case COLOUR_SCHEME_DEFAULT:
-      memcpy(ws_shades,ws_colour_scheme_default,16*sizeof(int16));
+      memcpy(ws_shades,ws_colour_scheme_default,16*sizeof(int16_t));
       break;
 
    case COLOUR_SCHEME_AMBER  :
-      memcpy(ws_shades,ws_colour_scheme_amber,16*sizeof(int16));
+      memcpy(ws_shades,ws_colour_scheme_amber,16*sizeof(int16_t));
       break;
 
    case COLOUR_SCHEME_GREEN  :
-      memcpy(ws_shades,ws_colour_scheme_green,16*sizeof(int16));
+      memcpy(ws_shades,ws_colour_scheme_green,16*sizeof(int16_t));
       break;
    }
 }
@@ -267,14 +268,14 @@ void ws_gpu_forceMonoSystem(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_gpu_init(void)
 {
-   ws_tile_cache				= (uint8*)malloc(1024*8*8);
-   wsc_tile_cache				= (uint8*)malloc(1024*8*8);
+   ws_tile_cache				= (uint8_t*)malloc(1024*8*8);
+   wsc_tile_cache				= (uint8_t*)malloc(1024*8*8);
 
-   ws_hflipped_tile_cache		= (uint8*)malloc(1024*8*8);
-   wsc_hflipped_tile_cache		= (uint8*)malloc(1024*8*8);
+   ws_hflipped_tile_cache		= (uint8_t*)malloc(1024*8*8);
+   wsc_hflipped_tile_cache		= (uint8_t*)malloc(1024*8*8);
 
-   ws_modified_tile			    = (uint8*)malloc(1024);
-   wsc_modified_tile			= (uint8*)malloc(1024);
+   ws_modified_tile			    = (uint8_t*)malloc(1024);
+   wsc_modified_tile			= (uint8_t*)malloc(1024);
 
    memset(ws_tile_cache,0x00,1024*8*8);
    memset(wsc_tile_cache,0x00,1024*8*8);
@@ -353,7 +354,7 @@ void ws_gpu_done(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_gpu_changeVideoMode(uint8 value)
+void ws_gpu_changeVideoMode(uint8_t value)
 {
    if (ws_videoMode != (value>>5))
    {
@@ -404,8 +405,8 @@ void ws_gpu_clearCache(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint8 *ws_tileCache_getTileRow(uint32 tileIndex, uint32 line,
-                               uint32 vFlip, uint32 hFlip, uint32 bank)
+uint8_t *ws_tileCache_getTileRow(uint32_t tileIndex, uint32_t line,
+                               uint32_t vFlip, uint32_t hFlip, uint32_t bank)
 {
    if (ws_gpu_operatingInColor)
    {
@@ -421,10 +422,10 @@ uint8 *ws_tileCache_getTileRow(uint32 tileIndex, uint32 line,
 #ifdef STATISTICS
          ws_4_colors_tiles_cache_update_time+=-ticker();
 #endif
-         uint8	*tileInCachePtr = &wsc_tile_cache[tileIndex<<6];
-         uint8	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
-         uint16	*tileInRamPtr   = (uint16*)&internalRam[0x2000+(tileIndex<<4)];
-         uint16	tileLine;
+         uint8_t	*tileInCachePtr = &wsc_tile_cache[tileIndex<<6];
+         uint8_t	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
+         uint16_t	*tileInRamPtr   = (uint16_t*)&internalRam[0x2000+(tileIndex<<4)];
+         uint16_t	tileLine;
 
          for (int line=0; line<8; line++)
          {
@@ -465,10 +466,10 @@ uint8 *ws_tileCache_getTileRow(uint32 tileIndex, uint32 line,
 #ifdef STATISTICS
             ws_16_colors_layered_tiles_cache_update_time+=-ticker();
 #endif
-            uint8	*tileInCachePtr			= &wsc_tile_cache[tileIndex<<6];
-            uint8	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
-            uint32	*tileInRamPtr			= (uint32*)&internalRam[0x4000+(tileIndex<<5)];
-            uint32	tileLine;
+            uint8_t	*tileInCachePtr			= &wsc_tile_cache[tileIndex<<6];
+            uint8_t	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
+            uint32_t	*tileInRamPtr			= (uint32_t*)&internalRam[0x4000+(tileIndex<<5)];
+            uint32_t	tileLine;
 
             for (int line=0; line<8; line++)
             {
@@ -523,10 +524,10 @@ uint8 *ws_tileCache_getTileRow(uint32 tileIndex, uint32 line,
 #ifdef STATISTICS
                ws_16_colors_packed_tiles_cache_update_time+=-ticker();
 #endif
-               uint8	*tileInCachePtr = &wsc_tile_cache[tileIndex<<6];
-               uint8	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
-               uint32	*tileInRamPtr   = (uint32*)&internalRam[0x4000+(tileIndex<<5)];
-               uint32	tileLine;
+               uint8_t	*tileInCachePtr = &wsc_tile_cache[tileIndex<<6];
+               uint8_t	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
+               uint32_t	*tileInRamPtr   = (uint32_t*)&internalRam[0x4000+(tileIndex<<5)];
+               uint32_t	tileLine;
 
                for (int line=0; line<8; line++)
                {
@@ -591,10 +592,10 @@ uint8 *ws_tileCache_getTileRow(uint32 tileIndex, uint32 line,
 #ifdef STATISTICS
          ws_4_shades_tiles_cache_update_time+=-ticker();
 #endif
-         uint8	*tileInCachePtr			 = &ws_tile_cache[tileIndex<<6];
-         uint8	*hflippedTileInCachePtr	 = &ws_hflipped_tile_cache[(tileIndex<<6)+7];
-         uint32	*tileInRamPtr			 = (uint32*)&internalRam[0x2000+(tileIndex<<4)];
-         uint32	tileLine;
+         uint8_t	*tileInCachePtr			 = &ws_tile_cache[tileIndex<<6];
+         uint8_t	*hflippedTileInCachePtr	 = &ws_hflipped_tile_cache[(tileIndex<<6)+7];
+         uint32_t	*tileInRamPtr			 = (uint32_t*)&internalRam[0x2000+(tileIndex<<4)];
+         uint32_t	tileLine;
 
          for (int line=0; line<4; line++)
          {
@@ -657,10 +658,10 @@ uint8 *ws_tileCache_getTileRow(uint32 tileIndex, uint32 line,
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_drawClippedSpriteLine(int16 *framebuffer, uint16 scanline,
-                              uint32 x, uint32 y, uint32 tileIndex, uint32 paletteIndex,
-                              uint32 vFlip, uint32 hFlip,
-                              uint32 clip_x0, uint32 clip_y0, uint32 clip_x1, uint32 clip_y1)
+void ws_drawClippedSpriteLine(int16_t *framebuffer, uint16_t scanline,
+                              uint32_t x, uint32_t y, uint32_t tileIndex, uint32_t paletteIndex,
+                              uint32_t vFlip, uint32_t hFlip,
+                              uint32_t clip_x0, uint32_t clip_y0, uint32_t clip_x1, uint32_t clip_y1)
 {
 
    if ((scanline<y)||(scanline>(y+7)))
@@ -678,8 +679,8 @@ void ws_drawClippedSpriteLine(int16 *framebuffer, uint16 scanline,
       return;
    }
 
-   uint8	*ws_tileRow=ws_tileCache_getTileRow(tileIndex,(scanline-y)&0x07,hFlip,vFlip, 0);
-   uint16	 nbPixels=8;
+   uint8_t	*ws_tileRow=ws_tileCache_getTileRow(tileIndex,(scanline-y)&0x07,hFlip,vFlip, 0);
+   uint16_t	 nbPixels=8;
 
    if (x<clip_x0)
    {
@@ -697,7 +698,7 @@ void ws_drawClippedSpriteLine(int16 *framebuffer, uint16 scanline,
 
    if (ws_gpu_operatingInColor)
    {
-      int16	*wsc_paletteAlias=&wsc_palette[paletteIndex<<4];
+      int16_t	*wsc_paletteAlias=&wsc_palette[paletteIndex<<4];
 
       while (nbPixels)
       {
@@ -713,7 +714,7 @@ void ws_drawClippedSpriteLine(int16 *framebuffer, uint16 scanline,
    }
    else
    {
-      int16	*ws_paletteAlias=&ws_palette[paletteIndex<<2];
+      int16_t	*ws_paletteAlias=&ws_palette[paletteIndex<<2];
 
       if (paletteIndex&0x04)
       {
@@ -752,7 +753,7 @@ void ws_drawClippedSpriteLine(int16 *framebuffer, uint16 scanline,
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_gpu_renderScanline(int16 *framebuffer)
+void ws_gpu_renderScanline(int16_t *framebuffer)
 {
 
    if (ws_gpu_scanline>143)
@@ -766,7 +767,7 @@ void ws_gpu_renderScanline(int16 *framebuffer)
    framebuffer+=(224*ws_gpu_scanline);
 
    // fill with background color
-   int16 backgroundColor;
+   int16_t backgroundColor;
 
    if (ws_gpu_operatingInColor)
    {
@@ -797,23 +798,23 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
       // note: byte ordering assumptions!
       int	ws_currentTile=(ws_bgScroll_x>>3);
-      uint16	*ws_bgScrollRamBase=(uint16*)(internalRam+(((uint32)ws_ioRam[0x07]&0x0f)<<11)+
+      uint16_t	*ws_bgScrollRamBase=(uint16_t*)(internalRam+(((uint32_t)ws_ioRam[0x07]&0x0f)<<11)+
                                              ((ws_bgScroll_y&0xfff8)<<3));
 
       int	lineInTile   = ws_bgScroll_y&0x07;
       int columnInTile = ws_bgScroll_x&0x07;
 
-      int16 *scanlinePtr=framebuffer;
+      int16_t *scanlinePtr=framebuffer;
 
       if (ws_gpu_operatingInColor)
       {
          // render the first clipped tile
          if (columnInTile)
          {
-            uint16	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
+            uint16_t	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
             ws_currentTile++;
-            uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile, tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-            int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+            uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile, tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
+            int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
             ws_tileRow+=columnInTile;
 
             for (int i=columnInTile; i<8; i++)
@@ -838,10 +839,10 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
          for (int i=0; i<nbTiles; i++)
          {
-            uint16	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
+            uint16_t	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
             ws_currentTile++;
-            uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile, tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-            int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+            uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile, tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
+            int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
             if (*ws_tileRow)
             {
@@ -911,11 +912,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
          // render the last clipped tile
          if (columnInTile)
          {
-            uint16	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
+            uint16_t	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
             ws_currentTile++;
-            uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+            uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                               tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-            int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+            int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
 
             for (int i=0; i<columnInTile; i++)
@@ -935,12 +936,12 @@ void ws_gpu_renderScanline(int16 *framebuffer)
          // render the first clipped tile
          if (columnInTile)
          {
-            uint16	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
+            uint16_t	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
             ws_currentTile++;
-            uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+            uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                               tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
 
-            int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+            int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
             ws_tileRow+=columnInTile;
 
             if ((tileInfo>>9)&0x04)
@@ -976,11 +977,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
          for (int i=0; i<nbTiles; i++)
          {
-            uint16	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
+            uint16_t	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
             ws_currentTile++;
-            uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+            uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                               tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-            int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+            int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
 
             if ((tileInfo>>9)&0x04)
             {
@@ -1081,11 +1082,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
          // render the last clipped tile
          if (columnInTile)
          {
-            uint16	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
+            uint16_t	tileInfo=ws_bgScrollRamBase[ws_currentTile&0x1f];
             ws_currentTile++;
-            uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+            uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                               tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-            int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+            int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
 
 
             if ((tileInfo>>9)&0x04)
@@ -1125,14 +1126,14 @@ void ws_gpu_renderScanline(int16 *framebuffer)
       int ws_sprWindow_y0=ws_ioRam[0x0d];
 		int ws_sprWindow_x1=ws_sprWindow_x0+ws_ioRam[0x0e];
  		int ws_sprWindow_y1=ws_sprWindow_y0+ws_ioRam[0x0f];
-      uint32	*ws_sprRamBase=(uint32*)(internalRam+(((uint32)ws_ioRam[0x04])<<9));
+      uint32_t	*ws_sprRamBase=(uint32_t*)(internalRam+(((uint32_t)ws_ioRam[0x04])<<9));
 
       // seek to first sprite
       ws_sprRamBase+=ws_ioRam[0x06]-1;
 
       for (int i=ws_ioRam[0x06]; i>ws_ioRam[0x05]; i--)
       {
-         uint32 spr=*ws_sprRamBase--;
+         uint32_t spr=*ws_sprRamBase--;
 
          if (!(spr&0x2000))
          {
@@ -1173,13 +1174,13 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
       // note: byte ordering assumptions!
       int	ws_currentTile=(ws_fgScroll_x>>3);
-      uint16	*ws_fgScrollRamBase=(uint16*)(internalRam+(((uint32)ws_ioRam[0x07]&0xf0)<<7)+
+      uint16_t	*ws_fgScrollRamBase=(uint16_t*)(internalRam+(((uint32_t)ws_ioRam[0x07]&0xf0)<<7)+
                                              ((ws_fgScroll_y&0xfff8)<<3));
 
       int	lineInTile   = ws_fgScroll_y&0x07;
       int columnInTile = ws_fgScroll_x&0x07;
 
-      int16	*scanlinePtr=framebuffer;
+      int16_t	*scanlinePtr=framebuffer;
 
 
       // window disabled
@@ -1190,15 +1191,15 @@ void ws_gpu_renderScanline(int16 *framebuffer)
             // render the first clipped tile
             if (columnInTile)
             {
-               uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+               uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                ws_currentTile++;
-               uint8	*ws_tileRow=ws_tileCache_getTileRow(
+               uint8_t	*ws_tileRow=ws_tileCache_getTileRow(
                                  tileInfo&0x1ff, lineInTile,
                                  tileInfo&0x8000,
                                  tileInfo&0x4000,
                                  tileInfo&0x2000);
 
-               int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+               int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
                ws_tileRow+=columnInTile;
 
@@ -1224,11 +1225,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
             for (int i=0; i<nbTiles; i++)
             {
-               uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+               uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                ws_currentTile++;
-               uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+               uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                  tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-               int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+               int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
 
                if (*ws_tileRow)
@@ -1299,11 +1300,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
             // render the last clipped tile
             if (columnInTile)
             {
-               uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+               uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                ws_currentTile++;
-               uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+               uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                  tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-               int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+               int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
 
                for (int i=0; i<columnInTile; i++)
@@ -1323,12 +1324,12 @@ void ws_gpu_renderScanline(int16 *framebuffer)
             // render the first clipped tile
             if (columnInTile)
             {
-               uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+               uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                ws_currentTile++;
-               uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+               uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                  tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
 
-               int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+               int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
                ws_tileRow+=columnInTile;
 
                if ((tileInfo>>9)&0x04)
@@ -1364,11 +1365,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
             for (int i=0; i<nbTiles; i++)
             {
-               uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+               uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                ws_currentTile++;
-               uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+               uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                  tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-               int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+               int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
 
                if ((tileInfo>>9)&0x04)
                {
@@ -1468,11 +1469,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
             // render the last clipped tile
             if (columnInTile)
             {
-               uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+               uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                ws_currentTile++;
-               uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+               uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                  tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-               int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+               int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
 
 
                if ((tileInfo>>9)&0x04)
@@ -1512,11 +1513,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
                // render the first clipped tile
                if (columnInTile)
                {
-                  uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                  uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                   ws_currentTile++;
-                  uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                  uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                     tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                  int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+                  int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
                   ws_tileRow+=columnInTile;
 
@@ -1543,11 +1544,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
                for (int i=0; i<nbTiles; i++)
                {
-                  uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                  uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                   ws_currentTile++;
-                  uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                  uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                     tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                  int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+                  int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
 
 
@@ -1627,11 +1628,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
                // render the last clipped tile
                if (columnInTile)
                {
-                  uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                  uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                   ws_currentTile++;
-                  uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                  uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                     tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                  int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+                  int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
 
                   for (int i=0; i<columnInTile; i++)
@@ -1652,12 +1653,12 @@ void ws_gpu_renderScanline(int16 *framebuffer)
                // render the first clipped tile
                if (columnInTile)
                {
-                  uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                  uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                   ws_currentTile++;
-                  uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                  uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                     tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
 
-                  int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+                  int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
                   ws_tileRow+=columnInTile;
 
                   for (int i=columnInTile; i<8; i++)
@@ -1682,11 +1683,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
                for (int i=0; i<nbTiles; i++)
                {
-                  uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                  uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                   ws_currentTile++;
-                  uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                  uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                     tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                  int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+                  int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
 
 
                   if ((*ws_tileRow)&&(column>=ws_fgWindow_x0)&&(column<=ws_fgWindow_x1))
@@ -1765,11 +1766,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
                // render the last clipped tile
                if (columnInTile)
                {
-                  uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                  uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                   ws_currentTile++;
-                  uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                  uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                     tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                  int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+                  int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
 
 
                   for (int i=0; i<columnInTile; i++)
@@ -1798,11 +1799,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
                   // render the first clipped tile
                   if (columnInTile)
                   {
-                     uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                     uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                      ws_currentTile++;
-                     uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                     uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                        tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                     int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+                     int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
                      ws_tileRow+=columnInTile;
 
@@ -1829,11 +1830,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
                   for (int i=0; i<nbTiles; i++)
                   {
-                     uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                     uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                      ws_currentTile++;
-                     uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                     uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                        tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                     int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+                     int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
 
 
@@ -1913,11 +1914,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
                   // render the last clipped tile
                   if (columnInTile)
                   {
-                     uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                     uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                      ws_currentTile++;
-                     uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                     uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                        tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                     int16	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
+                     int16_t	*wsc_paletteAlias=&wsc_palette[((tileInfo>>9)&0x0f)<<4];
 
 
                      for (int i=0; i<columnInTile; i++)
@@ -1938,12 +1939,12 @@ void ws_gpu_renderScanline(int16 *framebuffer)
                   // render the first clipped tile
                   if (columnInTile)
                   {
-                     uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                     uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                      ws_currentTile++;
-                     uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                     uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                        tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
 
-                     int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+                     int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
                      ws_tileRow+=columnInTile;
 
                      for (int i=columnInTile; i<8; i++)
@@ -1968,10 +1969,10 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 
                   for (int i=0; i<nbTiles; i++)
                   {
-                     uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                     uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                      ws_currentTile++;
-                     uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile, tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                     int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+                     uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile, tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
+                     int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
 
                      if ((*ws_tileRow)&&((column<ws_fgWindow_x0)||(column>ws_fgWindow_x1)))
                      {
@@ -2049,11 +2050,11 @@ void ws_gpu_renderScanline(int16 *framebuffer)
                   // render the last clipped tile
                   if (columnInTile)
                   {
-                     uint16	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
+                     uint16_t	tileInfo=ws_fgScrollRamBase[ws_currentTile&0x1f];
                      ws_currentTile++;
-                     uint8	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
+                     uint8_t	*ws_tileRow=ws_tileCache_getTileRow(	tileInfo&0x1ff, lineInTile,
                                        tileInfo&0x8000, tileInfo&0x4000, tileInfo&0x2000);
-                     int16	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
+                     int16_t	*ws_paletteAlias=&ws_palette[((tileInfo>>9)&0x0f)<<2];
 
 
                      for (int i=0; i<columnInTile; i++)
@@ -2087,14 +2088,14 @@ void ws_gpu_renderScanline(int16 *framebuffer)
       int ws_sprWindow_y0=ws_ioRam[0x0d];
       int ws_sprWindow_x1=ws_ioRam[0x0e];
       int ws_sprWindow_y1=ws_ioRam[0x0f];
-      uint32	*ws_sprRamBase=(uint32*)(internalRam+(((uint32)ws_ioRam[0x04])<<9));
+      uint32_t	*ws_sprRamBase=(uint32_t*)(internalRam+(((uint32_t)ws_ioRam[0x04])<<9));
 
       // seek to first sprite
       ws_sprRamBase+=ws_ioRam[0x06]-1;
 
       for (int i=ws_ioRam[0x06]; i>ws_ioRam[0x05]; i--)
       {
-         uint32 spr=*ws_sprRamBase--;
+         uint32_t spr=*ws_sprRamBase--;
 
          if (spr&0x2000)
          {
@@ -2137,7 +2138,7 @@ void ws_gpu_renderScanline(int16 *framebuffer)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_gpu_write_byte(DWORD offset, BYTE value)
+void ws_gpu_write_byte(uint32_t offset, uint8_t value)
 {
    // ws 4 color tiles
    if ((offset>=0x2000)&&(offset<0x4000))
@@ -2179,7 +2180,7 @@ void ws_gpu_write_byte(DWORD offset, BYTE value)
       if (offset>=0xfe00)
       {
          // RGB444 format
-         uint16	color=(internalRam[(offset&0xfffe)+1]);
+         uint16_t	color=(internalRam[(offset&0xfffe)+1]);
          color<<=8;
          color|=(internalRam[(offset&0xfffe)]);
 
@@ -2203,7 +2204,7 @@ void ws_gpu_write_byte(DWORD offset, BYTE value)
 //
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int ws_gpu_unknownPort;
-int ws_gpu_port_write(DWORD port,BYTE value)
+int ws_gpu_port_write(uint32_t port,uint8_t value)
 {
    ws_gpu_unknownPort=0;
 
@@ -2268,7 +2269,7 @@ int ws_gpu_port_write(DWORD port,BYTE value)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-BYTE ws_gpu_port_read(BYTE port)
+uint8_t ws_gpu_port_read(uint8_t port)
 {
    switch(port)
    {

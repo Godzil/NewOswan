@@ -72,6 +72,6 @@ void cpu_writeport(uint32_t, uint8_t);
 #define cpu_readop cpu_readmem20
 #define cpu_readop_arg cpu_readmem20
 void cpu_writemem20(uint32_t, uint8_t);
-BYTE cpu_readmem20(uint32_t);
+uint8_t cpu_readmem20(uint32_t);
 
 #endif /* __NECITRF_H_ */

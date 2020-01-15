@@ -11,13 +11,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "types.h"
 #include "log.h"
 #include "rom.h"
 
@@ -33,10 +33,10 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint8	*ws_rom_load(char *path, uint32 *romSize)
+uint8_t	*ws_rom_load(char *path, uint32_t *romSize)
 {
     int fd;
-    uint8 *ret_ptr;
+    uint8_t *ret_ptr;
     struct stat FileStat;
 
     fd = open(path, O_RDWR);
@@ -45,7 +45,7 @@ uint8	*ws_rom_load(char *path, uint32 *romSize)
 
     *romSize = FileStat.st_size;
 
-    ret_ptr = (uint8 *)mmap(NULL, FileStat.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+    ret_ptr = (uint8_t *)mmap(NULL, FileStat.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
     close(fd);
 
@@ -68,7 +68,7 @@ uint8	*ws_rom_load(char *path, uint32 *romSize)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void	ws_rom_dumpInfo(uint8 *wsrom, uint32 romSize)
+void	ws_rom_dumpInfo(uint8_t *wsrom, uint32_t romSize)
 {
    ws_romHeaderStruct		*romHeader=ws_rom_getHeader(wsrom,romSize);
 
@@ -144,7 +144,7 @@ void	ws_rom_dumpInfo(uint8 *wsrom, uint32 romSize)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-ws_romHeaderStruct		*ws_rom_getHeader(uint8 *wsrom, uint32 wsromSize)
+ws_romHeaderStruct		*ws_rom_getHeader(uint8_t *wsrom, uint32_t wsromSize)
 {
     ws_romHeaderStruct *wsromHeader = (ws_romHeaderStruct *)(wsrom + wsromSize - 10);
 
@@ -161,7 +161,7 @@ ws_romHeaderStruct		*ws_rom_getHeader(uint8 *wsrom, uint32 wsromSize)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint32				ws_rom_sramSize(uint8 *wsrom, uint32 wsromSize)
+uint32_t				ws_rom_sramSize(uint8_t *wsrom, uint32_t wsromSize)
 {
    ws_romHeaderStruct		*romHeader=ws_rom_getHeader(wsrom,wsromSize);
 
@@ -193,7 +193,7 @@ uint32				ws_rom_sramSize(uint8 *wsrom, uint32 wsromSize)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint32				ws_rom_eepromSize(uint8 *wsrom, uint32 wsromSize)
+uint32_t				ws_rom_eepromSize(uint8_t *wsrom, uint32_t wsromSize)
 {
    ws_romHeaderStruct		*romHeader=ws_rom_getHeader(wsrom,wsromSize);
 

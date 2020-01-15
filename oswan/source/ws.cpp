@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
@@ -42,10 +43,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-uint32	ws_cycles;
-uint32	ws_skip;
-uint32	ws_cyclesByLine=0;
-uint32	vblank_count=0;
+uint32_t	ws_cycles;
+uint32_t	ws_skip;
+uint32_t	ws_cyclesByLine=0;
+uint32_t	vblank_count=0;
 
 char *ws_sram_path = NULL;
 char *ws_ieep_path = NULL;
@@ -181,7 +182,7 @@ void ws_reset(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-int ws_executeLine(int16 *framebuffer, int renderLine)
+int ws_executeLine(int16_t *framebuffer, int renderLine)
 {
    int drawWholeScreen=0;
 
@@ -204,7 +205,7 @@ int ws_executeLine(int16 *framebuffer, int renderLine)
 
    ws_cycles%=ws_cyclesByLine;
 
-   for(uint32 uI=0; uI<ws_skip; uI++)
+   for(uint32_t uI=0; uI<ws_skip; uI++)
    {
       if (renderLine)
       {
@@ -421,8 +422,8 @@ int	ws_loadState(char *statepath)
 
 int	ws_saveState(char *statepath)
 {
-   uint16	crc=memory_getRomCrc();
-   unsigned	value;
+   uint16_t	crc=memory_getRomCrc();
+   uint32_t	value;
    char	*newPath;
    fprintf(log_get(),"saving %s\n",statepath);
 
