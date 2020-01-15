@@ -25,7 +25,6 @@
 #include "source/io.h"
 #include "source/ws.h"
 #include "source/emulate.h"
-#include "source/ticker.h"
 #include "source/audio.h"
 
 #undef DWORD
