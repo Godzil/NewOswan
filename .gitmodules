@@ -1,0 +1,3 @@
+[submodule "external/nanogui"]
+	path = external/nanogui
+	url = git@github.com:Godzil/nanogui.git
