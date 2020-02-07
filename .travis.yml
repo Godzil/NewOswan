@@ -1,0 +1,33 @@
+dist: trusty
+language: c
+os:
+  - linux
+#  - osx
+#matrix:
+#  allow_failures:
+#    - os: osx
+
+addons:
+  apt:
+    packages:
+      - libsdl1.2-dev
+
+compiler:
+  - clang
+  - gcc
+
+script:
+  - make
+
+cache:
+  directories:
+    - '$HOME/.sonar/cache'
+
+#before_install:
+#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update      ; fi
+#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install glew; fi
+
+#install: true
+
+#after_success:
+#  - bash <(curl -s https://codecov.io/bash)
