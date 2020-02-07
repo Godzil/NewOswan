@@ -2,7 +2,36 @@
 #ifndef __NECITRF_H_
 #define __NECITRF_H_
 
+typedef enum { ES, CS, SS, DS } SREGS;
+typedef enum { AW, CW, DW, BW, SP, BP, IX, IY } WREGS;
+typedef enum { AL,AH,CL,CH,DL,DH,BL,BH,SPL,SPH,BPL,BPH,IXL,IXH,IYL,IYH } BREGS;
 
+#pragma pack(1)
+typedef union
+{
+   /* eight general registers */
+   uint16_t w[8];    /* viewed as 16 bits registers */
+   uint8_t  b[16];   /* or as 8 bit registers */
+} necbasicregs;
+typedef struct
+{
+   necbasicregs regs;
+   uint16_t	sregs[4];
+
+   uint16_t	ip;
+
+   int32_t	SignVal;
+   int32_t  AuxVal, OverVal, ZeroVal, CarryVal, ParityVal; /* 0 or non-0 valued flags */
+
+   uint32_t	TF, IF, DF, MF; 	/* 0 or 1 valued flags */	/* OB[19.07.99] added Mode Flag V30 */
+
+   uint32_t	int_vector;
+   uint32_t	pending_irq;
+   uint32_t	nmi_state;
+   uint32_t	irq_state;
+   int     (*irq_callback)(int irqline);
+} nec_Regs;
+#pragma pack()
 
 enum
 {

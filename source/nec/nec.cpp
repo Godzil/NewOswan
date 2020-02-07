@@ -3920,9 +3920,19 @@ int nec_execute(int cycles)
    while(nec_ICount>0)
    {
 #if 0
-      uint8_t op = cpu_readmem20((I.sregs[CS]<<4) + I.ip);
-      printf("[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip,
-            op, instructionsName[op], I.IF);
+
+#define MK_LP(_seg, _off) (((_seg) << 4) + (_off))
+
+      if ( MK_LP(I.sregs[CS], I.ip) == 0x5E820 )
+      {
+         uint8_t op = cpu_readmem20((I.sregs[CS]<<4) + I.ip);
+
+         printf("AX = %04Xh - [%04X:%04Xh] = %04Xh\n", I.regs.w[AW], I.sregs[DS], 0x127f, cpu_readmem20(MK_LP(I.sregs[DS], 0x127f)));
+
+         printf("CS: %04Xh - DS: %04Xh - ES: %04Xh - SS: %04Xh\n", I.sregs[CS], I.sregs[DS], I.sregs[ES], I.sregs[SS]);
+         printf("[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip,
+               op, instructionsName[op], I.IF);
+      }
 #endif
       nec_instruction[FETCHOP]();
 //		nec_ICount++;
