@@ -21,3 +21,7 @@ rom/
 dumpinfo
 testserial
 wonderswan
+
+# Build folder
+cmake-*/
+build*/
