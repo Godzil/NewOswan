@@ -16,12 +16,13 @@ OBJS       = $(wonderswan_CXX_SRCS:.cpp=.o)
 
 all: wonderswan dumpinfo
 
-CXX       = g++
+# CXX       = g++
 CXXFLAGS  = -g -O2 `sdl-config --cflags` -Wall -Werror -std=c++98 -Wno-write-strings -Wno-unused-result
 OPTIONS   =  -D_REENTRANT -I. -DVERSION=\"`git describe  --tags --long --dirty`\"
 
 LIBRARY_PATH =
-LIBS      = -g $(LIBRARY_PATH) `sdl-config --libs` 
+SDL_LIBS  = `sdl-config --libs`
+LIBS      = -g $(LIBRARY_PATH) $(SDL_LIBS)
 
 ALLCFLAGS = $(CFLAGS) $(CEXTRA) $(OPTIONS) $(ALLFLAGS)
 ALLCXXFLAGS=$(CXXFLAGS) $(CXXEXTRA) $(OPTIONS) $(ALLFLAGS)
@@ -53,4 +54,5 @@ dumpinfo: dumpinfo.o
 	$(CXX) $(LIBS) -o $@ $(<)
 
 wonderswan: $(OBJS)
+    @echo "SDL Libs>> $(SDL_LIBS)"
 	$(CXX) $(LIBS) -o $@ $(OBJS)
