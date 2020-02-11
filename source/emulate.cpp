@@ -263,8 +263,8 @@ static void read_keys()
 ////////////////////////////////////////////////////////////////////////////////
 static void ws_drawDoubledScanline(int16_t *vs, int16_t *backbuffer_alias)
 {
-    register int32_t *vs_alias = (int32_t *)vs;
-    register int32_t data;
+    int32_t *vs_alias = (int32_t *)vs;
+    int32_t data;
 
     for (int pixel = 0 ; pixel < 224 ; pixel += 8)
     {
@@ -308,8 +308,8 @@ static void ws_drawDoubledScanline(int16_t *vs, int16_t *backbuffer_alias)
 ////////////////////////////////////////////////////////////////////////////////
 static void ws_drawDoubledRotatedScanline(int16_t *vs, int16_t *backbuffer_alias)
 {
-    register int32_t *vs_alias = (int32_t *)vs;
-    register int32_t data;
+    int32_t *vs_alias = (int32_t *)vs;
+    int32_t data;
 
     for (int pixel = 0 ; pixel < 144 ; pixel += 8)
     {
