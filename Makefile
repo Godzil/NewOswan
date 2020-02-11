@@ -54,5 +54,4 @@ dumpinfo: dumpinfo.o
 	$(CXX) $(LIBS) -o $@ $(<)
 
 wonderswan: $(OBJS)
-    @echo "SDL Libs>> $(SDL_LIBS)"
-	$(CXX) $(LIBS) -o $@ $(OBJS)
+	$(CXX) -o $@ $(OBJS) $(LIBS)
