@@ -17,7 +17,7 @@ OBJS       = $(wonderswan_CXX_SRCS:.cpp=.o)
 all: wonderswan dumpinfo
 
 CXX       = g++
-CXXFLAGS  = -g -O2 `sdl-config --cflags` -Wall -Werror -std=c++98 -Wno-write-strings
+CXXFLAGS  = -g -O2 `sdl-config --cflags` -Wall -Werror -std=c++98 -Wno-write-strings -Wno-unused-result
 OPTIONS   =  -D_REENTRANT -I. -DVERSION=\"`git describe  --tags --long --dirty`\"
 
 LIBRARY_PATH =
