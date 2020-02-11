@@ -329,6 +329,7 @@ uint8_t cpu_readport(uint8_t port)
    int w1,w2;
    uint8_t retVal = 0;
 
+/*
    if (port > 0x100)
    {
       port &= 0xFF;
@@ -337,7 +338,7 @@ uint8_t cpu_readport(uint8_t port)
          return 0x00;
       }
    }
-
+*/
 
    switch (port)
    {
@@ -1046,6 +1047,7 @@ void cpu_writeport(uint32_t port,uint8_t value)
        }
        fflush(stdout);
    }
+    break;
 
    case 0xca:
       if(value==0x15)

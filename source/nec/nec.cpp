@@ -3889,7 +3889,7 @@ void nec_set_reg(int regnum, uint32_t val)
    }
 }
 
-char *instructionsName[256] = 
+const char *instructionsName[256] =
 {
    "ADD ", "ADD ", "ADD ", "ADD ", "ADD ", "ADD ", "PUSH", "POP ", "OR  ", "OR  ", "OR  ", "OR  ", "OR  ", "OR  ", "PUSH", "----",
    "ADC ", "ADC ", "ADC ", "ADC ", "ADC ", "ADC ", "PUSH", "POP ", "SBB ", "SBB ", "SBB ", "SBB ", "SBB ", "SBB ", "PUSH", "POP ",
