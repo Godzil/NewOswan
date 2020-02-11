@@ -459,7 +459,7 @@ int	ws_saveState(char *statepath)
       }
    }
 
-   int	fp=open(newPath, O_RDWR|O_CREAT);
+   int	fp=open(newPath, O_RDWR|O_CREAT, 0644);
    delete newPath;
 
    if (fp==-1)
