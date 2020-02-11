@@ -17,6 +17,8 @@ message("-- Building version ${VERSION}")
 
 add_executable(wonderswan main.cpp)
 
+set_property(TARGET wonderswan PROPERTY CXX_STANDARD 98)
+
 target_compile_definitions(wonderswan PUBLIC VERSION="${VERSION}")
 target_include_directories(wonderswan PUBLIC source)
 target_include_directories(wonderswan PUBLIC ${SDL_INCLUDE_DIR})
@@ -24,3 +26,5 @@ target_include_directories(wonderswan PUBLIC ${SDL_INCLUDE_DIR})
 add_subdirectory(source)
 
 target_link_libraries(wonderswan wswan ${SDL_LIBRARY})
+
+add_executable(dumpinfo dumpinfo.c)
