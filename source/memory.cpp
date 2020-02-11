@@ -284,7 +284,7 @@ char *create_file(char *filename, uint32_t size)
     char buf[] = { 0 };
 
     printf("Trying to create %s, size = %u...\n",filename, size);
-    fd = open(filename, O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC);
+    fd = open(filename, O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC, 0644);
     fchmod(fd, 0644);
     close(fd);
     sync();
