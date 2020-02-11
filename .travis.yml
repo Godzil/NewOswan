@@ -10,6 +10,7 @@ os:
 addons:
   apt:
     packages:
+      - libsdl1.2
       - libsdl1.2-dev
 
 compiler:
