@@ -18,6 +18,10 @@ compiler:
 
 script:
   - make
+  - make build
+  - cd build
+  - cmake ..
+  - make
 
 cache:
   directories:
