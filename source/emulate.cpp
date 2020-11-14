@@ -172,7 +172,6 @@ void ws_emulate(void)
 
 // 15 bits RGB555
     //Format format(16, 0x007c00, 0x00003e0, 0x0000001f);
-    //Console console;
     //Surface *surface;
     if (app_rotated)
     {
