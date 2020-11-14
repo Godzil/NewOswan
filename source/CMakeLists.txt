@@ -6,6 +6,5 @@ add_library(wswan ${SOURCES} ${HEADERS})
 target_link_libraries(wswan nec_v30)
 
 target_include_directories(wswan PUBLIC .)
-target_include_directories(wswan PUBLIC ${SDL_INCLUDE_DIR})
 
 add_subdirectory(nec)
