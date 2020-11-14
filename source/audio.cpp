@@ -29,8 +29,6 @@
 #include "io.h"
 #include "audio.h"
 
-#include "SDL.h"
-
 #define	SNDP	ws_ioRam[0x80]
 #define SNDV	ws_ioRam[0x88]
 #define SNDSWP	ws_ioRam[0x8C]
@@ -144,7 +142,6 @@ void ws_audio_init(void)
    ws_audio_log=0;
    //ws_audio_seal_init();
    ws_audio_reset();
-   SDL_PauseAudio(0);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
