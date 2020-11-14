@@ -1,3 +1,6 @@
 [submodule "external/portaudio"]
 	path = external/portaudio
 	url = https://git.assembla.com/portaudio.git
+[submodule "external/glfw"]
+	path = external/glfw
+	url = https://github.com/glfw/glfw.git
