@@ -252,7 +252,7 @@ char *load_file(char *filename)
 
     fstat(fd, &FileStat);
 
-    printf("Trying to load %s, size = %lu...\n",filename, FileStat.st_size);
+    printf("Trying to load %s, size = %lu...\n",filename, (unsigned long)FileStat.st_size);
 
     ret_ptr = (char *)mmap(NULL, FileStat.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
