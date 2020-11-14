@@ -163,6 +163,8 @@ static void read_keys()
 ////////////////////////////////////////////////////////////////////////////////
 void ws_emulate(void)
 {
+    // Placeholder
+    read_keys();
 #if 0
     int32_t nCount = 0;
     int i = 0;
@@ -173,176 +175,83 @@ void ws_emulate(void)
 // 15 bits RGB555
     //Format format(16, 0x007c00, 0x00003e0, 0x0000001f);
     //Surface *surface;
-    if (app_rotated)
+    surface = new Surface(224 * 2, 144 * 2, format);
+    int16_t *backbuffer = (int16_t *)malloc(224 * 144 * sizeof(int16_t));
+    memset(backbuffer, 0x00, 224 * 144 * sizeof(int16_t));
+    surfacePitch = (surface->pitch() >> 1);
+
+    dNormalLast = (double)SDL_GetTicks();
+
+    //console.open(app_window_title, 224 * 2, 144 * 2, format);
+
+    while (1)
     {
-        surface = new Surface(144 * 2, 224 * 2, format);
-        int16_t *backbuffer = (int16_t *)malloc(224 * 144 * sizeof(int16_t));
-        memset(backbuffer, 0x00, 224 * 144 * sizeof(int16_t));
-        surfacePitch = (surface->pitch() >> 1);
 
-        dNormalLast = (double)SDL_GetTicks();
+        dTemp = (double)SDL_GetTicks();
+        dTime = dTemp - dNormalLast;
 
-        console.open(app_window_title, 144 * 2, 224 * 2, format);
 
-        while (1)
+        nCount = (int32_t)(dTime * 0.07547); // does this calculation make sense?
+
+        if (nCount <= 0)
+        {
+            SDL_Delay(2);
+        } // No need to do anything for a bit
+        else
         {
 
-            dTemp = (double)SDL_GetTicks();
-            dTime = dTemp - dNormalLast;
+            dNormalLast += nCount * (1 / 0.07547);
 
-            nCount = (int32_t)(dTime * 0.07547); // does this calculation make sense?
-
-            if (nCount <= 0)
+            if (nCount > 10)
             {
-                SDL_Delay(2);
-            } // No need to do anything for a bit
-            else
-            {
-
-                dNormalLast += nCount * (1 / 0.07547);
-
-                if (nCount > 10)
-                {
-                    nCount = 10;
-                }
-
-                read_keys();
-
-                if (ws_key_esc)
-                {
-                    console.close();
-
-                    app_terminate = 1;
-
-                    if ((ws_rom_path != NULL) || (app_terminate))
-                    {
-                        break;
-                    }
-
-                    console.open(app_window_title, 144 * 2, 224 * 2, format);
-
-                }
-
-
-                for (i = 0 ; i < nCount - 1 ; i++)
-                {
-                    while (!ws_executeLine(backbuffer, 0))
-                    {
-                    }
-                }
-
-                while (!ws_executeLine(backbuffer, 1))
-                {
-                }
-
-
-                ws_rotate_backbuffer(backbuffer);
-
-                int16_t *vs = (int16_t *)surface->lock();
-                int16_t *backbuffer_alias = backbuffer;
-
-                for (int line = 0 ; line < 224 ; line++)
-                {
-                    ws_drawDoubledRotatedScanline(vs, backbuffer_alias);
-                    vs += surfacePitch;
-                    ws_drawDoubledRotatedScanline(vs, backbuffer_alias);
-                    vs += surfacePitch;
-                    backbuffer_alias += 144;
-                }
-
-                surface->unlock();
-                surface->copy(console);
-                console.update();
+                nCount = 10;
             }
-        }
 
-        console.close();
-        delete surface;
+            read_keys();
 
-    }
-    else
-    {
-        surface = new Surface(224 * 2, 144 * 2, format);
-        int16_t *backbuffer = (int16_t *)malloc(224 * 144 * sizeof(int16_t));
-        memset(backbuffer, 0x00, 224 * 144 * sizeof(int16_t));
-        surfacePitch = (surface->pitch() >> 1);
-
-        dNormalLast = (double)SDL_GetTicks();
-
-        console.open(app_window_title, 224 * 2, 144 * 2, format);
-
-        while (1)
-        {
-
-            dTemp = (double)SDL_GetTicks();
-            dTime = dTemp - dNormalLast;
-
-
-            nCount = (int32_t)(dTime * 0.07547); // does this calculation make sense?
-
-            if (nCount <= 0)
+            if (ws_key_esc)
             {
-                SDL_Delay(2);
-            } // No need to do anything for a bit
-            else
-            {
-                
-                dNormalLast += nCount * (1 / 0.07547);
+                app_terminate = 1;
 
-                if (nCount > 10)
+                if ((ws_rom_path != NULL) || (app_terminate))
                 {
-                    nCount = 10;
+                    break;
                 }
 
-                read_keys();
+                //console.open(app_window_title, 224 * 2, 144 * 2, format);
 
-                if (ws_key_esc)
-                {
-                    console.close();
-
-                    app_terminate = 1;
-
-                    if ((ws_rom_path != NULL) || (app_terminate))
-                    {
-                        break;
-                    }
-
-                    console.open(app_window_title, 224 * 2, 144 * 2, format);
-
-                }
-
-
-                for (i = 0 ; i < nCount - 1 ; i++)
-                {
-                    while (!ws_executeLine(backbuffer, 0))
-                    {
-                    }
-                }
-
-                while (!ws_executeLine(backbuffer, 1))
-                {
-                }
-
-                int16_t *vs = (int16_t *)surface->lock();
-                int16_t *backbuffer_alias = backbuffer;
-
-                for (int line = 0 ; line < 144 ; line++)
-                {
-                    ws_drawDoubledScanline(vs, backbuffer_alias);
-                    vs += surfacePitch;
-                    ws_drawDoubledScanline(vs, backbuffer_alias);
-                    vs += surfacePitch;
-                    backbuffer_alias += 224;
-                }
-
-                surface->unlock();
-                surface->copy(console);
-                console.update();
             }
-        }
 
-        console.close();
-        delete surface;
+
+            for (i = 0 ; i < nCount - 1 ; i++)
+            {
+                while (!ws_executeLine(backbuffer, 0))
+                {
+                }
+            }
+
+            while (!ws_executeLine(backbuffer, 1))
+            {
+            }
+
+            int16_t *vs = (int16_t *)surface->lock();
+            int16_t *backbuffer_alias = backbuffer;
+
+            for (int line = 0 ; line < 144 ; line++)
+            {
+                ws_drawDoubledScanline(vs, backbuffer_alias);
+                vs += surfacePitch;
+                ws_drawDoubledScanline(vs, backbuffer_alias);
+                vs += surfacePitch;
+                backbuffer_alias += 224;
+            }
+
+            //surface->unlock();
+            //surface->copy(console);
+            //console.update();
+        }
+        //console.close();
+        //delete surface;
     }
 #endif
 }
