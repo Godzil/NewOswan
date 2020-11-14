@@ -15,7 +15,6 @@
 #include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
-#include "SDL.h"
 #include "source/log.h"
 #include "source/rom.h"
 #include "source/nec/nec.h"
@@ -122,9 +121,6 @@ int ws_mk_ieppath()
 
 int main(int argc, char *argv[])
 {
-   atexit(SDL_Quit);
-   SDL_Init(SDL_INIT_TIMER);
-
    if (!log_init(LOG_PATH))
    {
       printf("Warning: cannot open log file %s\n",LOG_PATH);
