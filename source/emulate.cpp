@@ -165,29 +165,29 @@ void ws_emulate(void)
 {
     // Placeholder
     read_keys();
-#if 0
+
     int32_t nCount = 0;
     int i = 0;
 
     double dTime = 0.0, dNormalLast = 0.0, dTemp;
-    int32_t surfacePitch;
+    //int32_t surfacePitch;
 
 // 15 bits RGB555
     //Format format(16, 0x007c00, 0x00003e0, 0x0000001f);
     //Surface *surface;
-    surface = new Surface(224 * 2, 144 * 2, format);
+    //surface = new Surface(224 * 2, 144 * 2, format);
     int16_t *backbuffer = (int16_t *)malloc(224 * 144 * sizeof(int16_t));
     memset(backbuffer, 0x00, 224 * 144 * sizeof(int16_t));
-    surfacePitch = (surface->pitch() >> 1);
+    //surfacePitch = (surface->pitch() >> 1);
 
-    dNormalLast = (double)SDL_GetTicks();
+    //dNormalLast = (double)SDL_GetTicks();
 
     //console.open(app_window_title, 224 * 2, 144 * 2, format);
 
     while (1)
     {
 
-        dTemp = (double)SDL_GetTicks();
+        dTemp = 1;//(double)SDL_GetTicks();
         dTime = dTemp - dNormalLast;
 
 
@@ -195,7 +195,7 @@ void ws_emulate(void)
 
         if (nCount <= 0)
         {
-            SDL_Delay(2);
+            //SDL_Delay(2);
         } // No need to do anything for a bit
         else
         {
@@ -234,17 +234,7 @@ void ws_emulate(void)
             {
             }
 
-            int16_t *vs = (int16_t *)surface->lock();
-            int16_t *backbuffer_alias = backbuffer;
-
-            for (int line = 0 ; line < 144 ; line++)
-            {
-                ws_drawDoubledScanline(vs, backbuffer_alias);
-                vs += surfacePitch;
-                ws_drawDoubledScanline(vs, backbuffer_alias);
-                vs += surfacePitch;
-                backbuffer_alias += 224;
-            }
+            //int16_t *backbuffer_alias = backbuffer;
 
             //surface->unlock();
             //surface->copy(console);
@@ -253,5 +243,4 @@ void ws_emulate(void)
         //console.close();
         //delete surface;
     }
-#endif
 }
