@@ -12,6 +12,8 @@
 #ifndef __IO_H__
 #define __IO_H__
 
+#include <stdint.h>
+
 extern uint8_t	*ws_ioRam;
 extern uint8_t ws_key_start;
 extern uint8_t ws_key_x4;

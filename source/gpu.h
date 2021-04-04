@@ -12,6 +12,8 @@
 #ifndef __GPU_H__
 #define __GPU_H__
 
+#include <stdint.h>
+
 #define COLOUR_SCHEME_DEFAULT	0
 #define COLOUR_SCHEME_AMBER		1
 #define COLOUR_SCHEME_GREEN		2

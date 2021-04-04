@@ -2,7 +2,7 @@
 #ifndef __NECITRF_H_
 #define __NECITRF_H_
 
-
+#include <stdint.h>
 
 enum
 {

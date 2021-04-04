@@ -12,6 +12,8 @@
 #ifndef __AUDIO_H__
 #define __AUDIO_H__
 
+#include <stdint.h>
+
 void ws_audio_init();
 void ws_audio_reset();
 void ws_audio_port_write(uint32_t port, uint8_t value);

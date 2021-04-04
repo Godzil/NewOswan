@@ -1,7 +1,7 @@
 #ifndef __NEC_H_
 #define __NEC_H_
 
-
+#include <stdint.h>
 #include "necintrf.h"
 
 typedef enum { ES, CS, SS, DS } SREGS;

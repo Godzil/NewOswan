@@ -12,6 +12,8 @@
 #ifndef __MEMORY_H__
 #define __MEMORY_H__
 
+#include <stdint.h>
+
 extern uint8_t	*ws_staticRam;
 extern uint8_t	*internalRam;
 extern uint8_t	*externalEeprom;

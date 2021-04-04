@@ -1,6 +1,8 @@
 #ifndef EMULATE_H
 #define EMULATE_H
 
+#include <stdint.h>
+
 #define		KEY_ENTER	0x0D
 #define		KEY_SPACE	0x20
 #define		KEY_ESC		0x1b

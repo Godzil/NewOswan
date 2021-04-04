@@ -12,6 +12,8 @@
 #ifndef __ROM_H__
 #define __ROM_H__
 
+#include <stdint.h>
+
 #define WS_SYSTEM_MONO			0
 #define WS_SYSTEM_COLOR			1
 

@@ -12,6 +12,8 @@
 #ifndef __WS_H__
 #define __WS_H__
 
+#include <stdint.h>
+
 #define WS_SYSTEM_MONO			0
 #define WS_SYSTEM_COLOR			1
 #define WS_SYSTEM_AUTODETECT    2
