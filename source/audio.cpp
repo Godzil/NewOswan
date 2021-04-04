@@ -29,8 +29,6 @@
 #include "io.h"
 #include "audio.h"
 
-#include "SDL.h"
-
 #define	SNDP	ws_ioRam[0x80]
 #define SNDV	ws_ioRam[0x88]
 #define SNDSWP	ws_ioRam[0x8C]
@@ -91,6 +89,7 @@ int RandData[BUFSIZEN];
 int CntSwp=0;
 int PcmWrPos=0;
 
+/*
 const long TblChVol[16]=  				// n/15 n=0~15
 {
    -10000,-2352,-1750,-1398,-1148,-954,-796,-662,
@@ -101,6 +100,7 @@ const long TblMainVol[4]=  				// 1,1/2,1/4,1/8
 {
    0,-602,-1204,-1806
 };
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 // seal audio specific
@@ -142,7 +142,6 @@ void ws_audio_init(void)
    ws_audio_log=0;
    //ws_audio_seal_init();
    ws_audio_reset();
-   SDL_PauseAudio(0);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //

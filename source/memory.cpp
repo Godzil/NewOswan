@@ -252,7 +252,7 @@ char *load_file(char *filename)
 
     fstat(fd, &FileStat);
 
-    printf("Trying to load %s, size = %lu...\n",filename, FileStat.st_size);
+    printf("Trying to load %s, size = %lu...\n",filename, (unsigned long)FileStat.st_size);
 
     ret_ptr = (char *)mmap(NULL, FileStat.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 
@@ -284,7 +284,7 @@ char *create_file(char *filename, uint32_t size)
     char buf[] = { 0 };
 
     printf("Trying to create %s, size = %u...\n",filename, size);
-    fd = open(filename, O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC);
+    fd = open(filename, O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC, 0644);
     fchmod(fd, 0644);
     close(fd);
     sync();

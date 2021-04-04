@@ -38,6 +38,7 @@
 /* cpu state                                                               */
 /***************************************************************************/
 
+uint64_t nec_monotonicCycles;
 int nec_ICount;
 
 nec_Regs I;
@@ -65,6 +66,7 @@ void nec_reset (void *param)
    unsigned int i,j,c;
    BREGS reg_name[8]= { AL, CL, DL, BL, AH, CH, DH, BH };
 
+   nec_monotonicCycles = 0;
 
    memset( &I, 0, sizeof(I) );
 
@@ -3889,7 +3891,7 @@ void nec_set_reg(int regnum, uint32_t val)
    }
 }
 
-char *instructionsName[256] = 
+const char *instructionsName[256] =
 {
    "ADD ", "ADD ", "ADD ", "ADD ", "ADD ", "ADD ", "PUSH", "POP ", "OR  ", "OR  ", "OR  ", "OR  ", "OR  ", "OR  ", "PUSH", "----",
    "ADC ", "ADC ", "ADC ", "ADC ", "ADC ", "ADC ", "PUSH", "POP ", "SBB ", "SBB ", "SBB ", "SBB ", "SBB ", "SBB ", "PUSH", "POP ",
@@ -3912,7 +3914,7 @@ char *instructionsName[256] =
 
 int nec_execute(int cycles)
 {
-
+   int done;
 
    nec_ICount=cycles;
 //	cpu_type=V30;
@@ -3938,6 +3940,10 @@ int nec_execute(int cycles)
 //		nec_ICount++;
    }
 
-   return cycles - nec_ICount;
+   done = cycles - nec_ICount;
+
+   nec_monotonicCycles += done;
+
+   return done;
 }
 

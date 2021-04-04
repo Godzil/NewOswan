@@ -191,6 +191,7 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
    // update scanline register
    ws_ioRam[2]=ws_gpu_scanline;
 
+   /* Why twice like that and random cycle count???? */
    ws_cycles=nec_execute((ws_cyclesByLine>>1)+(rand()&7));
    ws_cycles+=nec_execute((ws_cyclesByLine>>1)+(rand()&7));
 
@@ -459,7 +460,7 @@ int	ws_saveState(char *statepath)
       }
    }
 
-   int	fp=open(newPath, O_RDWR|O_CREAT);
+   int	fp=open(newPath, O_RDWR|O_CREAT, 0644);
    delete newPath;
 
    if (fp==-1)

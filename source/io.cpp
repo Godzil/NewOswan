@@ -29,10 +29,13 @@
 #include "audio.h"
 #include "memory.h"
 
+//#define IO_DUMP
+
 extern uint8_t *externalEeprom;
 extern uint32_t romAddressMask;
 extern uint16_t *internalEeprom;
 extern nec_Regs I;
+extern uint64_t nec_monotonicCycles;
 
 enum
 {
@@ -85,6 +88,8 @@ uint8_t ws_key_button_b;
 uint8_t ws_key_flipped;
 
 int      rtcDataRegisterReadCount=0;
+
+FILE *ioLogFp = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -139,6 +144,10 @@ void ws_io_init(void)
 
    ws_io_reset();
    ws_key_flipped=0;
+
+#ifdef IO_DUMP
+   ioLogFp = fopen("iodump.csv", "wt");
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -172,6 +181,10 @@ void ws_io_done(void)
    {
       free(ws_ioRam);
    }
+
+#ifdef IO_DUMP
+   fclose(ioLogFp);
+#endif
 }
 
 /* Serial port */
@@ -329,6 +342,7 @@ uint8_t cpu_readport(uint8_t port)
    int w1,w2;
    uint8_t retVal = 0;
 
+/*
    if (port > 0x100)
    {
       port &= 0xFF;
@@ -337,7 +351,7 @@ uint8_t cpu_readport(uint8_t port)
          return 0x00;
       }
    }
-
+*/
 
    switch (port)
    {
@@ -581,6 +595,10 @@ uint8_t cpu_readport(uint8_t port)
 
 
 exit:
+   if (ioLogFp)
+   {
+      fprintf(ioLogFp, "%ld, R, %02X, %02X\n", nec_monotonicCycles, port, retVal);
+   }
    return retVal;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -598,6 +616,11 @@ void cpu_writeport(uint32_t port,uint8_t value)
 {
    int unknown_io_port=0;
 
+
+   if (ioLogFp)
+   {
+      fprintf(ioLogFp, "%ld, W, %02X, %02X\n", nec_monotonicCycles, port, value);
+   }
 
    if (port > 0x100)
    {
@@ -1046,6 +1069,7 @@ void cpu_writeport(uint32_t port,uint8_t value)
        }
        fflush(stdout);
    }
+    break;
 
    case 0xca:
       if(value==0x15)

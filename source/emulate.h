@@ -21,7 +21,6 @@ extern char		app_window_title[256];
 extern int			app_gameRunning;
 extern int			app_terminate;
 extern int			app_fullscreen;
-extern SDL_Event	app_input_event;
 extern int			app_rotated;
 
 
