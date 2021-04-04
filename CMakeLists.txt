@@ -17,8 +17,15 @@ find_package(OpenGL REQUIRED)
 
 include_directories(${OPENGL_INCLUDE_DIR})
 
-set(CMAKE_C_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-result -Wno-write-strings -Werror")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-unused-result -Wno-write-strings -Werror")
+option(WARN_AS_ERROR "Enable warning as error" OFF)
+
+set(COMP_FLAGS "-march=native -Wall -Wextra -Wno-unused-parameter -Wno-unused-result -Wno-write-strings")
+if (WARN_AS_ERROR)
+    set(COMP_FLAGS "${COMP_FLAGS} -Werror")
+endif()
+
+set(CMAKE_C_FLAGS ${COMP_FLAGS})
+set(CMAKE_CXX_FLAGS ${COMP_FLAGS})
 
 message("-- Building version ${VERSION}")
 
