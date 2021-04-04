@@ -36,6 +36,13 @@ set_property(TARGET wonderswan PROPERTY CXX_STANDARD 98)
 target_compile_definitions(wonderswan PUBLIC VERSION="${VERSION}")
 target_include_directories(wonderswan PUBLIC source)
 
+add_custom_command(
+        TARGET wonderswan POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/irom_stub/*.bin
+        ${CMAKE_CURRENT_BINARY_DIR}/
+)
+
 add_subdirectory(source)
 
 target_link_libraries(wonderswan wswan glfw ${OPENGL_glu_LIBRARY} ${OPENGL_gl_LIBRARY})
