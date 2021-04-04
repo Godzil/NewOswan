@@ -29,7 +29,7 @@
 #include "audio.h"
 #include "memory.h"
 
-#define IO_DUMP
+//#define IO_DUMP
 
 extern uint8_t *externalEeprom;
 extern uint32_t romAddressMask;
