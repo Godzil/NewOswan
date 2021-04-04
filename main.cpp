@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
    snprintf(app_window_title, 255, "Oswan %s - Esc to return to GUI", VERSION);
 
-   fprintf(log_get(),"Oswan-unix %s (built at: %s %s)\n",VERSION , __DATE__,__TIME__);
+   fprintf(log_get(),"NewOswan %s (built at: %s %s)\n",VERSION , __DATE__, __TIME__);
 
    ws_system = WS_SYSTEM_COLOR;
 
