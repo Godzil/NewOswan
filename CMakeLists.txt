@@ -29,7 +29,7 @@ set(CMAKE_CXX_FLAGS ${COMP_FLAGS})
 
 message("-- Building version ${VERSION}")
 
-add_executable(wonderswan main.cpp)
+add_executable(wonderswan main.c)
 
 set_property(TARGET wonderswan PROPERTY CXX_STANDARD 98)
 

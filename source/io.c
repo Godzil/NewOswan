@@ -28,6 +28,7 @@
 #include "gpu.h"
 #include "audio.h"
 #include "memory.h"
+#include <stdbool.h>
 
 //#define IO_DUMP
 

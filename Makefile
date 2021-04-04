@@ -31,7 +31,7 @@ CLEAN_FILES = wonderswan
 
 .SUFFIXES: .cpp 
 
-main.o: main.cpp
+main.o: main.c
 
 .c.o:
 	$(CC) -c $(ALLCFLAGS) -o $@ $<

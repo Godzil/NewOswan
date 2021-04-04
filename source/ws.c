@@ -425,10 +425,8 @@ int	ws_saveState(char *statepath)
 {
    uint16_t	crc=memory_getRomCrc();
    uint32_t	value;
-   char	*newPath;
+   char	newPath[1024];
    fprintf(log_get(),"saving %s\n",statepath);
-
-   newPath=new char[1024];
 
    if (strlen(statepath)<4)
    {
@@ -461,7 +459,6 @@ int	ws_saveState(char *statepath)
    }
 
    int	fp=open(newPath, O_RDWR|O_CREAT, 0644);
-   delete newPath;
 
    if (fp==-1)
    {

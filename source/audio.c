@@ -471,8 +471,8 @@ unsigned int ws_audio_mrand(unsigned int Degree)
       {0,0,0},
    };
 
-   static POLYNOMIAL *pTbl=TblMask;
-   static int ShiftReg=pTbl->InputBit-1;
+   static POLYNOMIAL *pTbl = TblMask;
+   static int ShiftReg = 1;
    int XorReg=0;
    int Masked;
 
