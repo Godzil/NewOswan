@@ -19,6 +19,15 @@
 #include <errno.h>   /* Error number definitions */
 #include <termios.h> /* POSIX terminal control definitions */
 #include <sys/mman.h>
+#include <sys/time.h>
+
+#define GLFW_INCLUDE_GLEXT
+#define GL_SILENCE_DEPRECATION
+#include <GLFW/glfw3.h>
+/* "Apple" fix */
+#ifndef GL_TEXTURE_RECTANGLE
+#define GL_TEXTURE_RECTANGLE GL_TEXTURE_RECTANGLE_EXT
+#endif
 
 #include "log.h"
 #include "io.h"
@@ -39,19 +48,205 @@ int         app_rotated=0;
 
 int ws_key_esc = 0;
 
+/* Open GL stuffs */
+typedef struct GLWindow_t GLWindow;
+struct KeyArray
+{
+    uint8_t lastState;
+    uint8_t curState;
+    uint8_t debounced;
+    GLFWwindow *window;
+};
+struct GLWindow_t
+{
+    struct KeyArray keyArray[512];
+    GLFWwindow *windows;
+    uint8_t *videoMemory;
+    GLuint videoTexture;
+    int WIDTH;
+    int HEIGHT;
+};
+static GLWindow mainWindow;
+static int window_num = 0;
+static void ShowScreen(GLWindow *g, int w, int h)
+{
+    glBindTexture(GL_TEXTURE_RECTANGLE, g->videoTexture);
+
+    // glTexSubImage2D is faster when not using a texture range
+    glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, 0, w, h,
+                    GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, g->videoMemory);
+    glBegin(GL_QUADS);
+
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(-1.0f, 1.0f);
+
+    glTexCoord2f(0.0f, h);
+    glVertex2f(-1.0f, -1.0f);
+
+    glTexCoord2f(w, h);
+    glVertex2f(1.0f, -1.0f);
+
+    glTexCoord2f(w, 0.0f);
+    glVertex2f(1.0f, 1.0f);
+    glEnd();
+
+    glFlush();
+}
+static void GLWindowInitEx(GLWindow *g, int w, int h)
+{
+    g->WIDTH = w;
+    g->HEIGHT = h;
+    g->videoTexture = window_num++;
+}
+static void setupGL(GLWindow *g, int w, int h)
+{
+    g->videoMemory = (uint8_t *)malloc(w * h * sizeof(uint16_t));
+    memset(g->videoMemory, 0, w * h * sizeof(uint16_t));
+    //Tell OpenGL how to convert from coordinates to pixel values
+    glViewport(0, 0, w, h);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glClearColor(1.0f, 0.f, 1.0f, 1.0f);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_RECTANGLE);
+    glBindTexture(GL_TEXTURE_RECTANGLE, g->videoTexture);
+
+    //  glTextureRangeAPPLE(GL_TEXTURE_RECTANGLE_NV_EXT, 0, NULL);
+
+    //  glTexParameteri(GL_TEXTURE_RECTANGLE_NV_EXT, GL_TEXTURE_STORAGE_HINT_APPLE , GL_STORAGE_CACHED_APPLE);
+    //  glPixelStorei(GL_UNPACK_CLIENT_STORAGE_APPLE, GL_TRUE);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+    glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, w, h, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, g->videoMemory);
+
+    glDisable(GL_DEPTH_TEST);
+}
+void restoreGL(GLWindow *g)
+{
+    //Tell OpenGL how to convert from coordinates to pixel values
+    glViewport(0, 0, g->WIDTH, g->HEIGHT);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glClearColor(1.0f, 0.f, 1.0f, 1.0f);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_RECTANGLE);
+    glDisable(GL_DEPTH_TEST);
+}
+static void kbHandler(GLFWwindow *window, int key, int scan, int action, int mod)
+{
+    struct KeyArray *keyArray;
+
+    keyArray = (struct KeyArray *)glfwGetWindowUserPointer(window);
+
+    keyArray[key].lastState = keyArray[key].curState;
+    if (action == GLFW_RELEASE)
+    {
+        keyArray[key].curState = GLFW_RELEASE;
+    }
+    else
+    {
+        keyArray[key].curState = GLFW_PRESS;
+    }
+    keyArray[key].debounced |= (keyArray[key].lastState == GLFW_RELEASE) && (keyArray[key].curState == GLFW_PRESS);
+    keyArray[key].window = window;
+    /*printf("key:%d, state:%d debounce:%d, laststate:%d\n", key, keyArray[key].curState,
+           keyArray[key].debounced, keyArray[key].lastState);*/
+}
+static void sizeHandler(GLFWwindow *window, int xs, int ys)
+{
+    glfwMakeContextCurrent(window);
+    glViewport(0, 0, xs, ys);
+    ShowScreen(&mainWindow, 244, 144);
+}
+static void error_callback(int error, const char *description)
+{
+    puts(description);
+}
+static void initDisplay(GLWindow *g)
+{
+    int h = g->HEIGHT;
+    int w = g->WIDTH;
+
+    /// Initialize GLFW
+    glfwInit();
+
+    glfwSetErrorCallback(error_callback);
+
+    // Open screen OpenGL window
+    if (!(g->windows = glfwCreateWindow(g->WIDTH, g->HEIGHT, "Main", NULL, NULL)))
+    {
+        glfwTerminate();
+        fprintf(stderr, "Window creation error...\n");
+        abort();
+    }
+
+    glfwSetWindowAspectRatio(g->windows, 244, 144);
+
+    glfwMakeContextCurrent(g->windows);
+    setupGL(g, g->WIDTH, g->HEIGHT);
+
+    glfwSwapInterval(1);            // We need vsync
+
+    glfwGetWindowSize(g->windows, &w, &h);
+
+    glfwSetWindowUserPointer(g->windows, g->keyArray);
+
+    glfwSetKeyCallback(g->windows, kbHandler);
+    glfwSetWindowSizeCallback(g->windows, sizeHandler);
+}
+static void clearScreen(GLWindow *g)
+{
+    memset(g->videoMemory, 0, sizeof(uint8_t) * g->WIDTH * g->HEIGHT * 4);
+}
+static void updateScreen(GLWindow *g)
+{
+    /* Update windows code */
+    glfwMakeContextCurrent(g->windows);
+    ShowScreen(g, g->WIDTH, g->HEIGHT);
+    glfwSwapBuffers(g->windows);
+    glfwPollEvents();
+}
+uint64_t getTicks()
+{
+    struct timeval curTime;
+    uint64_t ticks;
+    /* Get datetime */
+    gettimeofday(&curTime, NULL);
+
+    ticks = (curTime.tv_sec* 1000) + curTime.tv_usec / 1000;
+
+    return ticks;
+}
+
+static inline int getKeyState(int key)
+{
+    return mainWindow.keyArray[key].curState;
+}
 
 static void read_keys()
 {
-#if 0
-    while ( SDL_PollEvent(&app_input_event) )
-    {
-       if ( app_input_event.type == SDL_QUIT )
-       {
-          ws_key_esc = 1;
-       }
-    }
-
-#endif
     ws_key_start=0;
     ws_key_x4=0;
     ws_key_x2=0;
@@ -64,90 +259,86 @@ static void read_keys()
     ws_key_button_a=0;
     ws_key_button_b=0;
 
-#if 0
-    uint8_t *keystate = SDL_GetKeyState(NULL);
-
-    if ( keystate[SDLK_e])
+    if (getKeyState(GLFW_KEY_E))
     {
        dump_memory();
     }
 
-    if ( keystate[SDLK_r])
+    if (getKeyState(GLFW_KEY_R))
     {
        printf("Boop\n");
        ws_reset();
     }
 
-    if ( keystate[SDLK_ESCAPE] )
+    if (getKeyState(GLFW_KEY_ESCAPE))
     {
        ws_key_esc = 1;
     }
 
-    if ( keystate[SDLK_UP] )
+    if ( getKeyState(GLFW_KEY_UP))
     {
        ws_key_x1=1;
     }
 
-    if ( keystate[SDLK_DOWN] )
+    if ( getKeyState(GLFW_KEY_DOWN))
     {
        ws_key_x3=1;
     }
 
-    if ( keystate[SDLK_RIGHT] )
+    if (getKeyState(GLFW_KEY_RIGHT))
     {
        ws_key_x2=1;
     }
 
-    if ( keystate[SDLK_LEFT] )
+    if (getKeyState(GLFW_KEY_LEFT))
     {
        ws_key_x4=1;
     }
 
-    if (keystate[SDLK_RETURN])
+    if (getKeyState(GLFW_KEY_ENTER))
     {
        ws_key_start=1;
     }
 
-    if (keystate[SDLK_c])
+    if (getKeyState(GLFW_KEY_C))
     {
        ws_key_button_a=1;
     }
 
-    if (keystate[SDLK_x])
+    if (getKeyState(GLFW_KEY_X))
     {
        ws_key_button_b=1;
     }
 
-    if (keystate[SDLK_w])
+    if (getKeyState(GLFW_KEY_W))
     {
        ws_key_y1=1;
     }
 
-    if (keystate[SDLK_a])
+    if (getKeyState(GLFW_KEY_A))
     {
        ws_key_y4=1;
     }
 
-    if (keystate[SDLK_s])
+    if (getKeyState(GLFW_KEY_S))
     {
        ws_key_y3=1;
     }
 
-    if (keystate[SDLK_d])
+    if (getKeyState(GLFW_KEY_D))
     {
        ws_key_y2=1;
     }
 
-    if (keystate[SDLK_o])
+    if (getKeyState(GLFW_KEY_O))
     {
        ws_cyclesByLine+=10;
     }
 
-    if (keystate[SDLK_l])
+    if (getKeyState(GLFW_KEY_L))
     {
        ws_cyclesByLine-=10;
     }
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,31 +354,26 @@ static void read_keys()
 ////////////////////////////////////////////////////////////////////////////////
 void ws_emulate(void)
 {
-    // Placeholder
-    read_keys();
-
     int32_t nCount = 0;
     int i = 0;
 
     double dTime = 0.0, dNormalLast = 0.0, dTemp;
-    //int32_t surfacePitch;
 
-// 15 bits RGB555
+    // 15 bits RGB555
     //Format format(16, 0x007c00, 0x00003e0, 0x0000001f);
-    //Surface *surface;
-    //surface = new Surface(224 * 2, 144 * 2, format);
-    int16_t *backbuffer = (int16_t *)malloc(224 * 144 * sizeof(int16_t));
-    memset(backbuffer, 0x00, 224 * 144 * sizeof(int16_t));
-    //surfacePitch = (surface->pitch() >> 1);
+    GLWindowInitEx(&mainWindow, 224, 144);
+    initDisplay(&mainWindow);
+    clearScreen(&mainWindow);
+    updateScreen(&mainWindow);
+    int16_t  *backBuffer = (int16_t *)mainWindow.videoMemory;
 
-    //dNormalLast = (double)SDL_GetTicks();
 
-    //console.open(app_window_title, 224 * 2, 144 * 2, format);
+    dNormalLast = (double)getTicks();
 
     while (1)
     {
 
-        dTemp = 1;//(double)SDL_GetTicks();
+        dTemp = getTicks();
         dTime = dTemp - dNormalLast;
 
 
@@ -195,7 +381,8 @@ void ws_emulate(void)
 
         if (nCount <= 0)
         {
-            //SDL_Delay(2);
+            /* Sleep for 2ms */
+            usleep(2000);
         } // No need to do anything for a bit
         else
         {
@@ -217,30 +404,21 @@ void ws_emulate(void)
                 {
                     break;
                 }
-
-                //console.open(app_window_title, 224 * 2, 144 * 2, format);
-
             }
 
 
             for (i = 0 ; i < nCount - 1 ; i++)
             {
-                while (!ws_executeLine(backbuffer, 0))
+                while (!ws_executeLine(backBuffer, 0))
                 {
                 }
             }
 
-            while (!ws_executeLine(backbuffer, 1))
+            while (!ws_executeLine(backBuffer, 1))
             {
             }
 
-            //int16_t *backbuffer_alias = backbuffer;
-
-            //surface->unlock();
-            //surface->copy(console);
-            //console.update();
+            updateScreen(&mainWindow);
         }
-        //console.close();
-        //delete surface;
     }
 }

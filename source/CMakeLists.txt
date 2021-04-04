@@ -3,7 +3,7 @@ set(HEADERS audio.h emulate.h gpu.h ieeprom.h initialIo.h io.h log.h memory.h ro
 
 add_library(wswan ${SOURCES} ${HEADERS})
 
-target_link_libraries(wswan nec_v30)
+target_link_libraries(wswan nec_v30 glfw ${OPENGL_glu_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 target_include_directories(wswan PUBLIC .)
 
