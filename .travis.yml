@@ -1,38 +1,63 @@
-dist: bionic
 language: c
-os:
-  - linux
-#  - osx
-#matrix:
-#  allow_failures:
-#    - os: osx
 
 addons:
   apt:
     packages:
-      - libsdl1.2debian
-      - libsdl1.2-dev
-
-compiler:
-  - clang
-  - gcc
+      - xorg-dev
+      - libglu1-mesa-dev
 
 script:
-  - make
   - mkdir build
   - cd build
   - cmake ..
   - make
 
-cache:
-  directories:
-    - '$HOME/.sonar/cache'
+jobs:
+  include:
+    - os: linux
+      dist: bionic
+      arch: amd64
+      compiler: gcc
 
-#before_install:
-#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update      ; fi
-#  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install glew; fi
+    - os: linux
+      dist: bionic
+      arch: amd64
+      compiler: clang
 
-#install: true
+    - os: linux
+      dist: focal
+      arch: amd64
+      compiler: gcc
 
-#after_success:
-#  - bash <(curl -s https://codecov.io/bash)
+    - os: linux
+      dist: focal
+      arch: amd64
+      compiler: clang
+
+
+    - os: osx
+      compiler: clang
+      osx_image: xcode12.2
+
+    - os: linux
+      dist: focal
+      arch: arm64
+      compiler: gcc
+
+    - os: osx
+      compiler: clang
+      osx_image: xcode10.3
+
+    - os: osx
+      compiler: clang
+      osx_image: xcode11.6
+
+    - os: osx
+      compiler: clang
+      osx_image: xcode12
+
+  allow_failures:
+    - os: linux
+      arch: arm64
+
+    - os: osx
