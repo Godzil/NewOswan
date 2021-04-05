@@ -74,7 +74,7 @@ void	ws_rom_dumpInfo(uint8_t *wsrom, uint32_t romSize)
 
    fprintf(log_get(),"rom: developper Id  0x%.2x\n",romHeader->developperId);
    fprintf(log_get(),"rom: cart Id        0x%.2x\n",romHeader->cartId);
-   fprintf(log_get(),"rom: minimum system %s\n",(romHeader->minimumSupportSystem==WS_SYSTEM_MONO)?"Wonderswan mono":"Wonderswan color");
+   fprintf(log_get(),"rom: minimum system %s\n",(romHeader->minimumSupportSystem==0)?"Wonderswan mono":"Wonderswan color");
    fprintf(log_get(),"rom: size           %i Mbits\n",(romSize>>20)<<3);
    fprintf(log_get(),"rom: eeprom         ");
 

@@ -51,8 +51,6 @@ uint32_t	vblank_count=0;
 char *ws_sram_path = NULL;
 char *ws_ieep_path = NULL;
 char *ws_rom_path  = NULL;
-extern int ws_gpu_forceColorSystemBool;
-extern int ws_gpu_forceMonoSystemBool;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -307,31 +305,18 @@ void ws_done(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void	ws_set_colour_scheme(int scheme)
+void ws_set_system(wssystem_t system)
 {
-   ws_gpu_set_colour_scheme(scheme);
+    if (system == WS_SYSTEM_AUTODETECT)
+    {
+        system = WS_SYSTEM_CRYSTAL;
+    }
+    systemType = system;
 }
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-void	ws_set_system(int system)
+
+wssystem_t ws_get_system()
 {
-   if (system==WS_SYSTEM_COLOR)
-   {
-      ws_gpu_forceColorSystem();
-   }
-   else if (system==WS_SYSTEM_MONO)
-   {
-      ws_gpu_forceMonoSystem();
-   }
+    return systemType;
 }
 ////////////////////////////////////////////////////////////////////////////////
 //

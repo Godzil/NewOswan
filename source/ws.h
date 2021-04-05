@@ -14,16 +14,20 @@
 
 #include <stdint.h>
 
-#define WS_SYSTEM_MONO			0
-#define WS_SYSTEM_COLOR			1
-#define WS_SYSTEM_AUTODETECT    2
+typedef enum wssystem_t {
+    WS_SYSTEM_AUTODETECT = 0,
+    WS_SYSTEM_MONO,
+    WS_SYSTEM_COLOR,
+    WS_SYSTEM_CRYSTAL,
+} wssystem_t;
 
 extern uint32_t	ws_cyclesByLine;
 
 int		ws_init(char *rompath);
 int		ws_rotated(void);
 void	ws_set_colour_scheme(int scheme);
-void	ws_set_system(int system);
+void	ws_set_system(wssystem_t system);
+wssystem_t	ws_get_system();
 void	ws_reset(void);
 int		ws_executeLine(int16_t *framebuffer, int renderLine);
 void	ws_patchRom(void);

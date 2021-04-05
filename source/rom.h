@@ -14,9 +14,6 @@
 
 #include <stdint.h>
 
-#define WS_SYSTEM_MONO			0
-#define WS_SYSTEM_COLOR			1
-
 #define WS_ROM_SIZE_2MBIT		1
 #define WS_ROM_SIZE_4MBIT		2
 #define WS_ROM_SIZE_8MBIT		3

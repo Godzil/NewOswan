@@ -27,6 +27,7 @@
 #include "./nec/nec.h"
 #include "io.h"
 #include "gpu.h"
+#include "ws.h"
 
 #ifdef STATISTICS
 #include "ticker.h"
@@ -100,9 +101,6 @@ int16_t	ws_palette[16*4];
 int8_t	ws_paletteColors[8];
 int16_t	wsc_palette[16*16];
 int16_t	ws_shades[16];
-int		ws_gpu_forceColorSystemBool=0;
-int		ws_gpu_forceMonoSystemBool=0;
-
 
 
 // white
@@ -232,40 +230,6 @@ void ws_gpu_set_colour_scheme(int scheme)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_gpu_forceColorSystem(void)
-{
-   ws_gpu_forceColorSystemBool=1;
-   ws_gpu_forceMonoSystemBool=0;
-   ws_gpu_operatingInColor=1;
-}
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-void ws_gpu_forceMonoSystem(void)
-{
-   ws_gpu_forceColorSystemBool=0;
-   ws_gpu_forceMonoSystemBool=1;
-   ws_gpu_operatingInColor=0;
-}
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void ws_gpu_init(void)
 {
    ws_tile_cache				= (uint8_t*)malloc(1024*8*8);
@@ -286,8 +250,6 @@ void ws_gpu_init(void)
    memset(ws_modified_tile,0x01,1024);
    memset(wsc_modified_tile,0x01,1024);
 
-   ws_gpu_forceColorSystemBool=0;
-   ws_gpu_forceMonoSystemBool=0;
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -356,12 +318,18 @@ void ws_gpu_done(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_gpu_changeVideoMode(uint8_t value)
 {
-   if (ws_videoMode != (value>>5))
-   {
-      ws_videoMode = value >> 5;
-      memset(ws_modified_tile,0x01,1024);
-   }
+    if (ws_videoMode != (value >> 5))
+    {
+        ws_videoMode = value >> 5;
+        memset(ws_modified_tile, 0x01, 1024);
+    }
+    ws_gpu_operatingInColor = 0;
+    if (value & 0x80)
+    {
+        ws_gpu_operatingInColor = 1;
+    }
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -2204,60 +2172,64 @@ void ws_gpu_write_byte(uint32_t offset, uint8_t value)
 //
 ////////////////////////////////////////////////////////////////////////////////
 unsigned int ws_gpu_unknownPort;
-int ws_gpu_port_write(uint32_t port,uint8_t value)
+
+int ws_gpu_port_write(uint32_t port, uint8_t value)
 {
-   ws_gpu_unknownPort=0;
+    ws_gpu_unknownPort = 0;
 
-   switch (port)
-   {
-   case 0x60:
-      ws_gpu_changeVideoMode(value);
-      return 0;
+    switch (port)
+    {
+    case 0x60:
+        if (ws_get_system() != WS_SYSTEM_MONO)
+        {
+            ws_gpu_changeVideoMode(value);
+        }
+        return 0;
 
-   case 0x1C:
-      ws_paletteColors[0]=value&0xf;
-      ws_paletteColors[1]=(value>>4)&0xf;
-      return 0;
+    case 0x1C:
+        ws_paletteColors[0] = value & 0xf;
+        ws_paletteColors[1] = (value >> 4) & 0xf;
+        return 0;
 
-   case 0x1D:
-      ws_paletteColors[2]=value&0xf;
-      ws_paletteColors[3]=(value>>4)&0xf;
-      return 0;
+    case 0x1D:
+        ws_paletteColors[2] = value & 0xf;
+        ws_paletteColors[3] = (value >> 4) & 0xf;
+        return 0;
 
-   case 0x1E:
-      ws_paletteColors[4]=value&0xf;
-      ws_paletteColors[5]=(value>>4)&0xf;
-      return 0;
+    case 0x1E:
+        ws_paletteColors[4] = value & 0xf;
+        ws_paletteColors[5] = (value >> 4) & 0xf;
+        return 0;
 
-   case 0x1F:
-      ws_paletteColors[6]=value&0xf;
-      ws_paletteColors[7]=(value>>4)&0xf;
-      return 0;
+    case 0x1F:
+        ws_paletteColors[6] = value & 0xf;
+        ws_paletteColors[7] = (value >> 4) & 0xf;
+        return 0;
 
-   default:
-      ws_gpu_unknownPort=1;
-   }
+    default:ws_gpu_unknownPort = 1;
+    }
 
-   if ((port>=0x20)&&(port<=0x3f))
-   {
-      ws_gpu_unknownPort=0;
-      port-=0x20;
-      int paletteIndex=port>>1;
+    if ((port >= 0x20) && (port <= 0x3f))
+    {
+        ws_gpu_unknownPort = 0;
+        port -= 0x20;
+        int paletteIndex = port >> 1;
 
-      if (port&0x01)
-      {
-         ws_palette[(paletteIndex<<2)+2]=value&0x7;
-         ws_palette[(paletteIndex<<2)+3]=(value>>4)&0x7;
-      }
-      else
-      {
-         ws_palette[(paletteIndex<<2)+0]=value&0x7;
-         ws_palette[(paletteIndex<<2)+1]=(value>>4)&0x7;
-      }
-   }
+        if (port & 0x01)
+        {
+            ws_palette[(paletteIndex << 2) + 2] = value & 0x7;
+            ws_palette[(paletteIndex << 2) + 3] = (value >> 4) & 0x7;
+        }
+        else
+        {
+            ws_palette[(paletteIndex << 2) + 0] = value & 0x7;
+            ws_palette[(paletteIndex << 2) + 1] = (value >> 4) & 0x7;
+        }
+    }
 
-   return ws_gpu_unknownPort;
+    return ws_gpu_unknownPort;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -2271,43 +2243,32 @@ int ws_gpu_port_write(uint32_t port,uint8_t value)
 ////////////////////////////////////////////////////////////////////////////////
 uint8_t ws_gpu_port_read(uint8_t port)
 {
-   switch(port)
-   {
-   case 0xa0:
-      if (ws_gpu_forceColorSystemBool)
-      {
-         return ws_ioRam[0xa0]|2;
-      }
-      else if (ws_gpu_forceMonoSystemBool)
-      {
-         return ws_ioRam[0xa0]&(~0x02);
-      }
-      else
-      {
-         if (ws_gpu_operatingInColor)
-         {
-            return ws_ioRam[0xa0]|2;
-         }
-         else
-         {
-            return ws_ioRam[0xa0]&(~0x02);
-         }
-      }
+    switch (port)
+    {
+    case 0xa0:
+        ws_ioRam[0xA0] |= 0x80;
+        if (ws_get_system() == WS_SYSTEM_MONO)
+        {
+            return ws_ioRam[0xa0] & (~0x2);
+        }
+        else
+        {
+            return ws_ioRam[0xa0] | 2;
+        }
+        break;
 
-      break;
+    case 0xaa:
+        return vblank_count & 0xff;
 
-   case 0xaa:
-      return vblank_count&0xff;
+    case 0xab:
+        return (vblank_count >> 8) & 0xff;
 
-   case 0xab:
-      return (vblank_count>>8)&0xff;
+    case 0xac:
+        return (vblank_count >> 16) & 0xff;
 
-   case 0xac:
-      return (vblank_count>>16)&0xff;
+    case 0xad:
+        return (vblank_count >> 24) & 0xff;
+    }
 
-   case 0xad:
-      return (vblank_count>>24)&0xff;
-   }
-
-   return(ws_ioRam[port]);
+    return (ws_ioRam[port]);
 }

@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include "ws.h"
 #include "log.h"
 #include "rom.h"
 #include "./nec/nec.h"
@@ -159,78 +160,89 @@ void cpu_writemem20(uint32_t addr, uint8_t value)
 ////////////////////////////////////////////////////////////////////////////////
 uint8_t cpu_readmem20(uint32_t addr)
 {
-   uint32_t offset=addr&0xffff;
-   uint32_t bank=addr>>16;
-   //uint16_t romBank;
-   uint8_t hwReg;
-   uint32_t temp;
-   uint8_t ret;
+    uint32_t offset = addr & 0xffff;
+    uint32_t bank = addr >> 16;
+    //uint16_t romBank;
+    uint8_t hwReg;
+    uint32_t temp;
+    uint8_t ret;
+    wssystem_t currentSystem = ws_get_system();
 
-   switch (bank)
-   {
-   case 0:     // 0 - RAM - 16 KB (WS) / 64 KB (WSC) internal RAM
-      if (ws_gpu_operatingInColor)
-      {
-         return(internalRam[offset]);
-      }
-      else if (offset<0x4000)
-      {
-         return(internalRam[offset]);
-      }
+    switch (bank)
+    {
+    case 0:
+        /*
+         * So the original WonderSwan, and Color/Crystal in B&W mode have 16KB of IRAM Mapped.
+         * Color/Crystal in color mode have 64 KB IRAM mapped.
+         */
+        if (ws_gpu_operatingInColor)
+        {
+            return (internalRam[offset]);
+        }
+        else if (offset < 0x4000)
+        {
+            return (internalRam[offset]);
+        }
 
-      return(0x90);
+        return (0x90);
 
-   case 1:     // 1 - SRAM (cart)
-      return ws_staticRam[offset&sramAddressMask];
+    case 1:     // 1 - SRAM (cart)
+        return ws_staticRam[offset & sramAddressMask];
 
-   case 2:
-      // Bank 2
-      hwReg = ws_ioRam[0xC2];
-      temp = hwReg << 16;
-      temp += offset;
-      temp &= (romSize - 1);
-      return ws_rom[temp];
-   case 3:
-      // Bank 3
-      hwReg = ws_ioRam[0xC3];
-      temp = hwReg << 16;
-      temp += offset;
-      temp &= (romSize - 1);
-      return ws_rom[temp];
+    case 2:
+        // Bank 2
+        hwReg = ws_ioRam[0xC2];
+        temp = hwReg << 16;
+        temp += offset;
+        temp &= (romSize - 1);
+        return ws_rom[temp];
+    case 3:
+        // Bank 3
+        hwReg = ws_ioRam[0xC3];
+        temp = hwReg << 16;
+        temp += offset;
+        temp &= (romSize - 1);
+        return ws_rom[temp];
 
-   case 0xF:
-      hwReg = ws_ioRam[0xA0];
+    case 0xF:hwReg = ws_ioRam[0xA0];
 
-      if (!(hwReg & 1))
-      {
-         if (ws_gpu_operatingInColor && ws_haveColorIRom) 
-         {
-            if (addr >= 0xFE000)
+        if (!(hwReg & 1))
+        {
+            if (currentSystem == WS_SYSTEM_COLOR && ws_haveColorIRom)
             {
-               ret = internalColorIRom[addr & ~0xFE000];
-               return ret;
+                if (addr >= 0xFE000)
+                {
+                    ret = internalColorIRom[addr & ~0xFE000];
+                    return ret;
+                }
             }
-         }
-         else if (!ws_gpu_operatingInColor && ws_haveBWIRom)
-         {
-            if (addr >= 0xFF000)
+            else if (currentSystem == WS_SYSTEM_CRYSTAL && ws_haveColorIRom)
             {
-               ret = internalBWIRom[addr & ~0xFF000];
-               return ret;
+                if (addr >= 0xFE000)
+                {
+                    ret = internalCrystalIRom[addr & ~0xFE000];
+                    return ret;
+                }
             }
-         }
-      }
-      // fall through
+            else if (currentSystem == WS_SYSTEM_MONO && ws_haveBWIRom)
+            {
+                if (addr >= 0xFF000)
+                {
+                    ret = internalBWIRom[addr & ~0xFF000];
+                    return ret;
+                }
+            }
+        }
+        // fall through
 
-   default:
-      hwReg = ws_ioRam[0xC0];
-      temp = hwReg << 20;
-      temp += addr & 0xFFFFF;
-      temp &= (romSize - 1);
-      return ws_rom[temp];      
-   }
+    default:hwReg = ws_ioRam[0xC0];
+        temp = hwReg << 20;
+        temp += addr & 0xFFFFF;
+        temp &= (romSize - 1);
+        return ws_rom[temp];
+    }
 
-   return(0x90);
+    return (0x90);
 }
 ////////////////////////////////////////////////////////////////////////////////
 //

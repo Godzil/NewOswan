@@ -47,7 +47,6 @@ int			gui_get_key_key;
 
 int 			ws_videoEnhancementType=0;
 int	 		ws_colourScheme=COLOUR_SCHEME_DEFAULT;
-int		 	ws_system=WS_SYSTEM_COLOR;
 int sram_path_explicit = 0;
 int ieep_path_explicit = 0;
 
@@ -121,16 +120,16 @@ int ws_mk_ieppath()
 
 int main(int argc, char *argv[])
 {
-   if (!log_init(LOG_PATH))
-   {
-      printf("Warning: cannot open log file %s\n",LOG_PATH);
-   }
+    wssystem_t ws_system = WS_SYSTEM_AUTODETECT;
 
-   snprintf(app_window_title, 255, "Oswan %s - Esc to return to GUI", VERSION);
+    if (!log_init(LOG_PATH))
+    {
+        printf("Warning: cannot open log file %s\n", LOG_PATH);
+    }
 
-   fprintf(log_get(),"NewOswan %s (built at: %s %s)\n",VERSION , __DATE__, __TIME__);
+    snprintf(app_window_title, 255, "Oswan %s - Esc to return to GUI", VERSION);
 
-   ws_system = WS_SYSTEM_COLOR;
+    fprintf(log_get(), "NewOswan %s (built at: %s %s)\n", VERSION, __DATE__, __TIME__);
 
    ws_rom_path = NULL;
 
@@ -195,9 +194,6 @@ int main(int argc, char *argv[])
             app_rotated=ws_rotated();
             app_gameRunning=1;
 
-            if (ws_system == WS_SYSTEM_COLOR)
-            {
-               ws_gpu_operatingInColor=1;
             }
 
             ws_set_colour_scheme(ws_colourScheme);
