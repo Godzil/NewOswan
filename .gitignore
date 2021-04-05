@@ -8,6 +8,7 @@
 *.orig
 *.rej
 rom/
+ROMs/
 .idea/
 *.zip
 *.sav
