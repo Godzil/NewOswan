@@ -61,7 +61,7 @@ WriteIO(6B, 00) [F000:0018h];
 - Complete refactor of the code.
 - Add a proper CPU debugger
 - Add other nice debugging tool like the GPU status and other things that could be needed. Acheiving the level of the tools
-  provided by Mesen would be nice.
+  provided by the NES emulator [Mesen](https://www.mesen.ca) would be nice.
 - Being able to rotate the screen
 - Maybe being able to change the game at runtime instead of start time
 - Full Audio support
