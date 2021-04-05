@@ -50,9 +50,11 @@ uint8_t *internalRam;
 uint8_t *externalEeprom;
 char *internalBWIRom;
 char *internalColorIRom;
+char *internalCrystalIRom;
 
 char *internalBWEeprom;
 char *internalColorEeprom;
+char *internalCrystalEeprom;
 
 uint16_t *internalEeprom;
 
@@ -337,52 +339,69 @@ char *create_file(char *filename, uint32_t size)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
 {
-   ws_romHeaderStruct   *ws_romHeader;
+    ws_romHeaderStruct *ws_romHeader;
 
-   ws_rom=rom;
-   romSize=wsRomSize;
-   ws_romHeader=ws_rom_getHeader(ws_rom,romSize);
-   ws_rom_checksum=ws_romHeader->checksum;
-   internalRam=(uint8_t*)malloc(0x10000);
-   sramAddressMask=ws_rom_sramSize(ws_rom,romSize)-1;
-   externalEepromAddressMask=ws_rom_eepromSize(ws_rom,romSize)-1;
+    ws_rom = rom;
+    romSize = wsRomSize;
+    ws_romHeader = ws_rom_getHeader(ws_rom, romSize);
+    ws_rom_checksum = ws_romHeader->checksum;
+    internalRam = (uint8_t *)malloc(0x10000);
+    sramAddressMask = ws_rom_sramSize(ws_rom, romSize) - 1;
+    externalEepromAddressMask = ws_rom_eepromSize(ws_rom, romSize) - 1;
 
-   internalBWIRom = load_file("ws_irom.bin");
-   internalColorIRom  = load_file("wsc_irom.bin");
+    internalBWIRom = load_file("ws_irom.bin");
+    internalColorIRom = load_file("wsc_irom.bin");
+    internalCrystalIRom = load_file("wc_irom.bin");
 
-   internalBWEeprom = load_file("ws_ieeprom.bin");
-   if ( internalBWEeprom == NULL )
-   {
-      internalBWEeprom = create_file("ws_ieeprom.bin", BW_IEEPROM_SIZE);
-   }
+    internalBWEeprom = load_file("ws_ieeprom.bin");
+    if (internalBWEeprom == NULL)
+    {
+        internalBWEeprom = create_file("ws_ieeprom.bin", BW_IEEPROM_SIZE);
+    }
 
-   internalColorEeprom = load_file("wsc_ieeprom.bin");
-   if ( internalColorEeprom == NULL )
-   {
-      internalColorEeprom = create_file("wsc_ieeprom.bin", COLOR_IEEPROM_SIZE);
-   }
+    internalColorEeprom = load_file("wsc_ieeprom.bin");
+    if (internalColorEeprom == NULL)
+    {
+        internalColorEeprom = create_file("wsc_ieeprom.bin", COLOR_IEEPROM_SIZE);
+    }
 
-   internalEeprom = (uint16_t *)internalBWEeprom;
-   if (ws_gpu_operatingInColor)
-   {
-      internalEeprom = (uint16_t *)internalColorEeprom;
-   }
-   
-   ws_haveBWIRom = false;
-   ws_haveColorIRom = false;
+    internalCrystalEeprom = load_file("wc_ieeprom.bin");
+    if (internalCrystalEeprom == NULL)
+    {
+        internalCrystalEeprom = create_file("wc_ieeprom.bin", COLOR_IEEPROM_SIZE);
+    }
 
-   if (internalBWIRom != NULL)
-   {
-      printf("Color IROM Found!\n");
-      ws_haveBWIRom = true;
-   }
-   if (internalColorIRom != NULL)
-   {
-      printf("B&W IROM Found!\n");
-      ws_haveColorIRom = true;
-   }
+    internalEeprom = (uint16_t *)internalBWEeprom;
+    if (ws_get_system() == WS_SYSTEM_COLOR)
+    {
+        internalEeprom = (uint16_t *)internalColorEeprom;
+    }
+    else if (ws_get_system() == WS_SYSTEM_CRYSTAL)
+    {
+        internalEeprom = (uint16_t *)internalCrystalEeprom;
+    }
 
-   romAddressMask=romSize-1;
+    ws_haveBWIRom = false;
+    ws_haveColorIRom = false;
+    ws_haveCrystalIRom = false;
+
+    if (internalColorIRom != NULL)
+    {
+        printf("B&W IROM Found!\n");
+        ws_haveColorIRom = true;
+    }
+    if (internalBWIRom != NULL)
+    {
+        printf("Color IROM Found!\n");
+        ws_haveBWIRom = true;
+    }
+    if (internalCrystalIRom != NULL)
+    {
+        printf("Crystal IROM Found!\n");
+        ws_haveCrystalIRom = true;
+    }
+
+    romAddressMask = romSize - 1;
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
