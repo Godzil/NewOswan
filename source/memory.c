@@ -1,5 +1,10 @@
-////////////////////////////////////////////////////////////////////////////////
-// Memory
+/*
+ * NewOswan
+ * memory.c: Memory implementatoion
+ * Based on the original Oswan-unix
+ * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ *
+ */
 ////////////////////////////////////////////////////////////////////////////////
 // Notes: need to optimize cpu_writemem20
 //
@@ -16,6 +21,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -29,7 +35,6 @@
 #include "gpu.h"
 #include "audio.h"
 #include "memory.h"
-#include <stdbool.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -42,7 +47,7 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-#define IO_ROM_BANK_BASE_SELECTOR   0xC0
+#define IO_ROM_BANK_BASE_SELECTOR 0xC0
 
 uint8_t *ws_rom;
 uint8_t *ws_staticRam;
@@ -60,15 +65,16 @@ uint16_t *internalEeprom;
 
 extern uint8_t *ws_ioRam;
 
-uint16_t  ws_rom_checksum;
+uint16_t ws_rom_checksum;
 
-uint8_t   ws_haveColorIRom;
-uint8_t   ws_haveBWIRom;
+uint8_t ws_haveCrystalIRom;
+uint8_t ws_haveColorIRom;
+uint8_t ws_haveBWIRom;
 
-uint32_t  sramAddressMask;
-uint32_t  externalEepromAddressMask;
-uint32_t  romAddressMask;
-uint32_t  romSize;
+uint32_t sramAddressMask;
+uint32_t externalEepromAddressMask;
+uint32_t romAddressMask;
+uint32_t romSize;
 
 int ws_sram_dirty = 0;
 
@@ -76,46 +82,46 @@ extern nec_Regs I;
 
 void dump_memory()
 {
-   int i;
-   FILE *fp;
-   printf("Dumping memory....\n");
-   fp = fopen("iram.bin", "wb");
-   fwrite(internalRam, 1, 0x10000, fp);
-   fclose(fp);
+    int i;
+    FILE *fp;
+    printf("Dumping memory....\n");
+    fp = fopen("iram.bin", "wb");
+    fwrite(internalRam, 1, 0x10000, fp);
+    fclose(fp);
 
-   fp = fopen("sram.bin", "wb");
-   fwrite(ws_staticRam, 1, 0x10000, fp);
-   fclose(fp);
+    fp = fopen("sram.bin", "wb");
+    fwrite(ws_staticRam, 1, 0x10000, fp);
+    fclose(fp);
 
-   fp = fopen("rom.bin", "wb");
-   fwrite(ws_rom, 1, romSize, fp);
-   fclose(fp);
+    fp = fopen("rom.bin", "wb");
+    fwrite(ws_rom, 1, romSize, fp);
+    fclose(fp);
 
-   fp = fopen("memorydump.bin", "wb");
-   fwrite(internalRam, 1, 0x10000, fp);
-   /* page 1 */
-   fwrite(&(ws_staticRam[0 & sramAddressMask]), 1, 0x10000, fp);
-   fwrite(&(ws_rom[((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR+2]&((romSize>>16)-1))<<16)]), 1, 0x10000, fp);
-   fwrite(&(ws_rom[((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR+3]&((romSize>>16)-1))<<16)]), 1, 0x10000, fp);
+    fp = fopen("memorydump.bin", "wb");
+    fwrite(internalRam, 1, 0x10000, fp);
+    /* page 1 */
+    fwrite(&(ws_staticRam[0 & sramAddressMask]), 1, 0x10000, fp);
+    fwrite(&(ws_rom[((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR + 2] & ((romSize >> 16) - 1)) << 16)]), 1, 0x10000, fp);
+    fwrite(&(ws_rom[((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR + 3] & ((romSize >> 16) - 1)) << 16)]), 1, 0x10000, fp);
 
-   for(i = 4; i < 0x10; i++)
-   {
-      int romBank=(256-(((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR]&0xf)<<4)|(i&0xf)));
-      fwrite(&(ws_rom[(unsigned)(romSize-(romBank<<16))]), 1, 0x10000, fp);
-   }
+    for (i = 4 ; i < 0x10 ; i++)
+    {
+        int romBank = (256 - (((ws_ioRam[IO_ROM_BANK_BASE_SELECTOR] & 0xf) << 4) | (i & 0xf)));
+        fwrite(&(ws_rom[(unsigned)(romSize - (romBank << 16))]), 1, 0x10000, fp);
+    }
 
-   fclose(fp);
+    fclose(fp);
 
-   fp = fopen("registers.bin", "wb");
-   fwrite(ws_ioRam, 1, 256, fp);
-   fclose(fp);
+    fp = fopen("registers.bin", "wb");
+    fwrite(ws_ioRam, 1, 256, fp);
+    fclose(fp);
 
-   fp = fopen("cpuregs.bin", "wb");
-   /* CS */
-   fwrite(&I.sregs[CS], 1, 2, fp);
-   /* IP */
-   fwrite(&I.ip, 1, 2, fp);
-   fclose(fp);
+    fp = fopen("cpuregs.bin", "wb");
+    /* CS */
+    fwrite(&I.sregs[CS], 1, 2, fp);
+    /* IP */
+    fwrite(&I.ip, 1, 2, fp);
+    fclose(fp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,24 +137,25 @@ void dump_memory()
 ////////////////////////////////////////////////////////////////////////////////
 void cpu_writemem20(uint32_t addr, uint8_t value)
 {
-   uint32_t   offset=addr&0xffff;
-   uint32_t   bank=addr>>16;
+    uint32_t offset = addr & 0xffff;
+    uint32_t bank = addr >> 16;
 
-   if (!bank)
-   {
-      // 0 - RAM - 16 KB (WS) / 64 KB (WSC) internal RAM
-      ws_gpu_write_byte(offset,value);
-      ws_audio_write_byte(offset,value);
-   }
-   else if (bank==1)
-      {
+    if (!bank)
+    {
+        // 0 - RAM - 16 KB (WS) / 64 KB (WSC) internal RAM
+        ws_gpu_write_byte(offset, value);
+        ws_audio_write_byte(offset, value);
+    }
+    else if (bank == 1)
+    {
         // 1 - SRAM (cart)
-         ws_staticRam[offset&sramAddressMask]=value;
-         ws_sram_dirty = 1;
-      }
+        ws_staticRam[offset & sramAddressMask] = value;
+        ws_sram_dirty = 1;
+    }
 
-   // other banks are read-only
+    // other banks are read-only
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +213,8 @@ uint8_t cpu_readmem20(uint32_t addr)
         temp &= (romSize - 1);
         return ws_rom[temp];
 
-    case 0xF:hwReg = ws_ioRam[0xA0];
+    case 0xF:
+        hwReg = ws_ioRam[0xA0];
 
         if (!(hwReg & 1))
         {
@@ -237,7 +245,8 @@ uint8_t cpu_readmem20(uint32_t addr)
         }
         // fall through
 
-    default:hwReg = ws_ioRam[0xC0];
+    default:
+        hwReg = ws_ioRam[0xC0];
         temp = hwReg << 20;
         temp += addr & 0xFFFFF;
         temp &= (romSize - 1);
@@ -246,6 +255,7 @@ uint8_t cpu_readmem20(uint32_t addr)
 
     return (0x90);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,9 +277,9 @@ char *load_file(char *filename)
 
     fstat(fd, &FileStat);
 
-    printf("Trying to load %s, size = %lu...\n",filename, (unsigned long)FileStat.st_size);
+    printf("Trying to load %s, size = %lu...\n", filename, (unsigned long)FileStat.st_size);
 
-    ret_ptr = (char *)mmap(NULL, FileStat.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+    ret_ptr = (char *)mmap(NULL, FileStat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     close(fd);
 
@@ -280,6 +290,7 @@ char *load_file(char *filename)
 
     return ret_ptr;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -296,9 +307,9 @@ char *create_file(char *filename, uint32_t size)
     int fd;
     uint32_t i;
     char *ret_ptr;
-    char buf[] = { 0 };
+    char buf[] = {0};
 
-    printf("Trying to create %s, size = %u...\n",filename, size);
+    printf("Trying to create %s, size = %u...\n", filename, size);
     fd = open(filename, O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC, 0644);
     fchmod(fd, 0644);
     close(fd);
@@ -306,16 +317,16 @@ char *create_file(char *filename, uint32_t size)
 
     fd = open(filename, O_RDWR);
 
-    for(i = 0; i < size; i++)
+    for (i = 0 ; i < size ; i++)
     {
-      write(fd, buf, 1);
+        write(fd, buf, 1);
     }
 
     close(fd);
-    sync();    
+    sync();
 
     fd = open(filename, O_RDWR);
-    ret_ptr = (char *)mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+    ret_ptr = (char *)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     close(fd);
 
@@ -326,6 +337,7 @@ char *create_file(char *filename, uint32_t size)
 
     return ret_ptr;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -403,6 +415,7 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
 
     romAddressMask = romSize - 1;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -416,8 +429,9 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_memory_reset(void)
 {
-   memset(internalRam,0,0x10000);
+    memset(internalRam, 0, 0x10000);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -431,8 +445,9 @@ void ws_memory_reset(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_memory_done(void)
 {
-   free(internalRam);
+    free(internalRam);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -446,8 +461,9 @@ void ws_memory_done(void)
 ////////////////////////////////////////////////////////////////////////////////
 uint8_t *memory_getRom(void)
 {
-   return(ws_rom);
+    return (ws_rom);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -459,10 +475,11 @@ uint8_t *memory_getRom(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint32_t   memory_getRomSize(void)
+uint32_t memory_getRomSize(void)
 {
-   return(romSize);
+    return (romSize);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -474,7 +491,7 @@ uint32_t   memory_getRomSize(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint16_t   memory_getRomCrc(void)
+uint16_t memory_getRomCrc(void)
 {
-   return(ws_rom_checksum);
+    return (ws_rom_checksum);
 }

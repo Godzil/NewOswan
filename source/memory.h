@@ -1,5 +1,10 @@
-//////////////////////////////////////////////////////////////////////////////
-//
+/*
+ * NewOswan
+ * memory.h:
+ * Based on the original Oswan-unix
+ * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ *
+ */
 //////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -14,16 +19,16 @@
 
 #include <stdint.h>
 
-extern uint8_t	*ws_staticRam;
-extern uint8_t	*internalRam;
-extern uint8_t	*externalEeprom;
+extern uint8_t *ws_staticRam;
+extern uint8_t *internalRam;
+extern uint8_t *externalEeprom;
 
-void	ws_memory_init(uint8_t *rom, uint32_t romSize);
-void	ws_memory_reset(void);
-uint8_t	*memory_getRom(void);
-uint32_t	memory_getRomSize(void);
-uint16_t	memory_getRomCrc(void);
-void	ws_memory_done(void);
+void ws_memory_init(uint8_t *rom, uint32_t romSize);
+void ws_memory_reset(void);
+uint8_t *memory_getRom(void);
+uint32_t memory_getRomSize(void);
+uint16_t memory_getRomCrc(void);
+void ws_memory_done(void);
 void memory_load(int fp);
 void memory_save(int fp);
 

@@ -1,6 +1,11 @@
-////////////////////////////////////////////////////////////////////////////////
-// Main emulation loop
-////////////////////////////////////////////////////////////////////////////////
+/*
+ * NewOswan
+ * emulate.c:
+ * Based on the original Oswan-unix
+ * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ *
+ */
+//////////////////////////////////////////////////////////////////////////////
 //
 //
 //
@@ -23,6 +28,7 @@
 
 #define GLFW_INCLUDE_GLEXT
 #define GL_SILENCE_DEPRECATION
+
 #include <GLFW/glfw3.h>
 /* "Apple" fix */
 #ifndef GL_TEXTURE_RECTANGLE
@@ -39,12 +45,8 @@
 #include "audio.h"
 #include "memory.h"
 
-char        app_window_title[256];
-int         app_gameRunning=0;
-int         app_terminate=0;
-int         app_fullscreen=0;
-int         app_rotated=0;
-
+char app_window_title[256];
+int app_terminate = 0;
 
 int ws_key_esc = 0;
 
@@ -68,13 +70,13 @@ struct GLWindow_t
 };
 static GLWindow mainWindow;
 static int window_num = 0;
+
 static void ShowScreen(GLWindow *g, int w, int h)
 {
     glBindTexture(GL_TEXTURE_RECTANGLE, g->videoTexture);
 
     // glTexSubImage2D is faster when not using a texture range
-    glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, 0, w, h,
-                    GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, g->videoMemory);
+    glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, 0, w, h, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, g->videoMemory);
     glBegin(GL_QUADS);
 
     glTexCoord2f(0.0f, 0.0f);
@@ -92,12 +94,14 @@ static void ShowScreen(GLWindow *g, int w, int h)
 
     glFlush();
 }
+
 static void GLWindowInitEx(GLWindow *g, int w, int h)
 {
     g->WIDTH = w;
     g->HEIGHT = h;
     g->videoTexture = window_num++;
 }
+
 static void setupGL(GLWindow *g, int w, int h)
 {
     g->videoMemory = (uint8_t *)malloc(w * h * sizeof(uint16_t));
@@ -120,10 +124,6 @@ static void setupGL(GLWindow *g, int w, int h)
     glEnable(GL_TEXTURE_RECTANGLE);
     glBindTexture(GL_TEXTURE_RECTANGLE, g->videoTexture);
 
-    //  glTextureRangeAPPLE(GL_TEXTURE_RECTANGLE_NV_EXT, 0, NULL);
-
-    //  glTexParameteri(GL_TEXTURE_RECTANGLE_NV_EXT, GL_TEXTURE_STORAGE_HINT_APPLE , GL_STORAGE_CACHED_APPLE);
-    //  glPixelStorei(GL_UNPACK_CLIENT_STORAGE_APPLE, GL_TRUE);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -134,6 +134,7 @@ static void setupGL(GLWindow *g, int w, int h)
 
     glDisable(GL_DEPTH_TEST);
 }
+
 void restoreGL(GLWindow *g)
 {
     //Tell OpenGL how to convert from coordinates to pixel values
@@ -154,6 +155,7 @@ void restoreGL(GLWindow *g)
     glEnable(GL_TEXTURE_RECTANGLE);
     glDisable(GL_DEPTH_TEST);
 }
+
 static void kbHandler(GLFWwindow *window, int key, int scan, int action, int mod)
 {
     struct KeyArray *keyArray;
@@ -174,16 +176,19 @@ static void kbHandler(GLFWwindow *window, int key, int scan, int action, int mod
     /*printf("key:%d, state:%d debounce:%d, laststate:%d\n", key, keyArray[key].curState,
            keyArray[key].debounced, keyArray[key].lastState);*/
 }
+
 static void sizeHandler(GLFWwindow *window, int xs, int ys)
 {
     glfwMakeContextCurrent(window);
     glViewport(0, 0, xs, ys);
     ShowScreen(&mainWindow, 244, 144);
 }
+
 static void error_callback(int error, const char *description)
 {
     puts(description);
 }
+
 static void initDisplay(GLWindow *g)
 {
     int h = g->HEIGHT;
@@ -216,10 +221,12 @@ static void initDisplay(GLWindow *g)
     glfwSetKeyCallback(g->windows, kbHandler);
     glfwSetWindowSizeCallback(g->windows, sizeHandler);
 }
+
 static void clearScreen(GLWindow *g)
 {
     memset(g->videoMemory, 0, sizeof(uint8_t) * g->WIDTH * g->HEIGHT * 4);
 }
+
 static void updateScreen(GLWindow *g)
 {
     /* Update windows code */
@@ -228,6 +235,7 @@ static void updateScreen(GLWindow *g)
     glfwSwapBuffers(g->windows);
     glfwPollEvents();
 }
+
 uint64_t getTicks()
 {
     struct timeval curTime;
@@ -235,7 +243,7 @@ uint64_t getTicks()
     /* Get datetime */
     gettimeofday(&curTime, NULL);
 
-    ticks = (curTime.tv_sec* 1000) + curTime.tv_usec / 1000;
+    ticks = (curTime.tv_sec * 1000) + curTime.tv_usec / 1000;
 
     return ticks;
 }
@@ -247,97 +255,97 @@ static inline int getKeyState(int key)
 
 static void read_keys()
 {
-    ws_key_start=0;
-    ws_key_x4=0;
-    ws_key_x2=0;
-    ws_key_x1=0;
-    ws_key_x3=0;
-    ws_key_y4=0;
-    ws_key_y2=0;
-    ws_key_y1=0;
-    ws_key_y3=0;
-    ws_key_button_a=0;
-    ws_key_button_b=0;
+    ws_key_start = 0;
+    ws_key_x4 = 0;
+    ws_key_x2 = 0;
+    ws_key_x1 = 0;
+    ws_key_x3 = 0;
+    ws_key_y4 = 0;
+    ws_key_y2 = 0;
+    ws_key_y1 = 0;
+    ws_key_y3 = 0;
+    ws_key_button_a = 0;
+    ws_key_button_b = 0;
 
     if (getKeyState(GLFW_KEY_E))
     {
-       dump_memory();
+        dump_memory();
     }
 
     if (getKeyState(GLFW_KEY_R))
     {
-       printf("Boop\n");
-       ws_reset();
+        printf("Boop\n");
+        ws_reset();
     }
 
     if (getKeyState(GLFW_KEY_ESCAPE))
     {
-       ws_key_esc = 1;
+        ws_key_esc = 1;
     }
 
-    if ( getKeyState(GLFW_KEY_UP))
+    if (getKeyState(GLFW_KEY_UP))
     {
-       ws_key_x1=1;
+        ws_key_x1 = 1;
     }
 
-    if ( getKeyState(GLFW_KEY_DOWN))
+    if (getKeyState(GLFW_KEY_DOWN))
     {
-       ws_key_x3=1;
+        ws_key_x3 = 1;
     }
 
     if (getKeyState(GLFW_KEY_RIGHT))
     {
-       ws_key_x2=1;
+        ws_key_x2 = 1;
     }
 
     if (getKeyState(GLFW_KEY_LEFT))
     {
-       ws_key_x4=1;
+        ws_key_x4 = 1;
     }
 
     if (getKeyState(GLFW_KEY_ENTER))
     {
-       ws_key_start=1;
+        ws_key_start = 1;
     }
 
     if (getKeyState(GLFW_KEY_C))
     {
-       ws_key_button_a=1;
+        ws_key_button_a = 1;
     }
 
     if (getKeyState(GLFW_KEY_X))
     {
-       ws_key_button_b=1;
+        ws_key_button_b = 1;
     }
 
     if (getKeyState(GLFW_KEY_W))
     {
-       ws_key_y1=1;
+        ws_key_y1 = 1;
     }
 
     if (getKeyState(GLFW_KEY_A))
     {
-       ws_key_y4=1;
+        ws_key_y4 = 1;
     }
 
     if (getKeyState(GLFW_KEY_S))
     {
-       ws_key_y3=1;
+        ws_key_y3 = 1;
     }
 
     if (getKeyState(GLFW_KEY_D))
     {
-       ws_key_y2=1;
+        ws_key_y2 = 1;
     }
 
     if (getKeyState(GLFW_KEY_O))
     {
-       ws_cyclesByLine+=10;
+        ws_cyclesByLine += 10;
     }
 
     if (getKeyState(GLFW_KEY_L))
     {
-       ws_cyclesByLine-=10;
+        ws_cyclesByLine -= 10;
     }
 }
 
@@ -365,7 +373,7 @@ void ws_emulate(void)
     initDisplay(&mainWindow);
     clearScreen(&mainWindow);
     updateScreen(&mainWindow);
-    int16_t  *backBuffer = (int16_t *)mainWindow.videoMemory;
+    int16_t *backBuffer = (int16_t *)mainWindow.videoMemory;
 
 
     dNormalLast = (double)getTicks();

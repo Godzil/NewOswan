@@ -1,6 +1,11 @@
-////////////////////////////////////////////////////////////////////////////////
-// I/O ports
-////////////////////////////////////////////////////////////////////////////////
+/*
+ * NewOswan
+ * io.c: I/O ports implementaton
+ * Based on the original Oswan-unix
+ * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ *
+ */
+//////////////////////////////////////////////////////////////////////////////
 //
 //
 //
@@ -8,7 +13,6 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////////
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -40,26 +44,18 @@ extern uint64_t nec_monotonicCycles;
 
 enum
 {
-   EEPROM_SUBCOMMAND = 0,  /* 00 00 */
-   EEPROM_WRITE,           /* 01 xx */
-   EEPROM_READ,            /* 10 xx */
-   EEPROM_ERASE,           /* 11 xx */
-   EEPROM_WRITEDISABLE,    /* 00 00 */
-   EEPROM_WRITEALL,        /* 00 01 */
-   EEPROM_ERASEALL,        /* 00 10 */
-   EEPROM_WRITEENABLE      /* 00 11 */
+    EEPROM_SUBCOMMAND = 0,  /* 00 00 */
+    EEPROM_WRITE,           /* 01 xx */
+    EEPROM_READ,            /* 10 xx */
+    EEPROM_ERASE,           /* 11 xx */
+    EEPROM_WRITEDISABLE,    /* 00 00 */
+    EEPROM_WRITEALL,        /* 00 01 */
+    EEPROM_ERASEALL,        /* 00 10 */
+    EEPROM_WRITEENABLE      /* 00 11 */
 };
 
-char *eii_CommandName[] =
-{
-   "SUB",
-   "WRI",
-   "RED",
-   "ERA",
-   "WRD",
-   "WRA",
-   "ERL",
-   "WRE",
+char *eii_CommandName[] = {
+    "SUB", "WRI", "RED", "ERA", "WRD", "WRA", "ERL", "WRE",
 };
 
 uint8_t iee_WriteEnable = false;
@@ -73,7 +69,7 @@ uint16_t cee_Databuffer = 0;
 uint8_t cee_Mode = EEPROM_READ;
 
 
-uint8_t *ws_ioRam=NULL;
+uint8_t *ws_ioRam = NULL;
 
 uint8_t ws_key_start;
 uint8_t ws_key_x4;
@@ -88,7 +84,7 @@ uint8_t ws_key_button_a;
 uint8_t ws_key_button_b;
 uint8_t ws_key_flipped;
 
-int      rtcDataRegisterReadCount=0;
+int rtcDataRegisterReadCount = 0;
 
 FILE *ioLogFp = NULL;
 
@@ -105,18 +101,18 @@ FILE *ioLogFp = NULL;
 ////////////////////////////////////////////////////////////////////////////////
 void ws_io_reset(void)
 {
-   ws_key_start=0;
-   ws_key_x4=0;
-   ws_key_x2=0;
-   ws_key_x1=0;
-   ws_key_x3=0;
-   ws_key_y4=0;
-   ws_key_y2=0;
-   ws_key_y1=0;
-   ws_key_y3=0;
-   ws_key_button_a=0;
-   ws_key_button_b=0;
-   int i;
+    ws_key_start = 0;
+    ws_key_x4 = 0;
+    ws_key_x2 = 0;
+    ws_key_x1 = 0;
+    ws_key_x3 = 0;
+    ws_key_y4 = 0;
+    ws_key_y2 = 0;
+    ws_key_y1 = 0;
+    ws_key_y3 = 0;
+    ws_key_button_a = 0;
+    ws_key_button_b = 0;
+    int i;
 
     for (i = 0 ; i < 0x100 ; i++)
     {
@@ -133,8 +129,9 @@ void ws_io_reset(void)
     ws_ioRam[0xC2] = 0xFF;
     ws_ioRam[0xC3] = 0xFF;
 
-   rtcDataRegisterReadCount=0;
+    rtcDataRegisterReadCount = 0;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,18 +145,19 @@ void ws_io_reset(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_io_init(void)
 {
-   if (ws_ioRam==NULL)
-   {
-      ws_ioRam=(uint8_t*)malloc(0x100);
-   }
+    if (ws_ioRam == NULL)
+    {
+        ws_ioRam = (uint8_t *)malloc(0x100);
+    }
 
-   ws_io_reset();
-   ws_key_flipped=0;
+    ws_io_reset();
+    ws_key_flipped = 0;
 
 #ifdef IO_DUMP
-   ioLogFp = fopen("iodump.csv", "wt");
+    ioLogFp = fopen("iodump.csv", "wt");
 #endif
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -173,8 +171,9 @@ void ws_io_init(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_io_flipControls(void)
 {
-   ws_key_flipped=!ws_key_flipped;
+    ws_key_flipped = !ws_key_flipped;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,13 +187,13 @@ void ws_io_flipControls(void)
 ////////////////////////////////////////////////////////////////////////////////
 void ws_io_done(void)
 {
-   if (ws_ioRam==NULL)
-   {
-      free(ws_ioRam);
-   }
+    if (ws_ioRam == NULL)
+    {
+        free(ws_ioRam);
+    }
 
 #ifdef IO_DUMP
-   fclose(ioLogFp);
+    fclose(ioLogFp);
 #endif
 }
 
@@ -206,134 +205,135 @@ int serialfd = -1;
 int serial_have_data = 0;
 unsigned char serial_data = 0;
 int serial_speed = BDR_9600;
+
 void open_serial()
 {
-   if (serialfd < 0)
-   {
-      serialfd = open(SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
+    if (serialfd < 0)
+    {
+        serialfd = open(SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
 
-      //set_baudrate(serial_speed);
-      serial_have_data = 0;
-   }
+        //set_baudrate(serial_speed);
+        serial_have_data = 0;
+    }
 }
 
 void set_baudrate(int speed)
 {
-   struct termios options;
+    struct termios options;
 
-   if (serialfd < 0)
-   {
-      return;
-   }
+    if (serialfd < 0)
+    {
+        return;
+    }
 
-   tcgetattr(serialfd, &options);
+    tcgetattr(serialfd, &options);
 
-   options.c_cflag &= ~PARENB;
-   options.c_cflag &= ~CSTOPB;
-   options.c_cflag &= ~CSIZE;
-   options.c_cflag |= CS8;
+    options.c_cflag &= ~PARENB;
+    options.c_cflag &= ~CSTOPB;
+    options.c_cflag &= ~CSIZE;
+    options.c_cflag |= CS8;
 
-   if (speed == BDR_9600)
-   {
-      cfsetispeed(&options, B9600);
-   }
-   else
-   {
-      cfsetospeed(&options, B38400);
-   }
+    if (speed == BDR_9600)
+    {
+        cfsetispeed(&options, B9600);
+    }
+    else
+    {
+        cfsetospeed(&options, B38400);
+    }
 
 #if 0
-   options.c_cflag &= ~CNEW_RTSCTS;
+    options.c_cflag &= ~CNEW_RTSCTS;
 #else
-   options.c_cflag &= ~CRTSCTS;
+    options.c_cflag &= ~CRTSCTS;
 #endif
-   options.c_cflag |= (CLOCAL | CREAD);
+    options.c_cflag |= (CLOCAL | CREAD);
 
-   options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
-   options.c_oflag &= ~OPOST;
+    options.c_oflag &= ~OPOST;
 
-   tcsetattr(serialfd, TCSANOW, &options);
+    tcsetattr(serialfd, TCSANOW, &options);
 
-   /* Make sure read is not blocking */
-   fcntl(serialfd, F_SETFL, FNDELAY);
+    /* Make sure read is not blocking */
+    fcntl(serialfd, F_SETFL, FNDELAY);
 }
 
 void close_serial()
 {
-   close(serialfd);
-   serialfd = -1;
+    close(serialfd);
+    serialfd = -1;
 }
 
 void check_serial_data()
 {
-   unsigned char buf[10];
-   int f;
+    unsigned char buf[10];
+    int f;
 
-   if (serialfd < 0)
-   {
-      return;
-   }
+    if (serialfd < 0)
+    {
+        return;
+    }
 
-   if (serial_have_data == 0)
-   {
-      f = read(serialfd, buf, 1);
+    if (serial_have_data == 0)
+    {
+        f = read(serialfd, buf, 1);
 
-      if (f > 0)
-      {
-         printf("Ho [%d]!\n", f);
-         fflush(stdout);
-         serial_have_data = 0x01;
-         serial_data = buf[0];
-      }
-   }
+        if (f > 0)
+        {
+            printf("Ho [%d]!\n", f);
+            fflush(stdout);
+            serial_have_data = 0x01;
+            serial_data = buf[0];
+        }
+    }
 
-   if(serial_have_data > 0)
-   {
-      /* Gen an int if enabled */
-      if(ws_ioRam[0xB2] & 0x04)
-      {
-         ws_ioRam[0xb6] &= ~ 0x04;
-         printf("SERIAL INNNNNTTTT!!!!!!!");
-         nec_int((ws_ioRam[0xb0]+3)*4);
-      }
-   }
+    if (serial_have_data > 0)
+    {
+        /* Gen an int if enabled */
+        if (ws_ioRam[0xB2] & 0x04)
+        {
+            ws_ioRam[0xb6] &= ~0x04;
+            printf("SERIAL INNNNNTTTT!!!!!!!");
+            nec_int((ws_ioRam[0xb0] + 3) * 4);
+        }
+    }
 }
 
 unsigned char read_serial()
 {
-   unsigned char buf[10];
-   int f;
+    unsigned char buf[10];
+    int f;
 
-   if (serialfd < 0)
-   {
-      return 0xFF;
-   }
+    if (serialfd < 0)
+    {
+        return 0xFF;
+    }
 
-   if (serial_have_data > 0)
-   {
-      serial_have_data = 0;
-      return serial_data;
-   }
+    if (serial_have_data > 0)
+    {
+        serial_have_data = 0;
+        return serial_data;
+    }
 
-   f = read(serialfd, buf, 1);
+    f = read(serialfd, buf, 1);
 
-   if (f == 1)
-   {
-      return buf[0];
-   }
+    if (f == 1)
+    {
+        return buf[0];
+    }
 
-   return 0x42;
+    return 0x42;
 }
 
 void write_serial(unsigned char value)
 {
-   if (serialfd < 0)
-   {
-      return;
-   }
+    if (serialfd < 0)
+    {
+        return;
+    }
 
-   write(serialfd, &value, 1);
+    write(serialfd, &value, 1);
 }
 
 
@@ -390,10 +390,12 @@ uint8_t cpu_readport(uint8_t port)
     case 0x91:
     case 0x92:
     case 0x93:
-    case 0x94:retVal = ws_audio_port_read(port);
+    case 0x94:
+        retVal = ws_audio_port_read(port);
         break;
 
-    case 0xb5:w1 = ws_ioRam[0xb5];
+    case 0xb5:
+        w1 = ws_ioRam[0xb5];
 
         if (w1 & 0x40)
         {
@@ -445,10 +447,12 @@ uint8_t cpu_readport(uint8_t port)
         {
         case WS_SYSTEM_AUTODETECT:
         case WS_SYSTEM_MONO:
-        case WS_SYSTEM_COLOR:retVal = 0x00;
+        case WS_SYSTEM_COLOR:
+            retVal = 0x00;
             break;
 
-        case WS_SYSTEM_CRYSTAL:retVal = 0x80;
+        case WS_SYSTEM_CRYSTAL:
+            retVal = 0x80;
             break;
         }
         break;
@@ -509,31 +513,38 @@ uint8_t cpu_readport(uint8_t port)
 
             switch (rtcDataRegisterReadCount)
             {
-            case 0:rtcDataRegisterReadCount++;
+            case 0:
+                rtcDataRegisterReadCount++;
                 retVal = BCD(newtime->tm_year - 100);
                 goto exit;
 
-            case 1:rtcDataRegisterReadCount++;
+            case 1:
+                rtcDataRegisterReadCount++;
                 retVal = BCD(newtime->tm_mon);
                 goto exit;
 
-            case 2:rtcDataRegisterReadCount++;
+            case 2:
+                rtcDataRegisterReadCount++;
                 retVal = BCD(newtime->tm_mday);
                 goto exit;
 
-            case 3:rtcDataRegisterReadCount++;
+            case 3:
+                rtcDataRegisterReadCount++;
                 retVal = BCD(newtime->tm_wday);
                 goto exit;
 
-            case 4:rtcDataRegisterReadCount++;
+            case 4:
+                rtcDataRegisterReadCount++;
                 retVal = BCD(newtime->tm_hour);
                 goto exit;
 
-            case 5:rtcDataRegisterReadCount++;
+            case 5:
+                rtcDataRegisterReadCount++;
                 retVal = BCD(newtime->tm_min);
                 goto exit;
 
-            case 6:rtcDataRegisterReadCount = 0;
+            case 6:
+                rtcDataRegisterReadCount = 0;
                 retVal = BCD(newtime->tm_sec);
                 goto exit;
             }
@@ -547,15 +558,18 @@ uint8_t cpu_readport(uint8_t port)
             goto exit;
         }
 
-    case 0xD0:retVal = 0;
+    case 0xD0:
+        retVal = 0;
         goto exit;
 
         /* Serial port link.. */
-    case 0xB1:retVal = read_serial();
+    case 0xB1:
+        retVal = read_serial();
         printf("RS232: Read %02X\n", retVal);
         goto exit;
 
-    case 0xB3:check_serial_data();
+    case 0xB3:
+        check_serial_data();
 
         if (ws_ioRam[0xB3] & 0x80)
         {
@@ -572,10 +586,12 @@ uint8_t cpu_readport(uint8_t port)
         goto exit;
 
     case 0xCC:
-    case 0xCD:retVal = 0;
+    case 0xCD:
+        retVal = 0;
         break;
 
-    default:retVal = ws_ioRam[port];
+    default:
+        retVal = ws_ioRam[port];
         if (port > 0xD0)
         {
             printf("ReadIO %02X <= %02X\n", port, retVal);
@@ -586,7 +602,8 @@ uint8_t cpu_readport(uint8_t port)
     case 0xAA:
     case 0xAB:
     case 0xAC:
-    case 0xAD:retVal = ws_gpu_port_read(port);
+    case 0xAD:
+        retVal = ws_gpu_port_read(port);
         break;
 
     }
@@ -645,7 +662,8 @@ void cpu_writeport(uint32_t port, uint8_t value)
     switch (port)
     {
         /* GPU IOs */
-    case 0x00:break;
+    case 0x00:
+        break;
 
     case 0x04:
     case 0x07:
@@ -666,7 +684,8 @@ void cpu_writeport(uint32_t port, uint8_t value)
     case 0x11:
     case 0x12:
     case 0x13:
-    case 0x14:break;
+    case 0x14:
+        break;
 
     case 0x15:
         printf("Icons %c %c %c %c %c %c %c %c\n", (value >> 7) & 1 ? '?' : ' ', (value >> 6) & 1 ? '?' : ' ',
@@ -708,7 +727,8 @@ void cpu_writeport(uint32_t port, uint8_t value)
     case 0x36:
     case 0x24:
     case 0x2E:
-    case 0x37:break;
+    case 0x37:
+        break;
 
         /* DMAs */
     case 0x40:
@@ -718,7 +738,8 @@ void cpu_writeport(uint32_t port, uint8_t value)
     case 0x44:
     case 0x45:
     case 0x46:
-    case 0x47:break;
+    case 0x47:
+        break;
 
     case 0x48:  // DMA
 
@@ -753,14 +774,17 @@ void cpu_writeport(uint32_t port, uint8_t value)
     case 0x4c:
     case 0x4d:
     case 0x4e:
-    case 0x4f:ws_audio_port_write(port, value);
+    case 0x4f:
+        ws_audio_port_write(port, value);
         break;
 
         /* DMA Start! */
-    case 0x52:break;
+    case 0x52:
+        break;
 
         /* GPU (again) */
-    case 0x60:break;
+    case 0x60:
+        break;
         /* System */
     case 0x62:
         printf("HeyHo!");
@@ -797,7 +821,8 @@ void cpu_writeport(uint32_t port, uint8_t value)
     case 0x9B:
     case 0x9C:
     case 0x9D:
-    case 0x9E:ws_audio_port_write(port, value);
+    case 0x9E:
+        ws_audio_port_write(port, value);
         break;
 
         /* Hardware */
@@ -815,17 +840,20 @@ void cpu_writeport(uint32_t port, uint8_t value)
     case 0xA8:
     case 0xA9:
     case 0xAA:
-    case 0xAB:break;
+    case 0xAB:
+        break;
 
 
         /* Intc */
     case 0xB0:
     case 0xB2:
     case 0xB4:
-    case 0xB6:break;
+    case 0xB6:
+        break;
 
         /* Serial */
-    case 0xB1:write_serial(value);
+    case 0xB1:
+        write_serial(value);
         break;
 
     case 0xB3:
@@ -850,7 +878,8 @@ void cpu_writeport(uint32_t port, uint8_t value)
         break;
 
         /* buttons */
-    case 0xB5:break;
+    case 0xB5:
+        break;
 
         /* Internal EEPROM */
     case 0xba: /* DATA Low */
@@ -885,216 +914,216 @@ void cpu_writeport(uint32_t port, uint8_t value)
             command = (iee_SelAddress >> 10) & 0x3;
             address = iee_SelAddress & 0x3FF;
             subcmd = (iee_SelAddress >> 8) & 0x03;
-         }
-         else
-         {
+        }
+        else
+        {
             /* S CC aaAAAA */
             command = (iee_SelAddress >> 6) & 0x3;
             address = iee_SelAddress & 0x3F;
             subcmd = (iee_SelAddress >> 4) & 0x03;
-         }
-         
+        }
 
-         if (command == EEPROM_SUBCOMMAND)
-         {
+
+        if (command == EEPROM_SUBCOMMAND)
+        {
             command = EEPROM_WRITEDISABLE + subcmd;
-         }
+        }
 
-         printf("IEEP: RA:%04X RD:%04X A:%03X C:%s", iee_SelAddress, iee_Databuffer, address, eii_CommandName[command]);
+        printf("IEEP: RA:%04X RD:%04X A:%03X C:%s", iee_SelAddress, iee_Databuffer, address, eii_CommandName[command]);
 
-         if (value & 0x40)
-         {
+        if (value & 0x40)
+        {
             /* Sub command */
             printf(" - Sub");
             if (command == EEPROM_WRITEENABLE)
             {
-               printf(" Write Enable\n");
-               iee_WriteEnable = true;
+                printf(" Write Enable\n");
+                iee_WriteEnable = true;
             }
             else if (command == EEPROM_WRITEDISABLE)
             {
-               printf(" Write Disable\n");
-               iee_WriteEnable = false; 
+                printf(" Write Disable\n");
+                iee_WriteEnable = false;
             }
             else if (command == EEPROM_ERASEALL)
             {
-               printf(" Erase All\n");
-               if (ws_gpu_operatingInColor)
-               {
-                  memset(internalEeprom, 0, COLOR_IEEPROM_SIZE);
-               }
-               else
-               {
-                  memset(internalEeprom, 0, BW_IEEPROM_SIZE);
-               }
+                printf(" Erase All\n");
+                if (ws_gpu_operatingInColor)
+                {
+                    memset(internalEeprom, 0, COLOR_IEEPROM_SIZE);
+                }
+                else
+                {
+                    memset(internalEeprom, 0, BW_IEEPROM_SIZE);
+                }
             }
             else
             {
-               printf(" Write All?\n");
+                printf(" Write All?\n");
             }
-         }
-         else if (value & 0x20)
-         {
+        }
+        else if (value & 0x20)
+        {
             /* Write */
             printf(" - Write?");
             if (iee_WriteEnable)
             {
-               printf(" Yes : %04X\n", iee_Databuffer);
-               internalEeprom[address] = iee_Databuffer;
+                printf(" Yes : %04X\n", iee_Databuffer);
+                internalEeprom[address] = iee_Databuffer;
             }
             else
             {
-               printf(" No\n");
+                printf(" No\n");
             }
-         }
-         else if (value & 0x10)
-         {
+        }
+        else if (value & 0x10)
+        {
             /* Read */
             printf(" - Read");
             iee_Databuffer = internalEeprom[address];
             printf(" Data : %04X\n", iee_Databuffer);
-         }
-         else
-         {
+        }
+        else
+        {
             printf(" Unknown value: %02X\n", value);
-         }
-         fflush(stdout);
-      }
-      break;
+        }
+        fflush(stdout);
+    }
+        break;
 
 
-   /* MBC */
-   case 0xC0:
-   case 0xC1:
-   case 0xC2:
-   case 0xC3:
-      break;
+        /* MBC */
+    case 0xC0:
+    case 0xC1:
+    case 0xC2:
+    case 0xC3:
+        break;
 
-   /* Cart EEPROM */
-   case 0xC4: /* Data High */
-       cee_Databuffer = cee_Databuffer & 0xFF00;
-       cee_Databuffer = cee_Databuffer | (value);
-       break;
+        /* Cart EEPROM */
+    case 0xC4: /* Data High */
+        cee_Databuffer = cee_Databuffer & 0xFF00;
+        cee_Databuffer = cee_Databuffer | (value);
+        break;
 
-   case 0xC5: /* Data High */
-       cee_Databuffer = cee_Databuffer & 0x00FF;
-       cee_Databuffer = cee_Databuffer | (value << 8);
-       break;
+    case 0xC5: /* Data High */
+        cee_Databuffer = cee_Databuffer & 0x00FF;
+        cee_Databuffer = cee_Databuffer | (value << 8);
+        break;
 
-   case 0xC6: /* Address Low */
-   case 0xC7: /* Address High */
-       break;
+    case 0xC6: /* Address Low */
+    case 0xC7: /* Address High */
+        break;
 
-   case 0xC8: /* Command / Status */
-   {
-       uint16_t address, command, subcmd; /*, start;*/
+    case 0xC8: /* Command / Status */
+    {
+        uint16_t address, command, subcmd; /*, start;*/
 
-       cee_SelAddress = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
+        cee_SelAddress = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
 
-       /* S CC aaAAAA */
-       command = (cee_SelAddress >> 6) & 0x3;
-       address = cee_SelAddress & 0x3F;
-       subcmd = (cee_SelAddress >> 4) & 0x03;
+        /* S CC aaAAAA */
+        command = (cee_SelAddress >> 6) & 0x3;
+        address = cee_SelAddress & 0x3F;
+        subcmd = (cee_SelAddress >> 4) & 0x03;
 
 
-       if (command == EEPROM_SUBCOMMAND)
-       {
-           command = EEPROM_WRITEDISABLE + subcmd;
-       }
+        if (command == EEPROM_SUBCOMMAND)
+        {
+            command = EEPROM_WRITEDISABLE + subcmd;
+        }
 
-       printf("CEEP: RA:%04X RD:%04X A:%03X C:%s", cee_SelAddress, cee_Databuffer, address, eii_CommandName[command]);
+        printf("CEEP: RA:%04X RD:%04X A:%03X C:%s", cee_SelAddress, cee_Databuffer, address, eii_CommandName[command]);
 
-       if (value & 0x40)
-       {
-           /* Sub command */
-           printf(" - Sub");
-           if (command == EEPROM_WRITEENABLE)
-           {
-               printf(" Write Enable\n");
-               cee_WriteEnable = true;
-           }
-           else if (command == EEPROM_WRITEDISABLE)
-           {
-               printf(" Write Disable\n");
-               cee_WriteEnable = false;
-           }
-           else if (command == EEPROM_ERASEALL)
-           {
-               printf(" Erase All\n");
-               /* Nothing here at the moment */
-           }
-           else
-           {
-               printf(" Write All?\n");
-           }
-       }
-       else if (value & 0x20)
-       {
-           /* Write */
-           printf(" - Write?");
-           if (cee_WriteEnable)
-           {
-               printf(" Yes : %04X\n", cee_Databuffer);
-               externalEeprom[address] = cee_Databuffer;
-           }
-           else
-           {
-               printf(" No\n");
-           }
-       }
-       else if (value & 0x10)
-       {
-           /* Read */
-           printf(" - Read");
-           cee_Databuffer = externalEeprom[address];
-           printf(" Data : %04X\n", cee_Databuffer);
-       }
-       else
-       {
-           printf(" Unknown value: %02X\n", value);
-       }
-       fflush(stdout);
-   }
-    break;
+        if (value & 0x40)
+        {
+            /* Sub command */
+            printf(" - Sub");
+            if (command == EEPROM_WRITEENABLE)
+            {
+                printf(" Write Enable\n");
+                cee_WriteEnable = true;
+            }
+            else if (command == EEPROM_WRITEDISABLE)
+            {
+                printf(" Write Disable\n");
+                cee_WriteEnable = false;
+            }
+            else if (command == EEPROM_ERASEALL)
+            {
+                printf(" Erase All\n");
+                /* Nothing here at the moment */
+            }
+            else
+            {
+                printf(" Write All?\n");
+            }
+        }
+        else if (value & 0x20)
+        {
+            /* Write */
+            printf(" - Write?");
+            if (cee_WriteEnable)
+            {
+                printf(" Yes : %04X\n", cee_Databuffer);
+                externalEeprom[address] = cee_Databuffer;
+            }
+            else
+            {
+                printf(" No\n");
+            }
+        }
+        else if (value & 0x10)
+        {
+            /* Read */
+            printf(" - Read");
+            cee_Databuffer = externalEeprom[address];
+            printf(" Data : %04X\n", cee_Databuffer);
+        }
+        else
+        {
+            printf(" Unknown value: %02X\n", value);
+        }
+        fflush(stdout);
+    }
+        break;
 
-   case 0xca:
-      if(value==0x15)
-      {
-         rtcDataRegisterReadCount=0;
-      }
+    case 0xca:
+        if (value == 0x15)
+        {
+            rtcDataRegisterReadCount = 0;
+        }
 
-      break;
-      break;
+        break;
+        break;
 
-   case 0xCB:
-      break;
+    case 0xCB:
+        break;
 
-   case 0xF0:
-      break;
+    case 0xF0:
+        break;
 
-   case 0xF1:
-      printf("%d\n", (signed short)((value << 8) | ws_ioRam[0xF0]));
-      break;
+    case 0xF1:
+        printf("%d\n", (signed short)((value << 8) | ws_ioRam[0xF0]));
+        break;
 
-   case 0xF2:
-      printf("%c", value);
-      fflush(stdout);
-      break;
+    case 0xF2:
+        printf("%c", value);
+        fflush(stdout);
+        break;
 
-   case 0xB7:
-      break; /* Somwthing to write there, but what? */
+    case 0xB7:
+        break; /* Somwthing to write there, but what? */
 
-   default:
-      unknown_io_port=1;
-   }
+    default:
+        unknown_io_port = 1;
+    }
 
-   if ((ws_gpu_port_write(port,value) == 1) && (unknown_io_port == 1))
-   {
-      fprintf(log_get(),"WriteIO(%02X, %02X) [%04X:%04Xh];\n",port, value, I.sregs[CS], I.ip);
-   }
+    if ((ws_gpu_port_write(port, value) == 1) && (unknown_io_port == 1))
+    {
+        fprintf(log_get(), "WriteIO(%02X, %02X) [%04X:%04Xh];\n", port, value, I.sregs[CS], I.ip);
+    }
 
-   if (port >= 0xC4)
-   {
-     fprintf(log_get(),"WriteMBCIO(%02X, %02X);\n",port, value);
-   }
+    if (port >= 0xC4)
+    {
+        fprintf(log_get(), "WriteMBCIO(%02X, %02X);\n", port, value);
+    }
 }

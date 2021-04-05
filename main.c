@@ -1,5 +1,10 @@
-///////////////////////////////////////////////////////////////////////////////
-// Wonderswan emulator
+/*
+ * NewOswan
+ * main.c: Entry point
+ * Based on the original Oswan-unix
+ * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ *
+ */
 ////////////////////////////////////////////////////////////////////////////////
 //
 // 13.04.2002: Fixed a small bug causing crashes
@@ -7,7 +12,7 @@
 //
 //
 //
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,73 +41,65 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-#define		LOG_PATH "oswan.log"
+#define        LOG_PATH "oswan.log"
 
-
-int			gui_command=GUI_COMMAND_NONE;
-int			gui_mainDialogRunning;
-int			gui_controls_configuration_Running;
-int			gui_get_key_Running;
-int			gui_get_key_key;
-
-int 			ws_videoEnhancementType=0;
 int sram_path_explicit = 0;
 int ieep_path_explicit = 0;
 
 int ws_mk_savpath()
 {
-   char *w;
+    char *w;
 
-   if (sram_path_explicit)
-   {
-      return 0;
-   }
+    if (sram_path_explicit)
+    {
+        return 0;
+    }
 
-   if (ws_sram_path != NULL)
-   {
-      free(ws_sram_path);
-   }
+    if (ws_sram_path != NULL)
+    {
+        free(ws_sram_path);
+    }
 
-   ws_sram_path = (char *)malloc(strlen(ws_rom_path) + 2);
-   strcpy(ws_sram_path, ws_rom_path);
-   w = strrchr(ws_sram_path, '.');
+    ws_sram_path = (char *)malloc(strlen(ws_rom_path) + 2);
+    strcpy(ws_sram_path, ws_rom_path);
+    w = strrchr(ws_sram_path, '.');
 
-   if (NULL == w)
-   {
-      strcpy(ws_sram_path, "error.sav");
-      return 1;
-   }
+    if (NULL == w)
+    {
+        strcpy(ws_sram_path, "error.sav");
+        return 1;
+    }
 
-   strcpy(w, ".sav");
-   return 0;
+    strcpy(w, ".sav");
+    return 0;
 }
 
 int ws_mk_ieppath()
 {
-   char *w;
+    char *w;
 
-   if (ieep_path_explicit)
-   {
-      return 0;
-   }
+    if (ieep_path_explicit)
+    {
+        return 0;
+    }
 
-   if (ws_ieep_path != NULL)
-   {
-      free(ws_ieep_path);
-   }
+    if (ws_ieep_path != NULL)
+    {
+        free(ws_ieep_path);
+    }
 
-   ws_ieep_path = (char *)malloc(strlen(ws_rom_path) + 2);
-   strcpy(ws_ieep_path, ws_rom_path);
-   w = strrchr(ws_ieep_path, '.');
+    ws_ieep_path = (char *)malloc(strlen(ws_rom_path) + 2);
+    strcpy(ws_ieep_path, ws_rom_path);
+    w = strrchr(ws_ieep_path, '.');
 
-   if (NULL == w)
-   {
-      strcpy(ws_ieep_path, "error.iep");
-      return 1;
-   }
+    if (NULL == w)
+    {
+        strcpy(ws_ieep_path, "error.iep");
+        return 1;
+    }
 
-   strcpy(w, ".iep");
-   return 0;
+    strcpy(w, ".iep");
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -130,81 +127,74 @@ int main(int argc, char *argv[])
 
     fprintf(log_get(), "NewOswan %s (built at: %s %s)\n", VERSION, __DATE__, __TIME__);
 
-   ws_rom_path = NULL;
+    ws_rom_path = NULL;
 
-   for (int n = 1; n < argc; ++n)
-   {
-      if (argv[n][0] == '-')
-      {
-         switch(argv[n][1])
-         {
-         case 'C':
-            if (++n < argc)
+    for (int n = 1 ; n < argc ; ++n)
+    {
+        if (argv[n][0] == '-')
+        {
+            switch (argv[n][1])
             {
-               ws_cyclesByLine = atoi(argv[n]);
+            case 'C':
+                if (++n < argc)
+                {
+                    ws_cyclesByLine = atoi(argv[n]);
+                }
+
+                fprintf(log_get(), "Cycles by line set to %d\n", ws_cyclesByLine);
+                break;
+
+            case 'w':
+                if (++n < argc)
+                {
+                    ws_system = atoi(argv[n]);
+                }
+
+                fprintf(log_get(), "WonderSwan set to %d\n", ws_system);
+                break;
+
+            case 's':
+                if (++n < argc)
+                {
+                    ws_sram_path = argv[n];
+                }
+
+                sram_path_explicit = 1;
+                break;
+
+            default:break;
             }
+        }
+        else
+        {
+            ws_rom_path = argv[n];
+            ws_mk_savpath();
+            ws_mk_ieppath();
+        }
+    }
 
-            fprintf(log_get(), "Cycles by line set to %d\n", ws_cyclesByLine);
-            break;
+    while (!app_terminate)
+    {
+        if (!ws_rom_path)
+        {
+            exit(0);
+        }
 
-         case 'w':
-            if (++n < argc)
+        if (ws_rom_path)
+        {
+            ws_set_system(ws_system);
+            if (ws_init(ws_rom_path))
             {
-               ws_system = atoi(argv[n]);
+                ws_reset();
+
+                ws_emulate();
             }
 
-            fprintf(log_get(), "WonderSwan set to %d\n", ws_system);
-            break;
+            ws_done();
+        }
+    }
 
-         case 's':
-            if (++n < argc)
-            {
-               ws_sram_path = argv[n];
-            }
-
-            sram_path_explicit = 1;
-            break;
-
-         default:
-            break;
-         }
-      }
-      else
-      {
-         ws_rom_path = argv[n];
-         ws_mk_savpath();
-         ws_mk_ieppath();
-      }
-   }
-
-   while (!app_terminate)
-   {
-      if (!ws_rom_path)
-      {
-         app_gameRunning=0;
-         exit(0);
-      }
-
-      if (ws_rom_path)
-      {
-         ws_set_system(ws_system);
-         if (ws_init(ws_rom_path))
-         {
-            app_rotated=ws_rotated();
-            app_gameRunning=1;
-
-            }
-
-            ws_reset();
-
-            ws_emulate();
-         }
-
-         ws_done();
-      }
-   }
-
-   log_done();
-   return(0);
+    log_done();
+    return (0);
 }
 

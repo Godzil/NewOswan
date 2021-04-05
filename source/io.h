@@ -1,5 +1,10 @@
-//////////////////////////////////////////////////////////////////////////////
-//
+/*
+ * NewOswan
+ * io.h:
+ * Based on the original Oswan-unix
+ * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ *
+ */
 //////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -14,7 +19,7 @@
 
 #include <stdint.h>
 
-extern uint8_t	*ws_ioRam;
+extern uint8_t *ws_ioRam;
 extern uint8_t ws_key_start;
 extern uint8_t ws_key_x4;
 extern uint8_t ws_key_x2;
