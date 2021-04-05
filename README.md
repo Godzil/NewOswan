@@ -1,5 +1,6 @@
 NewOswan *(name likely to change)*
 ==================================
+![TravisBadge](https://travis-ci.org/Godzil/NewOswan.svg?branch=master)
 
 ### What is this project?
 NewOswan is a WonderSwan emulator originally based on oswan-unix and heavily modified to be more accurate and better 
