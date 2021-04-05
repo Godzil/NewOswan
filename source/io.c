@@ -24,7 +24,6 @@
 #include "rom.h"
 #include "./nec/nec.h"
 #include "./nec/necintrf.h"
-#include "initialIo.h"
 #include "gpu.h"
 #include "audio.h"
 #include "memory.h"
@@ -118,10 +117,20 @@ void ws_io_reset(void)
    ws_key_button_b=0;
    int i;
 
-   for (i=0; i<0x100; i++)
-   {
-      ws_ioRam[i]= initialIoValue[i];
-   }
+    for (i = 0 ; i < 0x100 ; i++)
+    {
+        /*
+         * 0x90 should probably be a better value as for some reason
+         * the Swan seems to like to returh 0x90 for not connected memory/IO
+         * Keep 0x00 for now until the whole IO "default" value is solved.
+         */
+        ws_ioRam[i] = 0x00;
+    }
+
+    ws_ioRam[0xC0] = 0xFF;
+    ws_ioRam[0xC1] = 0xFF;
+    ws_ioRam[0xC2] = 0xFF;
+    ws_ioRam[0xC3] = 0xFF;
 
    rtcDataRegisterReadCount=0;
 }

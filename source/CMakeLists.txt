@@ -1,5 +1,5 @@
 set(SOURCES audio.c emulate.c gpu.c io.c log.c memory.c rom.c ws.c)
-set(HEADERS audio.h emulate.h gpu.h ieeprom.h initialIo.h io.h log.h memory.h rom.h ws.h)
+set(HEADERS audio.h emulate.h gpu.h ieeprom.h io.h log.h memory.h rom.h ws.h)
 
 add_library(wswan ${SOURCES} ${HEADERS})
 
