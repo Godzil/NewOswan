@@ -46,7 +46,6 @@ int			gui_get_key_Running;
 int			gui_get_key_key;
 
 int 			ws_videoEnhancementType=0;
-int	 		ws_colourScheme=COLOUR_SCHEME_DEFAULT;
 int sram_path_explicit = 0;
 int ieep_path_explicit = 0;
 
@@ -196,7 +195,6 @@ int main(int argc, char *argv[])
 
             }
 
-            ws_set_colour_scheme(ws_colourScheme);
             ws_reset();
 
             ws_emulate();

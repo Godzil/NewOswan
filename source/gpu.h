@@ -37,7 +37,6 @@ void ws_gpu_changeVideoMode(uint8_t value);
 void ws_gpu_write_byte(uint32_t offset, uint8_t value);
 int ws_gpu_port_write(uint32_t port, uint8_t value);
 uint8_t ws_gpu_port_read(uint8_t port);
-void ws_gpu_set_colour_scheme(int scheme);
 void ws_gpu_changeVideoMode(uint8_t value);
 void ws_gpu_clearCache(void);
 

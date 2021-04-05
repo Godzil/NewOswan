@@ -25,7 +25,6 @@ extern uint32_t	ws_cyclesByLine;
 
 int		ws_init(char *rompath);
 int		ws_rotated(void);
-void	ws_set_colour_scheme(int scheme);
 void	ws_set_system(wssystem_t system);
 wssystem_t	ws_get_system();
 void	ws_reset(void);
