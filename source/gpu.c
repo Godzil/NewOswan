@@ -13,9 +13,6 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-//#define STATISTICS
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -29,9 +26,6 @@
 #include "gpu.h"
 #include "ws.h"
 
-#ifdef STATISTICS
-#include "ticker.h"
-#endif
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,34 +47,6 @@ enum VideoModes
    DISPLAY_MODE_L_4BPP = 6,
 };
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-#ifdef STATISTICS
-long	ws_4_shades_tiles_cache_update_time=0;
-long	ws_4_colors_tiles_cache_update_time=0;
-long	ws_16_colors_packed_tiles_cache_update_time=0;
-long	ws_16_colors_layered_tiles_cache_update_time=0;
-
-long	ws_4_shades_tiles_cache_update_number=0;
-long	ws_4_colors_tiles_cache_update_number=0;
-long	ws_16_colors_packed_tiles_cache_update_number=0;
-long	ws_16_colors_layered_tiles_cache_update_number=0;
-
-long	ws_background_color_rendering_time=0;
-long	ws_background_rendering_time=0;
-long	ws_foreground_rendering_time=0;
-long	ws_priority_0_sprites_rendering_time=0;
-long	ws_priority_1_sprites_rendering_time=0;
-#endif
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,40 +236,6 @@ void ws_gpu_done(void)
    free(wsc_hflipped_tile_cache);
    free(ws_modified_tile);
    free(wsc_modified_tile);
-#ifdef STATISTICS
-   printf("Statistics:\n");
-   printf("\tcache:\n");
-
-   if (ws_4_shades_tiles_cache_update_number)
-   {
-      printf("\t\t4 shades tiles update time         : %i\n",ws_4_shades_tiles_cache_update_time/ws_4_shades_tiles_cache_update_number);
-   }
-
-   if (ws_4_colors_tiles_cache_update_number)
-   {
-      printf("\t\t4 colors tiles update time         : %i\n",ws_4_colors_tiles_cache_update_time/ws_4_colors_tiles_cache_update_number);
-   }
-
-   if (ws_16_colors_packed_tiles_cache_update_number)
-   {
-      printf("\t\t16 colors packed tiles update time : %i\n",ws_16_colors_packed_tiles_cache_update_time/ws_16_colors_packed_tiles_cache_update_number);
-   }
-
-   if (ws_16_colors_layered_tiles_cache_update_number)
-   {
-      printf("\t\t16 colors layered tiles update time: %i\n",ws_16_colors_layered_tiles_cache_update_time/ws_16_colors_layered_tiles_cache_update_number);
-   }
-
-   printf("\tscanline rendering:\n");
-   long	total=	ws_background_color_rendering_time+ws_background_rendering_time+
-                  ws_foreground_rendering_time+ws_priority_0_sprites_rendering_time+
-                  ws_priority_1_sprites_rendering_time;
-   printf("\t\tbackground color   : %4i (%3i %%)\n",ws_background_color_rendering_time,(ws_background_color_rendering_time*100)/total);
-   printf("\t\tbackground         : %4i (%3i %%)\n",ws_background_rendering_time,(ws_background_rendering_time*100)/total);
-   printf("\t\tforeground         : %4i (%3i %%)\n",ws_foreground_rendering_time,(ws_foreground_rendering_time*100)/total);
-   printf("\t\tpriority 0 sprites : %4i (%3i %%)\n",ws_priority_0_sprites_rendering_time,(ws_priority_0_sprites_rendering_time*100)/total);
-   printf("\t\tpriority 1 sprites : %4i (%3i %%)\n",ws_priority_1_sprites_rendering_time,(ws_priority_1_sprites_rendering_time*100)/total);
-#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -387,9 +319,6 @@ uint8_t *ws_tileCache_getTileRow(uint32_t tileIndex, uint32_t line,
       // 4 colors tiles
       if ((ws_videoMode == DISPLAY_MODE_2BPP) && ( ws_modified_tile[tileIndex]) )
       {
-#ifdef STATISTICS
-         ws_4_colors_tiles_cache_update_time+=-ticker();
-#endif
          uint8_t	*tileInCachePtr = &wsc_tile_cache[tileIndex<<6];
          uint8_t	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
          uint16_t	*tileInRamPtr   = (uint16_t*)&internalRam[0x2000+(tileIndex<<4)];
@@ -421,19 +350,12 @@ uint8_t *ws_tileCache_getTileRow(uint32_t tileIndex, uint32_t line,
          }
 
          ws_modified_tile[tileIndex]=0;
-#ifdef STATISTICS
-         ws_4_colors_tiles_cache_update_time+=ticker();
-         ws_4_colors_tiles_cache_update_number++;
-#endif
       }
       else if (wsc_modified_tile[tileIndex])
       {
          // 16 colors by tile layered mode
          if (ws_videoMode == DISPLAY_MODE_L_4BPP)
          {
-#ifdef STATISTICS
-            ws_16_colors_layered_tiles_cache_update_time+=-ticker();
-#endif
             uint8_t	*tileInCachePtr			= &wsc_tile_cache[tileIndex<<6];
             uint8_t	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
             uint32_t	*tileInRamPtr			= (uint32_t*)&internalRam[0x4000+(tileIndex<<5)];
@@ -479,19 +401,12 @@ uint8_t *ws_tileCache_getTileRow(uint32_t tileIndex, uint32_t line,
                hflippedTileInCachePtr+=8;
             }
 
-#ifdef STATISTICS
-            ws_16_colors_layered_tiles_cache_update_time+=ticker();
-            ws_16_colors_layered_tiles_cache_update_number++;
-#endif
          }
          else
 
             // 16 colors by tile packed mode
             if (ws_videoMode == DISPLAY_MODE_P_4BPP)
             {
-#ifdef STATISTICS
-               ws_16_colors_packed_tiles_cache_update_time+=-ticker();
-#endif
                uint8_t	*tileInCachePtr = &wsc_tile_cache[tileIndex<<6];
                uint8_t	*hflippedTileInCachePtr = &wsc_hflipped_tile_cache[tileIndex<<6];
                uint32_t	*tileInRamPtr   = (uint32_t*)&internalRam[0x4000+(tileIndex<<5)];
@@ -523,10 +438,6 @@ uint8_t *ws_tileCache_getTileRow(uint32_t tileIndex, uint32_t line,
 
                }
 
-#ifdef STATISTICS
-               ws_16_colors_packed_tiles_cache_update_time+=ticker();
-               ws_16_colors_packed_tiles_cache_update_number++;
-#endif
             }
             else
             {
@@ -557,9 +468,6 @@ uint8_t *ws_tileCache_getTileRow(uint32_t tileIndex, uint32_t line,
       // need to update tile cache ?
       if (ws_modified_tile[tileIndex])
       {
-#ifdef STATISTICS
-         ws_4_shades_tiles_cache_update_time+=-ticker();
-#endif
          uint8_t	*tileInCachePtr			 = &ws_tile_cache[tileIndex<<6];
          uint8_t	*hflippedTileInCachePtr	 = &ws_hflipped_tile_cache[(tileIndex<<6)+7];
          uint32_t	*tileInRamPtr			 = (uint32_t*)&internalRam[0x2000+(tileIndex<<4)];
@@ -592,10 +500,6 @@ uint8_t *ws_tileCache_getTileRow(uint32_t tileIndex, uint32_t line,
 
          // tile cache updated
          ws_modified_tile[tileIndex]=0;
-#ifdef STATISTICS
-         ws_4_shades_tiles_cache_update_time+=ticker();
-         ws_4_shades_tiles_cache_update_number++;
-#endif
       }
 
       if (vFlip)
@@ -729,9 +633,6 @@ void ws_gpu_renderScanline(int16_t *framebuffer)
       return;
    }
 
-#ifdef STATISTICS
-   long startTime=ticker();
-#endif
    framebuffer+=(224*ws_gpu_scanline);
 
    // fill with background color
@@ -751,9 +652,6 @@ void ws_gpu_renderScanline(int16_t *framebuffer)
       framebuffer[i]=backgroundColor;
    }
 
-#ifdef STATISTICS
-   ws_background_color_rendering_time=ticker();
-#endif
 
    // render background layer
    if (ws_ioRam[0x00]&0x01)
@@ -1083,9 +981,6 @@ void ws_gpu_renderScanline(int16_t *framebuffer)
       }
    }
 
-#ifdef STATISTICS
-   ws_background_rendering_time=ticker();
-#endif
 
    // render sprites which are between both layers
    if (ws_ioRam[0x00]&0x04)
@@ -1122,10 +1017,6 @@ void ws_gpu_renderScanline(int16_t *framebuffer)
          }
       }
    }
-
-#ifdef STATISTICS
-   ws_priority_0_sprites_rendering_time=ticker();
-#endif
 
    // render foreground layer
    if (ws_ioRam[0x00]&0x02)
@@ -2045,9 +1936,6 @@ void ws_gpu_renderScanline(int16_t *framebuffer)
             }
    }
 
-#ifdef STATISTICS
-   ws_foreground_rendering_time=ticker();
-#endif
 
    // render sprites
    if (ws_ioRam[0x00]&0x04)
@@ -2084,16 +1972,6 @@ void ws_gpu_renderScanline(int16_t *framebuffer)
          }
       }
    }
-
-#ifdef STATISTICS
-   ws_priority_1_sprites_rendering_time=ticker();
-
-   ws_priority_1_sprites_rendering_time-=ws_foreground_rendering_time;
-   ws_foreground_rendering_time-=ws_priority_0_sprites_rendering_time;
-   ws_priority_0_sprites_rendering_time-=ws_background_rendering_time;
-   ws_background_rendering_time-=ws_background_color_rendering_time;
-   ws_background_color_rendering_time-=startTime;
-#endif
 }
 ////////////////////////////////////////////////////////////////////////////////
 //
