@@ -51,6 +51,7 @@ uint32_t	vblank_count=0;
 char *ws_sram_path = NULL;
 char *ws_ieep_path = NULL;
 char *ws_rom_path  = NULL;
+wssystem_t systemType;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -99,18 +100,6 @@ int ws_init(char *rompath)
       return(0);
    }
 
-   if ((ws_gpu_forceColorSystemBool == 0) && (ws_gpu_forceMonoSystemBool == 0))
-   {
-      /* Nothing forced try to "auto detect" */
-      if (rompath[strlen(rompath)-1]=='c')
-      {
-         ws_gpu_operatingInColor=1;
-      }
-      else
-      {
-         ws_gpu_operatingInColor=0;
-      }
-   }
 
    ws_memory_init(rom, romSize);
    ws_patchRom();
