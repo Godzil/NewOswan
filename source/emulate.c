@@ -224,7 +224,7 @@ static void initDisplay(GLWindow *g)
 
 static void clearScreen(GLWindow *g)
 {
-    memset(g->videoMemory, 0, sizeof(uint8_t) * g->WIDTH * g->HEIGHT * 4);
+    memset(g->videoMemory, 0, sizeof(uint16_t) * g->WIDTH * g->HEIGHT);
 }
 
 static void updateScreen(GLWindow *g)
