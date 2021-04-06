@@ -26,6 +26,7 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 
+#ifndef PRETENT_DISPLAY
 #define GLFW_INCLUDE_GLEXT
 #define GL_SILENCE_DEPRECATION
 
@@ -34,6 +35,7 @@
 #ifndef GL_TEXTURE_RECTANGLE
 #define GL_TEXTURE_RECTANGLE GL_TEXTURE_RECTANGLE_EXT
 #endif
+#endif /* PRETENT_DISPLAY */
 
 #include "log.h"
 #include "io.h"
@@ -50,6 +52,7 @@ int app_terminate = 0;
 
 int ws_key_esc = 0;
 
+#ifndef PRETENT_DISPLAY
 /* Open GL stuffs */
 typedef struct GLWindow_t GLWindow;
 struct KeyArray
@@ -236,18 +239,6 @@ static void updateScreen(GLWindow *g)
     glfwPollEvents();
 }
 
-uint64_t getTicks()
-{
-    struct timeval curTime;
-    uint64_t ticks;
-    /* Get datetime */
-    gettimeofday(&curTime, NULL);
-
-    ticks = (curTime.tv_sec * 1000) + curTime.tv_usec / 1000;
-
-    return ticks;
-}
-
 static inline int getKeyState(int key)
 {
     return mainWindow.keyArray[key].curState;
@@ -347,6 +338,75 @@ static void read_keys()
     {
         ws_cyclesByLine -= 10;
     }
+}
+#else
+typedef struct PseudoWindow_t
+{
+    uint8_t *videoMemory;
+    int WIDTH;
+    int HEIGHT;
+} PseudoWindow_t;
+
+static PseudoWindow_t mainWindow;
+
+static void GLWindowInitEx(PseudoWindow_t *g, int w, int h)
+{
+    g->WIDTH = w;
+    g->HEIGHT = h;
+}
+
+static void initDisplay(PseudoWindow_t *g)
+{
+    int w = g->WIDTH;
+    int h = g->HEIGHT;
+    g->videoMemory = (uint8_t *)malloc(w * h * sizeof(uint16_t));
+    memset(g->videoMemory, 0, w * h * sizeof(uint16_t));
+}
+
+static void clearScreen(PseudoWindow_t *g)
+{
+    memset(g->videoMemory, 0, sizeof(uint16_t) * g->WIDTH * g->HEIGHT);
+}
+
+static void updateScreen(PseudoWindow_t *g)
+{
+}
+
+static void read_keys()
+{
+    static uint32_t i = 0;
+
+    ws_key_start = 0;
+    ws_key_x4 = 0;
+    ws_key_x2 = 0;
+    ws_key_x1 = 0;
+    ws_key_x3 = 0;
+    ws_key_y4 = 0;
+    ws_key_y2 = 0;
+    ws_key_y1 = 0;
+    ws_key_y3 = 0;
+    ws_key_button_a = 0;
+    ws_key_button_b = 0;
+
+    if (i > 1024)
+    {
+        ws_key_esc = 1;
+    }
+
+    i++;
+}
+#endif /* PRETENT_DISPLAY */
+
+uint64_t getTicks()
+{
+    struct timeval curTime;
+    uint64_t ticks;
+    /* Get datetime */
+    gettimeofday(&curTime, NULL);
+
+    ticks = (curTime.tv_sec * 1000) + curTime.tv_usec / 1000;
+
+    return ticks;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
