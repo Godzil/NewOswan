@@ -281,7 +281,7 @@ void check_serial_data()
 
         if (f > 0)
         {
-            printf("Ho [%d]!\n", f);
+            Log(TLOG_DEBUG, "serial", "Have data from serial [%d]!", f);
             fflush(stdout);
             serial_have_data = 0x01;
             serial_data = buf[0];
@@ -294,7 +294,7 @@ void check_serial_data()
         if (ws_ioRam[0xB2] & 0x04)
         {
             ws_ioRam[0xb6] &= ~0x04;
-            printf("SERIAL INNNNNTTTT!!!!!!!");
+            Log(TLOG_DEBUG, "serial", "SERIAL INNNNNTTTT!!!!!!!");
             nec_int((ws_ioRam[0xb0] + 3) * 4);
         }
     }
@@ -565,7 +565,7 @@ uint8_t cpu_readport(uint8_t port)
         /* Serial port link.. */
     case 0xB1:
         retVal = read_serial();
-        printf("RS232: Read %02X\n", retVal);
+        Log(TLOG_DEBUG, "serial", "Read %02X", retVal);
         goto exit;
 
     case 0xB3:
@@ -580,7 +580,7 @@ uint8_t cpu_readport(uint8_t port)
             retVal = 0x00;
         }
 
-        printf("<<<<RS232STA: %02X [%c%c%cxx%c%c%c]\n", retVal, (retVal & 0x80) ? 'E' : 'd',
+        Log(TLOG_DEBUG, "serial", "<<<<RS232STA: %02X [%c%c%cxx%c%c%c]", retVal, (retVal & 0x80) ? 'E' : 'd',
                (retVal & 0x40) ? '3' : '9', (retVal & 0x20) ? 'R' : 'n', (retVal & 0x04) ? 'E' : 'f',
                (retVal & 0x02) ? 'V' : 'n', (retVal & 0x01) ? 'D' : 'e');
         goto exit;
@@ -594,7 +594,7 @@ uint8_t cpu_readport(uint8_t port)
         retVal = ws_ioRam[port];
         if (port > 0xD0)
         {
-            printf("ReadIO %02X <= %02X\n", port, retVal);
+            Log(TLOG_DEBUG, "io", "ReadIO %02X <= %02X", port, retVal);
         }
         break;
 
@@ -611,7 +611,7 @@ uint8_t cpu_readport(uint8_t port)
 
     if (port >= 0xC4)
     {
-        printf("ReadMBCIO(%02X) <= %02X\n", port, retVal);
+        Log(TLOG_DEBUG, "io", "ReadMBCIO(%02X) <= %02X", port, retVal);
     }
 
 
@@ -688,7 +688,7 @@ void cpu_writeport(uint32_t port, uint8_t value)
         break;
 
     case 0x15:
-        printf("Icons %c %c %c %c %c %c %c %c\n", (value >> 7) & 1 ? '?' : ' ', (value >> 6) & 1 ? '?' : ' ',
+        Log(TLOG_DEBUG, "io", "Icons %c %c %c %c %c %c %c %c", (value >> 7) & 1 ? '?' : ' ', (value >> 6) & 1 ? '?' : ' ',
                (value >> 5) & 1 ? '3' : ' ', (value >> 4) & 1 ? '2' : ' ', (value >> 3) & 1 ? '1' : ' ',
                (value >> 2) & 1 ? 'H' : ' ', (value >> 1) & 1 ? 'V' : ' ', (value >> 0) & 1 ? 'S' : ' ');
         break;
@@ -787,7 +787,7 @@ void cpu_writeport(uint32_t port, uint8_t value)
         break;
         /* System */
     case 0x62:
-        printf("HeyHo!");
+        Log(TLOG_DEBUG, "io", "HeyHo!");
         break;
 
         /* Audio */
@@ -857,7 +857,7 @@ void cpu_writeport(uint32_t port, uint8_t value)
         break;
 
     case 0xB3:
-        printf(">>>>RS232STA: %02X [%c%c%cxx%c%c%c]\n", value, (value & 0x80) ? 'E' : 'd', (value & 0x40) ? '3' : '9',
+        Log(TLOG_DEBUG, "serial", ">>>>RS232STA: %02X [%c%c%cxx%c%c%c]", value, (value & 0x80) ? 'E' : 'd', (value & 0x40) ? '3' : '9',
                (value & 0x20) ? 'R' : 'n', (value & 0x04) ? 'E' : 'f', (value & 0x02) ? 'V' : 'n',
                (value & 0x01) ? 'D' : 'e');
 
@@ -1080,7 +1080,7 @@ void cpu_writeport(uint32_t port, uint8_t value)
         }
         else
         {
-            printf(" Unknown value: %02X\n", value);
+            printf(" Unknown value: %02X@", value);
         }
         fflush(stdout);
     }
@@ -1119,11 +1119,11 @@ void cpu_writeport(uint32_t port, uint8_t value)
 
     if ((ws_gpu_port_write(port, value) == 1) && (unknown_io_port == 1))
     {
-        fprintf(log_get(), "WriteIO(%02X, %02X) [%04X:%04Xh];\n", port, value, I.sregs[CS], I.ip);
+        Log(TLOG_DEBUG, "io", "WriteIO(%02X, %02X) [%04X:%04Xh];", port, value, I.sregs[CS], I.ip);
     }
 
     if (port >= 0xC4)
     {
-        fprintf(log_get(), "WriteMBCIO(%02X, %02X);\n", port, value);
+        Log(TLOG_DEBUG, "io", "WriteMBCIO(%02X, %02X);", port, value);
     }
 }

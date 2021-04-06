@@ -143,8 +143,7 @@ static unsigned int ws_audio_log;
 ////////////////////////////////////////////////////////////////////////////////
 void ws_audio_init(void)
 {
-    fprintf(log_get(), "audio init\n");
-    fflush(log_get());
+    Log(TLOG_NORMAL, "audio", "audio init");
     ws_audio_log = 0;
     //ws_audio_seal_init();
     ws_audio_reset();

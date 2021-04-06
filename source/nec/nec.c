@@ -37,6 +37,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#include <log.h>
+
 #include "nec.h"
 #include "necintrf.h"
 
@@ -130,7 +132,7 @@ void nec_int(uint16_t vector)
 
         if ((dest_off == 0) && (dest_seg == 0))
         {
-            printf("Something wrong with the interrupt, exiting...\n");
+            Log(TLOG_PANIC, "NEC v30", "Something wrong with the interrupt, exiting...");
             //dump_memory();
             return;
         }
@@ -160,7 +162,7 @@ static void nec_interrupt(uint32_t int_num, /*BOOLEAN*/ int md_flag)
 
     if ((dest_off == 0) && (dest_seg == 0))
     {
-        printf("Something wrong with the interrupt, exiting...\n");
+        Log(TLOG_PANIC, "NEC v30", "Something wrong with the interrupt, exiting...");
         //dump_memory();
         return;
     }
@@ -4241,7 +4243,7 @@ int nec_execute(int cycles)
     {
 #if 0
                                                                                                                                 uint8_t op = cpu_readmem20((I.sregs[CS]<<4) + I.ip);
-      printf("[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip,
+      Log(TLOG_NORMAL, "NEC v30", "[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip,
             op, instructionsName[op], I.IF);
 #endif
         nec_instruction[FETCHOP]();

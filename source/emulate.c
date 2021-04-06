@@ -203,7 +203,7 @@ static void initDisplay(GLWindow *g)
     if (!(g->windows = glfwCreateWindow(g->WIDTH, g->HEIGHT, "Main", NULL, NULL)))
     {
         glfwTerminate();
-        fprintf(stderr, "Window creation error...\n");
+        Log(TLOG_PANIC, "emulate", "Window creation error...");
         abort();
     }
 
@@ -274,7 +274,7 @@ static void read_keys()
 
     if (getKeyState(GLFW_KEY_R))
     {
-        printf("Boop\n");
+        Log(TLOG_DEBUG, "emulate", "Boop reset");
         ws_reset();
     }
 

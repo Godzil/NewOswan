@@ -73,70 +73,34 @@ uint8_t *ws_rom_load(char *path, uint32_t *romSize)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+const char *eepromSizeName[] =
+{
+    [WS_EEPROM_SIZE_NONE] = "none",
+    [WS_EEPROM_SIZE_64k] = "64kb",
+    [WS_EEPROM_SIZE_256k] = "256kb",
+};
+
+const char *sramSizeName[] =
+{
+    [WS_SRAM_SIZE_NONE] = "none",
+    [WS_SRAM_SIZE_1k] = "1kb",
+    [WS_SRAM_SIZE_8k] = "8kb",
+    [WS_SRAM_SIZE_16k] = "16kb",
+};
+
 void ws_rom_dumpInfo(uint8_t *wsrom, uint32_t romSize)
 {
     ws_romHeaderStruct *romHeader = ws_rom_getHeader(wsrom, romSize);
 
-    fprintf(log_get(), "rom: developper Id  0x%.2x\n", romHeader->developperId);
-    fprintf(log_get(), "rom: cart Id        0x%.2x\n", romHeader->cartId);
-    fprintf(log_get(), "rom: minimum system %s\n",
-            (romHeader->minimumSupportSystem == 0) ? "Wonderswan mono" : "Wonderswan color");
-    fprintf(log_get(), "rom: size           %i Mbits\n", (romSize >> 20) << 3);
-    fprintf(log_get(), "rom: eeprom         ");
-
-    switch (romHeader->eepromSize & 0xf)
-    {
-    case WS_EEPROM_SIZE_NONE:
-    {
-        fprintf(log_get(), "none\n");
-        break;
-    }
-
-    case WS_EEPROM_SIZE_64k:
-    {
-        fprintf(log_get(), "64 kb\n");
-        break;
-    }
-
-    case WS_EEPROM_SIZE_256k:
-    {
-        fprintf(log_get(), "256 kb\n");
-        break;
-    }
-    }
-
-    fprintf(log_get(), "rom: sram           ");
-
-    switch (romHeader->eepromSize & 0xf0)
-    {
-    case WS_SRAM_SIZE_NONE:
-    {
-        fprintf(log_get(), "none\n");
-        break;
-    }
-
-    case WS_SRAM_SIZE_1k:
-    {
-        fprintf(log_get(), "1 kb\n");
-        break;
-    }
-
-    case WS_SRAM_SIZE_16k:
-    {
-        fprintf(log_get(), "16 kb\n");
-        break;
-    }
-
-    case WS_SRAM_SIZE_8k:
-    {
-        fprintf(log_get(), "8 kn\n");
-        break;
-    }
-    }
-
-    fprintf(log_get(), "rom: rtc            %s\n", (romHeader->realtimeClock) ? "Yes" : "None");
-    fprintf(log_get(), "checksum            0x%.4x\n", romHeader->checksum);
-
+    Log(TLOG_NORMAL, "rom", "developper Id  0x%.2x", romHeader->developperId);
+    Log(TLOG_NORMAL, "rom", "cart Id        0x%.2x", romHeader->cartId);
+    Log(TLOG_NORMAL, "rom", "minimum system %s", (romHeader->minimumSupportSystem == 0) ? "Wonderswan mono" : "Wonderswan color");
+    Log(TLOG_NORMAL, "rom", "size           %i Mbits", (romSize >> 20) << 3);
+    Log(TLOG_NORMAL, "rom", "eeprom         %s", eepromSizeName[romHeader->eepromSize & 0xf]);
+    Log(TLOG_NORMAL, "rom", "sram           %s", sramSizeName[romHeader->eepromSize & 0xF0]);
+    Log(TLOG_NORMAL, "rom", "rtc            %s", (romHeader->realtimeClock) ? "Yes" : "None");
+    Log(TLOG_NORMAL, "rom", "checksum       0x%.4x", romHeader->checksum);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

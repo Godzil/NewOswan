@@ -277,7 +277,7 @@ char *load_file(char *filename)
 
     fstat(fd, &FileStat);
 
-    printf("Trying to load %s, size = %lu...\n", filename, (unsigned long)FileStat.st_size);
+    Log(TLOG_DEBUG, "memory", "Trying to load %s, size = %lu...", filename, (unsigned long)FileStat.st_size);
 
     ret_ptr = (char *)mmap(NULL, FileStat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
@@ -309,7 +309,7 @@ char *create_file(char *filename, uint32_t size)
     char *ret_ptr;
     char buf[] = {0};
 
-    printf("Trying to create %s, size = %u...\n", filename, size);
+    Log(TLOG_DEBUG, "memory", "Trying to create %s, size = %u...\n", filename, size);
     fd = open(filename, O_CREAT | S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | O_TRUNC, 0644);
     fchmod(fd, 0644);
     close(fd);
@@ -399,17 +399,17 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
 
     if (internalColorIRom != NULL)
     {
-        printf("B&W IROM Found!\n");
+        Log(TLOG_DEBUG, "memory", "B&W IROM Found!");
         ws_haveColorIRom = true;
     }
     if (internalBWIRom != NULL)
     {
-        printf("Color IROM Found!\n");
+        Log(TLOG_DEBUG, "memory", "Color IROM Found!");
         ws_haveBWIRom = true;
     }
     if (internalCrystalIRom != NULL)
     {
-        printf("Crystal IROM Found!\n");
+        Log(TLOG_DEBUG, "memory", "Crystal IROM Found!");
         ws_haveCrystalIRom = true;
     }
 

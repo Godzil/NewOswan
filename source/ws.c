@@ -75,7 +75,8 @@ void ws_patchRom(void)
     uint8_t *rom = memory_getRom();
     uint32_t romSize = memory_getRomSize();
 
-    fprintf(log_get(), "developper Id: 0x%.2x\nGame Id: 0x%.2x\n", rom[romSize - 10], rom[romSize - 8]);
+    Log(TLOG_DEBUG, "ws", "developper Id: 0x%.2x", rom[romSize - 10]);
+    Log(TLOG_DEBUG, "ws", "Game Id: 0x%.2x", rom[romSize - 8]);
 
     if (!ws_cyclesByLine)
     {
@@ -101,7 +102,7 @@ int ws_init(char *rompath)
 
     if ((rom = ws_rom_load(rompath, &romSize)) == NULL)
     {
-        printf("Error: cannot load %s\n", rompath);
+        Log(TLOG_PANIC, "ws", "Error: cannot load %s", rompath);
         return (0);
     }
 
@@ -116,7 +117,7 @@ int ws_init(char *rompath)
 
     if (ws_staticRam == NULL)
     {
-        printf("Card SRAM load error!\n");
+        Log(TLOG_PANIC, "ws", "Card SRAM load error!\n");
         return 0;
     }
 
@@ -127,7 +128,7 @@ int ws_init(char *rompath)
     }
     if (externalEeprom == NULL)
     {
-        printf("Card EEPROM load error!\n");
+        Log(TLOG_PANIC, "ws", "Card EEPROM load error!\n");
         return 0;
     }
 
@@ -332,7 +333,7 @@ wssystem_t ws_get_system()
 
 int ws_loadState(char *statepath)
 {
-    fprintf(log_get(), "loading %s\n", statepath);
+    Log(TLOG_NORMAL, "ws", "loading %s\n", statepath);
     uint16_t crc = memory_getRomCrc();
     uint16_t newCrc;
     unsigned value;
@@ -408,7 +409,7 @@ int ws_saveState(char *statepath)
     uint16_t crc = memory_getRomCrc();
     uint32_t value;
     char newPath[1024];
-    fprintf(log_get(), "saving %s\n", statepath);
+    Log(TLOG_DEBUG, "ws", "saving %s\n", statepath);
 
     if (strlen(statepath) < 4)
     {

@@ -118,14 +118,9 @@ int main(int argc, char *argv[])
 {
     wssystem_t ws_system = WS_SYSTEM_AUTODETECT;
 
-    if (!log_init(LOG_PATH))
-    {
-        printf("Warning: cannot open log file %s\n", LOG_PATH);
-    }
-
     snprintf(app_window_title, 255, "Oswan %s - Esc to return to GUI", VERSION);
 
-    fprintf(log_get(), "NewOswan %s (built at: %s %s)\n", VERSION, __DATE__, __TIME__);
+    Log(TLOG_ALWAYS, NULL, "NewOswan %s (built at: %s %s)", VERSION, __DATE__, __TIME__);
 
     ws_rom_path = NULL;
 
@@ -141,7 +136,7 @@ int main(int argc, char *argv[])
                     ws_cyclesByLine = atoi(argv[n]);
                 }
 
-                fprintf(log_get(), "Cycles by line set to %d\n", ws_cyclesByLine);
+                Log(TLOG_ALWAYS, "main", "Cycles by line set to %d", ws_cyclesByLine);
                 break;
 
             case 'w':
@@ -150,7 +145,7 @@ int main(int argc, char *argv[])
                     ws_system = atoi(argv[n]);
                 }
 
-                fprintf(log_get(), "WonderSwan set to %d\n", ws_system);
+                Log(TLOG_ALWAYS, "main", "WonderSwan set to %d", ws_system);
                 break;
 
             case 's':
@@ -194,7 +189,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    log_done();
     return (0);
 }
 
