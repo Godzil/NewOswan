@@ -55,4 +55,11 @@ ws_romHeaderStruct *ws_rom_getHeader(uint8_t *wsrom, uint32_t wsromSize);
 uint32_t ws_rom_sramSize(uint8_t *wsrom, uint32_t wsromSize);
 uint32_t ws_rom_eepromSize(uint8_t *wsrom, uint32_t wsromSize);
 
+static inline uint8_t *ws_get_page_ptr(uint8_t *wsrom, uint32_t romSize, uint16_t page)
+{
+    uint32_t temp = page << 16;
+    temp &= (romSize - 1);
+    return &wsrom[temp];
+}
+
 #endif

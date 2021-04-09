@@ -106,9 +106,6 @@ int ws_init(char *rompath)
         return (0);
     }
 
-    ws_memory_init(rom, romSize);
-    ws_patchRom();
-
     ws_staticRam = (uint8_t *)load_file(ws_sram_path);
     if (ws_staticRam == NULL)
     {
@@ -131,6 +128,9 @@ int ws_init(char *rompath)
         Log(TLOG_PANIC, "ws", "Card EEPROM load error!\n");
         return 0;
     }
+
+    ws_memory_init(rom, romSize);
+    ws_patchRom();
 
     ws_io_init();
     ws_audio_init();
