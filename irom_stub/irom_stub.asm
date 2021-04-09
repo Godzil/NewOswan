@@ -52,6 +52,12 @@ _start:
     cld
     push cs
     pop ds
+
+    in al, 0A0h
+    ; Bit 2 - 1 = cart using 16bit data bus
+    or al, 004h
+    out 0A0h, al
+
     xor ax, ax
     mov es, ax
 
