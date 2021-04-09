@@ -112,7 +112,7 @@ typedef struct
 
 #define SegBase(Seg) (I.sregs[Seg] << 4)
 
-#define DefaultBase(Seg) ((seg_prefix && (Seg==DS || Seg==SS)) ? prefix_base : I.sregs[Seg] << 4)
+#define DefaultBase(Seg) ((seg_prefix && (Seg==DS || Seg==SS)) ? (prefix_base) : (uint32_t)(I.sregs[Seg] << 4))
 
 #define GetMemB(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint8_t)cpu_readmem20((DefaultBase(Seg)+(Off))))
 #define GetMemW(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint16_t) cpu_readmem20((DefaultBase(Seg)+(Off))) + (cpu_readmem20((DefaultBase(Seg)+((Off)+1)))<<8) )
