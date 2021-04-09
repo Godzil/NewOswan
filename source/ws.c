@@ -109,7 +109,7 @@ int ws_init(char *rompath)
     ws_memory_init(rom, romSize);
     ws_patchRom();
 
-    ws_staticRam = (uint8_t *)load_file(ws_ieep_path);
+    ws_staticRam = (uint8_t *)load_file(ws_sram_path);
     if (ws_staticRam == NULL)
     {
         ws_staticRam = (uint8_t *)create_file(ws_sram_path, 0x10000);
