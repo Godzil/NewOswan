@@ -76,8 +76,6 @@ uint32_t externalEepromAddressMask;
 uint32_t romAddressMask;
 uint32_t romSize;
 
-int ws_sram_dirty = 0;
-
 extern nec_Regs I;
 
 void dump_memory()
@@ -151,7 +149,6 @@ void cpu_writemem20(uint32_t addr, uint8_t value)
     {
         // 1 - SRAM (cart)
         ws_staticRam[offset & sramAddressMask] = value;
-        ws_sram_dirty = 1;
     }
 
     // other banks are read-only
