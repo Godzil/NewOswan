@@ -53,7 +53,7 @@ nec_Regs I;
 
 static uint32_t cpu_type;
 static uint32_t prefix_base;    /* base address of the latest prefix segment */
-char seg_prefix;        /* prefix segment indicator */
+bool seg_prefix;                /* prefix segment indicator */
 
 
 /* The interrupt number of a pending external interrupt pending NMI is 2.	*/
@@ -684,11 +684,11 @@ OP(0x25, i_and_axd16)
 
 OP(0x26, i_es)
 {
-    seg_prefix = TRUE;
+    seg_prefix = true;
     prefix_base = I.sregs[ES] << 4;
     CLK(1);
     nec_instruction[FETCHOP]();
-    seg_prefix = FALSE;
+    seg_prefix = false;
 }
 
 OP(0x27, i_daa)
@@ -747,11 +747,11 @@ OP(0x2d, i_sub_axd16)
 
 OP(0x2e, i_cs)
 {
-    seg_prefix = TRUE;
+    seg_prefix = true;
     prefix_base = I.sregs[CS] << 4;
     CLK(1);
     nec_instruction[FETCHOP]();
-    seg_prefix = FALSE;
+    seg_prefix = false;
 }
 
 OP(0x2f, i_das)
@@ -810,11 +810,11 @@ OP(0x35, i_xor_axd16)
 
 OP(0x36, i_ss)
 {
-    seg_prefix = TRUE;
+    seg_prefix = true;
     prefix_base = I.sregs[SS] << 4;
     CLK(1);
     nec_instruction[FETCHOP]();
-    seg_prefix = FALSE;
+    seg_prefix = false;
 }
 
 OP(0x37, i_aaa)
@@ -867,11 +867,11 @@ OP(0x3d, i_cmp_axd16)
 
 OP(0x3e, i_ds)
 {
-    seg_prefix = TRUE;
+    seg_prefix = true;
     prefix_base = I.sregs[DS] << 4;
     CLK(1);
     nec_instruction[FETCHOP]();
-    seg_prefix = FALSE;
+    seg_prefix = false;
 }
 
 OP(0x3f, i_aas)
@@ -1127,28 +1127,28 @@ OP(0x64, i_repnc)
     switch (next)   /* Segments */
     {
     case 0x26:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[ES] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x2e:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[CS] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x36:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[SS] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x3e:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[DS] << 4;
         next = FETCHOP;
         CLK(2);
@@ -1371,7 +1371,7 @@ OP(0x64, i_repnc)
         nec_instruction[next]();
     }
 
-    seg_prefix = FALSE;
+    seg_prefix = false;
 }
 
 OP(0x65, i_repc)
@@ -1382,28 +1382,28 @@ OP(0x65, i_repc)
     switch (next)   /* Segments */
     {
     case 0x26:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[ES] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x2e:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[CS] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x36:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[SS] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x3e:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[DS] << 4;
         next = FETCHOP;
         CLK(2);
@@ -1626,7 +1626,7 @@ OP(0x65, i_repc)
         nec_instruction[next]();
     }
 
-    seg_prefix = FALSE;
+    seg_prefix = false;
 }
 
 OP(0x68, i_push_d16)
@@ -3239,28 +3239,28 @@ OP(0xf2, i_repne)
     switch (next)   /* Segments */
     {
     case 0x26:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[ES] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x2e:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[CS] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x36:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[SS] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x3e:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[DS] << 4;
         next = FETCHOP;
         CLK(2);
@@ -3491,7 +3491,7 @@ OP(0xf2, i_repne)
         nec_instruction[next]();
     }
 
-    seg_prefix = FALSE;
+    seg_prefix = false;
 }
 
 OP(0xf3, i_repe)
@@ -3502,28 +3502,28 @@ OP(0xf3, i_repe)
     switch (next)   /* Segments */
     {
     case 0x26:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[ES] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x2e:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[CS] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x36:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[SS] << 4;
         next = FETCHOP;
         CLK(2);
         break;
 
     case 0x3e:
-        seg_prefix = TRUE;
+        seg_prefix = true;
         prefix_base = I.sregs[DS] << 4;
         next = FETCHOP;
         CLK(2);
@@ -3774,7 +3774,7 @@ OP(0xf3, i_repe)
         nec_instruction[next]();
     }
 
-    seg_prefix = FALSE;
+    seg_prefix = false;
 }
 
 OP(0xf4, i_hlt)

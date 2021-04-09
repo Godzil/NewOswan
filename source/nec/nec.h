@@ -9,6 +9,7 @@
 #define __NEC_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "necintrf.h"
 
 typedef enum
@@ -58,11 +59,6 @@ typedef struct
 #define V33 0
 #define V30 8
 #define V20 16
-
-#ifndef FALSE
-#define FALSE 0
-#define TRUE 1
-#endif
 
 /* parameter x = result, y = source 1, z = source 2 */
 
