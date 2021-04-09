@@ -124,6 +124,7 @@ void dump_memory()
     fclose(fp);
 }
 
+#ifndef USE_PAGED_MEMORY_ACCESS
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +256,82 @@ uint8_t cpu_readmem20(uint32_t addr)
 
     return (0x90);
 }
+#else
+/* 256 page of 12 bits */
+uint8_t *pagedMemory[0x100];
 
+/* Memory address is 20bit and split in 8 (page) - 12 (offset) */
+void cpu_writemem20(uint32_t addr, uint8_t value)
+{
+    uint8_t page = addr >> 12;
+    uint16_t offset = addr & 0xFFF;
+    if (page < 0x30)
+    {
+        /* Unmapped will be NULL so just check to be sure */
+        if (pagedMemory[page])
+        {
+            pagedMemory[page][offset] = value;
+        }
+    }
+}
+
+uint8_t cpu_readmem20(uint32_t addr)
+{
+    uint8_t page = addr >> 12;
+    uint16_t offset = addr & 0xFFF;
+    if (pagedMemory[page])
+    {
+        return pagedMemory[page][offset];
+    }
+    return 0x90;
+}
+
+/* Set memory bank with a granularity of 4-16 as it is the most common on the WonderSwan */
+void set_memory_bank(uint8_t bank, uint8_t *pointer)
+{
+    uint8_t page = bank << 4;
+    for(int i = 0; i < 16; i++)
+    {
+        pagedMemory[page | i] = pointer + (i * 0x1000);
+    }
+}
+
+void set_memory_page(uint8_t page, uint8_t *pointer)
+{
+    pagedMemory[page] = pointer;
+}
+
+void set_irom_overlay()
+{
+    /* Setup the boot rom */
+    if (ws_get_system() == WS_SYSTEM_MONO)
+    {
+        set_memory_page(0xFF, internalBWIRom);
+    }
+    else if (ws_get_system() == WS_SYSTEM_COLOR)
+    {
+        set_memory_page(0xFE, internalColorIRom);
+        set_memory_page(0xFF, internalColorIRom + 0x1000);
+    }
+    else if (ws_get_system() == WS_SYSTEM_CRYSTAL)
+    {
+        set_memory_page(0xFE, internalCrystalIRom);
+        set_memory_page(0xFF, internalCrystalIRom + 0x1000);
+    }
+}
+
+uint8_t *getRom(uint32_t *size)
+{
+    *size = romSize;
+    return ws_rom;
+}
+
+uint8_t *getSram(uint32_t *size)
+{
+    *size = sramSize;
+    return ws_staticRam;
+}
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -414,6 +490,37 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
     }
 
     romAddressMask = romSize - 1;
+
+
+#ifdef USE_PAGED_MEMORY_ACCESS
+    for(int i = 0; i < 0x100; i++)
+    {
+        pagedMemory[i] = NULL;
+    }
+
+    /* IRAM */
+    set_memory_bank(0, internalRam);
+    for(int i = 0x4; i < 0x10; i++)
+    {
+        set_memory_page(i, NULL);
+    }
+
+    /* Cart SRAM */
+    if (sramSize > 0)
+    {
+        set_memory_bank(0x1, ws_get_page_ptr(ws_staticRam, sramSize, 0xFF));
+    }
+
+    set_memory_bank(0x2, ws_get_page_ptr(ws_rom, romSize, 0xFF));
+    set_memory_bank(0x3, ws_get_page_ptr(ws_rom, romSize, 0xFF));
+
+    for(int i = 0x04; i < 0x10; i++)
+    {
+        set_memory_bank(i, ws_get_page_ptr(ws_rom, romSize, 0xF0 + i));
+    }
+
+    set_irom_overlay();
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -36,6 +36,27 @@ char *create_file(char *filename, uint32_t size);
 char *load_file(char *filename);
 
 void dump_memory();
+//#define USE_PAGED_MEMORY_ACCESS
+#ifdef USE_PAGED_MEMORY_ACCESS
+/***
+ * Set a memory page with a ganularity of 4-16
+ * @param bank: the bank (0-F) to set
+ * @param pointer: a pointer to the memory to set
+ */
+void set_memory_bank(uint8_t bank, uint8_t *pointer);
+
+/***
+ * Set a memory page with a ganularity of 8-12
+ * @param bank: the bank (0-FF) to set
+ * @param pointer: a pointer to the memory to set
+ */
+void set_memory_page(uint8_t page, uint8_t *pointer);
+
+void set_irom_overlay();
+
+uint8_t *getRom(uint32_t *size);
+uint8_t *getSram(uint32_t *size);
+#endif
 
 #define BW_IEEPROM_SIZE (128)
 #define COLOR_IEEPROM_SIZE (2048)

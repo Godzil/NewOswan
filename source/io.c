@@ -41,6 +41,7 @@ extern uint32_t romAddressMask;
 extern uint16_t *internalEeprom;
 extern nec_Regs I;
 extern uint64_t nec_monotonicCycles;
+extern uint32_t sramSize;
 
 enum
 {
@@ -827,10 +828,20 @@ void cpu_writeport(uint32_t port, uint8_t value)
 
         /* Hardware */
     case 0xA0:
+
         /* Force cart handshake to be set */
         ws_ioRam[port] |= 0x80;
-        break;
 
+#ifdef USE_PAGED_MEMORY_ACCESS
+        if (value & 0x01)
+        {
+            Log(TLOG_WARNING, "A0", "Oh yeah %02X BABY", value);
+            uint32_t romSize;
+            uint8_t *rom = getRom(&romSize);
+            set_memory_bank(0xF, ws_get_page_ptr(rom, romSize, (ws_ioRam[0xC0] & 0x0F << 4) + 0x0F));
+        }
+        break;
+#endif
         /* Timers */
     case 0xA2:
     case 0xA4:
@@ -993,11 +1004,61 @@ void cpu_writeport(uint32_t port, uint8_t value)
 
 
         /* MBC */
+#ifndef USE_PAGED_MEMORY_ACCESS
     case 0xC0:
     case 0xC1:
     case 0xC2:
     case 0xC3:
         break;
+#else
+    case 0xC0:
+    {
+        /* page 4 to F */
+        uint32_t romSize;
+        uint8_t *rom = getRom(&romSize);
+        for (int i = 0x04 ; i < 0x10 ; i++)
+        {
+            set_memory_bank(i, ws_get_page_ptr(rom, romSize, (value << 4) + i));
+        }
+
+        if (!(ws_ioRam[0xA0] & 0x01))
+        {
+            set_irom_overlay();
+        }
+        break;
+    }
+
+    case 0xC1:
+        /* Sram bank */
+        if (sramSize > 0)
+        {
+            uint32_t sramSize;
+            uint8_t *sram = getSram(&sramSize);
+            set_memory_bank(0x1, ws_get_page_ptr(sram, sramSize, value));
+        }
+        break;
+
+    case 0xC2:
+    {
+        /* page 4 to F */
+        uint32_t romSize;
+        uint8_t *rom = getRom(&romSize);
+        /* Page 2 */
+        set_memory_bank(0x2, ws_get_page_ptr(rom, romSize, value));
+        break;
+    }
+
+    case 0xC3:
+    {
+        /* page 4 to F */
+        uint32_t romSize;
+        uint8_t *rom = getRom(&romSize);
+        /* Page 3 */
+        set_memory_bank(0x3, ws_get_page_ptr(rom, romSize, value));
+        break;
+    }
+
+#endif
 
         /* Cart EEPROM */
     case 0xC4: /* Data High */

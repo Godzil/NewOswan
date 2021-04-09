@@ -183,4 +183,3 @@ uint32_t ws_rom_eepromSize(uint8_t *wsrom, uint32_t wsromSize)
 
     return (0);
 }
-
