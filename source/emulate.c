@@ -397,14 +397,14 @@ static void read_keys()
 }
 #endif /* PRETENT_DISPLAY */
 
-uint64_t getTicks()
+double getTicks()
 {
     struct timeval curTime;
-    uint64_t ticks;
+    double ticks;
     /* Get datetime */
     gettimeofday(&curTime, NULL);
 
-    ticks = (curTime.tv_sec * 1000) + curTime.tv_usec / 1000;
+    ticks = (curTime.tv_sec * 1000.) + curTime.tv_usec / 1000.;
 
     return ticks;
 }
@@ -436,7 +436,7 @@ void ws_emulate(void)
     int16_t *backBuffer = (int16_t *)mainWindow.videoMemory;
 
 
-    dNormalLast = (double)getTicks();
+    dNormalLast = getTicks();
 
     while (1)
     {
