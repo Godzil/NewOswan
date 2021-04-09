@@ -436,7 +436,6 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
     sramAddressMask = 0x0;
     externalEepromAddressMask = 0x0;
 
-
     if (sramSize > 0)
     {
         sramAddressMask = ws_rom_sramSize(ws_rom, romSize) - 1;

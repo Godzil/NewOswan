@@ -77,16 +77,19 @@ uint8_t *ws_rom_load(char *path, uint32_t *romSize)
 const char *eepromSizeName[] =
 {
     [WS_EEPROM_SIZE_NONE] = "none",
-    [WS_EEPROM_SIZE_64k] = "64kb",
-    [WS_EEPROM_SIZE_256k] = "256kb",
+    [WS_EEPROM_SIZE_1k] = "1kbits",
+    [WS_EEPROM_SIZE_16k] = "16kbits",
+    [WS_EEPROM_SIZE_8k] = "8kbits",
 };
 
 const char *sramSizeName[] =
 {
     [WS_SRAM_SIZE_NONE] = "none",
-    [WS_SRAM_SIZE_1k] = "1kb",
-    [WS_SRAM_SIZE_8k] = "8kb",
-    [WS_SRAM_SIZE_16k] = "16kb",
+    [WS_SRAM_SIZE_64k] = "64kbit",
+    [WS_SRAM_SIZE_256k] = "256kbit",
+    [WS_SRAM_SIZE_1M] = "1Mbits",
+    [WS_SRAM_SIZE_2M] = "2Mbits",
+    [WS_SRAM_SIZE_4M] = "4Mbits",
 };
 
 void ws_rom_dumpInfo(uint8_t *wsrom, uint32_t romSize)
@@ -97,8 +100,8 @@ void ws_rom_dumpInfo(uint8_t *wsrom, uint32_t romSize)
     Log(TLOG_NORMAL, "rom", "cart Id        0x%.2x", romHeader->cartId);
     Log(TLOG_NORMAL, "rom", "minimum system %s", (romHeader->minimumSupportSystem == 0) ? "Wonderswan mono" : "Wonderswan color");
     Log(TLOG_NORMAL, "rom", "size           %i Mbits", (romSize >> 20) << 3);
-    Log(TLOG_NORMAL, "rom", "eeprom         %s", eepromSizeName[romHeader->eepromSize & 0xf]);
-    Log(TLOG_NORMAL, "rom", "sram           %s", sramSizeName[romHeader->eepromSize & 0xF0]);
+    Log(TLOG_NORMAL, "rom", "eeprom         %s", eepromSizeName[romHeader->saveSize & 0xf]);
+    Log(TLOG_NORMAL, "rom", "sram           %s", sramSizeName[romHeader->saveSize & 0xF0]);
     Log(TLOG_NORMAL, "rom", "rtc            %s", (romHeader->realtimeClock) ? "Yes" : "None");
     Log(TLOG_NORMAL, "rom", "checksum       0x%.4x", romHeader->checksum);
 }
@@ -116,7 +119,7 @@ void ws_rom_dumpInfo(uint8_t *wsrom, uint32_t romSize)
 ////////////////////////////////////////////////////////////////////////////////
 ws_romHeaderStruct *ws_rom_getHeader(uint8_t *wsrom, uint32_t wsromSize)
 {
-    ws_romHeaderStruct *wsromHeader = (ws_romHeaderStruct *)(wsrom + wsromSize - 10);
+    ws_romHeaderStruct *wsromHeader = (ws_romHeaderStruct *)(wsrom + wsromSize - sizeof(ws_romHeaderStruct));
 
     return (wsromHeader);
 }
@@ -136,19 +139,28 @@ uint32_t ws_rom_sramSize(uint8_t *wsrom, uint32_t wsromSize)
 {
     ws_romHeaderStruct *romHeader = ws_rom_getHeader(wsrom, wsromSize);
 
-    switch (romHeader->eepromSize & 0xf0)
+    switch (romHeader->saveSize & 0x0f)
     {
     case WS_SRAM_SIZE_NONE:
-        return (0);
+        return 0;
 
-    case WS_SRAM_SIZE_1k:
-        return (0x400);
+    case WS_SRAM_SIZE_64k:
+        return 0x2000;
 
-    case WS_SRAM_SIZE_16k:
-        return (0x4000);
+    case WS_SRAM_SIZE_256k:
+        return 0x8000;
 
-    case WS_SRAM_SIZE_8k:
-        return (0x2000);
+    case WS_SRAM_SIZE_1M:
+        return 0x20000;
+
+    case WS_SRAM_SIZE_2M:
+        return 0x40000;
+
+    case WS_SRAM_SIZE_4M:
+        return 0x80000;
+
+    default:
+        Log(TLOG_PANIC, "ROM", "Invalid SRAM size (%02X)! Please check cart metadata!", romHeader->saveSize);
     }
 
     return (0);
@@ -169,16 +181,22 @@ uint32_t ws_rom_eepromSize(uint8_t *wsrom, uint32_t wsromSize)
 {
     ws_romHeaderStruct *romHeader = ws_rom_getHeader(wsrom, wsromSize);
 
-    switch (romHeader->eepromSize & 0xf)
+    switch (romHeader->saveSize & 0xf0)
     {
     case WS_EEPROM_SIZE_NONE:
-        return (0);
+        return 0;
 
-    case WS_EEPROM_SIZE_64k:
-        return (0x10000);
+    case WS_EEPROM_SIZE_1k:
+        return 0x80;
 
-    case WS_EEPROM_SIZE_256k:
-        return (0x40000);
+    case WS_EEPROM_SIZE_16k:
+        return 0x800;
+
+    case WS_EEPROM_SIZE_8k:
+        return 0x100;
+
+    default:
+        Log(TLOG_PANIC, "ROM", "Invalid SRAM size (%02X)! Please check cart metadata!", romHeader->saveSize);
     }
 
     return (0);
