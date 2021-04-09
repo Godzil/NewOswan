@@ -75,6 +75,7 @@ uint32_t sramAddressMask;
 uint32_t externalEepromAddressMask;
 uint32_t romAddressMask;
 uint32_t romSize;
+uint32_t sramSize;
 
 extern nec_Regs I;
 
@@ -428,11 +429,22 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
 
     ws_rom = rom;
     romSize = wsRomSize;
+    sramSize = ws_rom_sramSize(ws_rom, romSize);
     ws_romHeader = ws_rom_getHeader(ws_rom, romSize);
     ws_rom_checksum = ws_romHeader->checksum;
     internalRam = (uint8_t *)malloc(0x10000);
-    sramAddressMask = ws_rom_sramSize(ws_rom, romSize) - 1;
-    externalEepromAddressMask = ws_rom_eepromSize(ws_rom, romSize) - 1;
+    sramAddressMask = 0x0;
+    externalEepromAddressMask = 0x0;
+
+
+    if (sramSize > 0)
+    {
+        sramAddressMask = ws_rom_sramSize(ws_rom, romSize) - 1;
+    }
+    if (ws_rom_eepromSize(ws_rom, romSize) > 0)
+    {
+        externalEepromAddressMask = ws_rom_eepromSize(ws_rom, romSize) - 1;
+    }
 
     internalBWIRom = load_file("ws_irom.bin");
     internalColorIRom = load_file("wsc_irom.bin");
