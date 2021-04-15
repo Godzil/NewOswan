@@ -327,7 +327,7 @@ typedef enum modrmValues
 
 const char *modrmReg8List[8] = { "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh" };
 const char *modrmReg16List[8] = { "ax", "cx", "dx", "bx", "sp", "bp", "si", "di" };
-const char *segmentRegList[4] = { "ds", "cs", "ss", "es" };
+const char *segmentRegList[4] = { "es", "cs", "ss", "ds", "ILLEGAL", "ILLEGAL", "ILLEGAL", "ILLEGAL" };
 static inline void get_mod_reg_rm(uint8_t value, uint8_t *mod, uint8_t *reg, uint8_t *rm, uint8_t *modrm)
 {
     if (mod)
@@ -1195,11 +1195,27 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_RM16_SEG:
-        // TODO: Find how to decode the segment value
+        param1 = cpu_readmem20(MAKE_LINEAR(segment, currentOffset));
+        currentOffset++;
+        get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
+        currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
+        param1 = (cpu_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                 cpu_readmem20(MAKE_LINEAR(segment, currentOffset));
+        currentOffset += 2;
+        snprintf(buf, 63, ", %s", segmentRegList[reg]);
+        strncat(buffer, buf, bufferSize);
         break;
 
     case PR_SEG_RM16:
-        // TODO: Find how to decode the segment value
+        param1 = cpu_readmem20(MAKE_LINEAR(segment, currentOffset));
+        currentOffset++;
+        get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
+        snprintf(buf, 63, ", %s", segmentRegList[reg]);
+        currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
+        param1 = (cpu_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                 cpu_readmem20(MAKE_LINEAR(segment, currentOffset));
+        currentOffset += 2;
+        strncat(buffer, buf, bufferSize);
         break;
 
     default:
