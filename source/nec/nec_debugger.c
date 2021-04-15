@@ -1190,6 +1190,24 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         strncat(buffer, buf, bufferSize);
         break;
 
+    case PR_R_RM8:
+        param1 = cpu_readmem20(MAKE_LINEAR(segment, currentOffset));
+        currentOffset++;
+        get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
+        snprintf(buf, 63, " %s,", modrmReg8List[reg]);
+        strncat(buffer, buf, bufferSize);
+        currentOffset += decode_modrm(segment, currentOffset, modrm, true, buffer, bufferSize);
+        break;
+
+    case PR_R_RM16:
+        param1 = cpu_readmem20(MAKE_LINEAR(segment, currentOffset));
+        currentOffset++;
+        get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
+        snprintf(buf, 63, " %s,", modrmReg16List[reg]);
+        strncat(buffer, buf, bufferSize);
+        currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
+        break;
+
     case PR_RM16_SEG:
         param1 = cpu_readmem20(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
