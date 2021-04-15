@@ -282,10 +282,10 @@ enum extendedOpcodes
 
     OP_GP2_INC = 0,
     OP_GP2_DEC = 1,
-    OP_GP2_CALL1 = 2,
-    OP_GP2_CALL2 = 3,
-    OP_GP2_JMP1 = 4,
-    OP_GP2_JMP2 = 5,
+    OP_GP2_CALL = 2,
+    OP_GP2_CALLF = 3,
+    OP_GP2_JMP = 4,
+    OP_GP2_JMPF = 5,
     OP_GP2_PUSH = 6,
 };
 
@@ -721,10 +721,9 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         case OP_GP2_DEC:
             strncat(buffer, "dec", bufferSize);
             break;
-        case OP_GP2_CALL1:
+        case OP_GP2_CALL:
             if (opcode == 0xFF)
             {
-                // TODO: Understand this opcode
                 strncat(buffer, "call", bufferSize);
             }
             else
@@ -733,11 +732,10 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
                 opcodeParams = PR_NONE;
             }
             break;
-        case OP_GP2_CALL2:
+        case OP_GP2_CALLF:
             if (opcode == 0xFF)
             {
-                // TODO: Understand this opcode
-                strncat(buffer, "call", bufferSize);
+                strncat(buffer, "call far", bufferSize);
             }
             else
             {
@@ -745,10 +743,9 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
                 opcodeParams = PR_NONE;
             }
             break;
-        case OP_GP2_JMP1:
+        case OP_GP2_JMP:
             if (opcode == 0xFF)
             {
-                // TODO: Understand this opcode
                 strncat(buffer, "jmp", bufferSize);
             }
             else
@@ -757,11 +754,10 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
                 opcodeParams = PR_NONE;
             }
             break;
-        case OP_GP2_JMP2:
+        case OP_GP2_JMPF:
             if (opcode == 0xFF)
             {
-                // TODO: Understand this opcode
-                strncat(buffer, "jmp", bufferSize);
+                strncat(buffer, "jmp far", bufferSize);
             }
             else
             {
