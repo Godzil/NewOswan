@@ -35,6 +35,7 @@
 #include <stdbool.h>
 
 //#define IO_DUMP
+//define EEPROM_DEBUG
 
 extern uint8_t *externalEeprom;
 extern uint32_t romAddressMask;
@@ -939,26 +940,34 @@ void cpu_writeport(uint32_t port, uint8_t value)
         {
             command = EEPROM_WRITEDISABLE + subcmd;
         }
-
+#ifdef EEPROM_DEBUG
         printf("IEEP: RA:%04X RD:%04X A:%03X C:%s", iee_SelAddress, iee_Databuffer, address, eii_CommandName[command]);
-
+#endif
         if (value & 0x40)
         {
             /* Sub command */
+#ifdef EEPROM_DEBUG
             printf(" - Sub");
+#endif
             if (command == EEPROM_WRITEENABLE)
             {
+#ifdef EEPROM_DEBUG
                 printf(" Write Enable\n");
+#endif
                 iee_WriteEnable = true;
             }
             else if (command == EEPROM_WRITEDISABLE)
             {
+#ifdef EEPROM_DEBUG
                 printf(" Write Disable\n");
+#endif
                 iee_WriteEnable = false;
             }
             else if (command == EEPROM_ERASEALL)
             {
+#ifdef EEPROM_DEBUG
                 printf(" Erase All\n");
+#endif
                 if (ws_gpu_operatingInColor)
                 {
                     memset(internalEeprom, 0, COLOR_IEEPROM_SIZE);
@@ -968,36 +977,50 @@ void cpu_writeport(uint32_t port, uint8_t value)
                     memset(internalEeprom, 0, BW_IEEPROM_SIZE);
                 }
             }
+#ifdef EEPROM_DEBUG
             else
             {
                 printf(" Write All?\n");
             }
+#endif
         }
         else if (value & 0x20)
         {
             /* Write */
+#ifdef EEPROM_DEBUG
             printf(" - Write?");
+#endif
             if (iee_WriteEnable)
             {
+#ifdef EEPROM_DEBUG
                 printf(" Yes : %04X\n", iee_Databuffer);
+#endif
                 internalEeprom[address] = iee_Databuffer;
             }
+#ifdef EEPROM_DEBUG
             else
             {
                 printf(" No\n");
             }
+#endif
         }
         else if (value & 0x10)
         {
             /* Read */
+#ifdef EEPROM_DEBUG
             printf(" - Read");
+#endif
             iee_Databuffer = internalEeprom[address];
+#ifdef EEPROM_DEBUG
             printf(" Data : %04X\n", iee_Databuffer);
+#endif
         }
+#ifdef EEPROM_DEBUG
         else
         {
             printf(" Unknown value: %02X\n", value);
         }
+#endif
         fflush(stdout);
     }
         break;
