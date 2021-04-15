@@ -1,7 +1,6 @@
 /*
  * NewOswan
- * nec_debugger.c: 
- * Based on the original Oswan-unix
+ * nec_debugger.c:
  * Created by Manoël Trapier on 14/04/2021.
  * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
@@ -737,8 +736,8 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         case OP_GP2_CALL2:
             if (opcode == 0xFF)
             {
-            // TODO: Understand this opcode
-            strncat(buffer, "call", bufferSize);
+                // TODO: Understand this opcode
+                strncat(buffer, "call", bufferSize);
             }
             else
             {

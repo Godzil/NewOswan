@@ -1,7 +1,6 @@
 /*
  * NewOswan
- * nec_debugger.h: 
- * Based on the original Oswan-unix
+ * nec_debugger.h:
  * Created by Manoël Trapier on 14/04/2021.
  * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
