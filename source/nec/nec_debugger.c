@@ -327,7 +327,7 @@ typedef enum modrmValues
 
 const char *modrmReg8List[8] = { "al", "cl", "dl", "bl", "ah", "ch", "dh", "bh" };
 const char *modrmReg16List[8] = { "ax", "cx", "dx", "bx", "sp", "bp", "si", "di" };
-const char *segmentRegList[4] = { "es", "cs", "ss", "ds", "ILLEGAL", "ILLEGAL", "ILLEGAL", "ILLEGAL" };
+const char *segmentRegList[8] = { "es", "cs", "ss", "ds", "ILLEGAL", "ILLEGAL", "ILLEGAL", "ILLEGAL" };
 static inline void get_mod_reg_rm(uint8_t value, uint8_t *mod, uint8_t *reg, uint8_t *rm, uint8_t *modrm)
 {
     if (mod)
