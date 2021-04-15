@@ -41,6 +41,7 @@
 
 #include "nec.h"
 #include "necintrf.h"
+#include "nec_debugger.h"
 
 /***************************************************************************/
 /* cpu state                                                               */
@@ -4209,28 +4210,6 @@ void nec_set_reg(int regnum, uint32_t val)
     }
 }
 
-const char *instructionsName[256] = {
-    "ADD ", "ADD ", "ADD ", "ADD ", "ADD ", "ADD ", "PUSH", "POP ", "OR  ", "OR  ", "OR  ", "OR  ", "OR  ", "OR  ",
-    "PUSH", "----", "ADC ", "ADC ", "ADC ", "ADC ", "ADC ", "ADC ", "PUSH", "POP ", "SBB ", "SBB ", "SBB ", "SBB ",
-    "SBB ", "SBB ", "PUSH", "POP ", "AND ", "AND ", "AND ", "AND ", "AND ", "AND ", "ES: ", "DAA ", "SUB ", "SUB ",
-    "SUB ", "SUB ", "SUB ", "SUB ", "CS: ", "DAS ", "XOR ", "XOR ", "XOR ", "XOR ", "XOR ", "XOR ", "SS: ", "AAA ",
-    "CMP ", "CMP ", "CMP ", "CMP ", "CMP ", "CMP ", "ES: ", "AAS ", "INC ", "INC ", "INC ", "INC ", "INC ", "INC ",
-    "INC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "DEC ", "PUSH", "PUSH", "PUSH", "PUSH",
-    "PUSH", "PUSH", "PUSH", "PUSH", "POP ", "POP ", "POP ", "POP ", "POP ", "POP ", "POP ", "POP ", "PUSA", "POPA",
-    "BOND", "----", "----", "----", "----", "----", "PUSH", "IMUL", "PUSH", "IMUL", "INS ", "INS ", "OUTS", "OUTS",
-    "JO  ", "JNO ", "JB  ", "JNB ", "JZ  ", "JNZ ", "JBE ", "JA  ", "JS  ", "JNS ", "JPE ", "JPO ", "JL  ", "JGE ",
-    "JLE ", "JG  ", "GPR1", "GPR1", "GPR1", "GPR1", "TEST", "TEST", "XCHG", "XCHG", "MOV ", "MOV ", "MOV ", "MOV ",
-    "MOV ", "LEA ", "MOV ", "POP ", "NOP ", "XCHA", "XCHA", "XCHA", "XCHA", "XCHA", "XCHA", "XCHA", "CBW ", "CWD ",
-    "CALL", "WAIT", "PSHF", "POPF", "SAHF", "LAHF", "MOV ", "MOV ", "MOV ", "MOV ", "MOVS", "MOVS", "CMPS", "CMPS",
-    "TEST", "TEST", "STOS", "STOS", "LODS", "LODS", "SCAS", "SCAS", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ",
-    "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "MOV ", "GRP2", "GRP2", "RETN", "RETN",
-    "LES ", "LDS ", "MOV ", "MOV ", "ENTR", "LEAV", "RETF", "RETF", "INT3", "INT ", "INTO", "IRET", "GRP2", "GRP2",
-    "GRP2", "GRP2", "AAM ", "AAD ", "----", "XLAT", "----", "----", "----", "----", "----", "----", "----", "----",
-    "LPNZ", "LPZ ", "LOOP", "JCXZ", "IN  ", "IN  ", "OUT ", "OUT ", "CALL", "JMP ", "JMP ", "JMP ", "IN  ", "IN  ",
-    "OUT ", "OUT ", "LOCK", "----", "RPNZ", "REP ", "HLT ", "CMC ", "GP3A", "GP3B", "CLC ", "STC ", "CLI ", "STI ",
-    "CLD ", "STD ", "GPR4", "GRP5"
-};
-
 
 int nec_execute(int cycles)
 {
@@ -4242,9 +4221,22 @@ int nec_execute(int cycles)
     while (nec_ICount > 0)
     {
 #if 0
-                                                                                                                                uint8_t op = cpu_readmem20((I.sregs[CS]<<4) + I.ip);
-      Log(TLOG_NORMAL, "NEC v30", "[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip,
-            op, instructionsName[op], I.IF);
+        if ((I.sregs[CS] == 0x0600) /* && (I.ip > 0x0050) */)
+        {
+            int tmp;
+            char buffer[256];
+            uint8_t op = cpu_readmem20((I.sregs[CS] << 4) + I.ip);
+            //Log(TLOG_NORMAL, "NEC v30", "[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip, op, instructionsName[op], I.IF);
+            printf("AX: %04X, BX: %04X, CX: %04X, DX: %04X, SI: %04X, DI: %04X, SP: %04X\n",
+                   I.regs.w[AW],  I.regs.w[BW],  I.regs.w[CW],  I.regs.w[DW],
+                   I.regs.w[IX],  I.regs.w[IY],  I.regs.w[SP]);
+            printf("CS: %04X, DS: %04X, SS: %04X, ES: %04X\n",
+                   I.sregs[CS], I.sregs[DS], I.sregs[SS], I.sregs[ES]);
+            memset(buffer, 0, 256);
+            nec_decode_instruction(I.sregs[CS], I.ip, buffer, 255);
+            printf("[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip, op, buffer, I.IF);
+            tmp = getchar();
+        }
 #endif
         nec_instruction[FETCHOP]();
         //		nec_ICount++;
