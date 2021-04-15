@@ -169,10 +169,17 @@ void ws_gpu_changeVideoMode(uint8_t value)
         memset(ws_modified_tile, 0x01, 1024);
     }
     ws_gpu_operatingInColor = 0;
-    if (value & 0x80)
+    if (value & 0xC0)
     {
         ws_gpu_operatingInColor = 1;
     }
+
+    Log(TLOG_DEBUG, "GPU", "New video mode: %02X (Color: %c, %cbpp, F: %s",
+        value,
+        (value & 0x80)?'Y':'N',
+        (value & 0x40)?'4':'2',
+        (value & 0x20)?"Packed":"Planar");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

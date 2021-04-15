@@ -665,10 +665,50 @@ void cpu_writeport(uint32_t port, uint8_t value)
     {
         /* GPU IOs */
     case 0x00:
+        Log(TLOG_DEBUG, "GPU", "Screen enabled: W2:%c W2M:%c, SW:%c, S:%c, S2:%c, S1:%c",
+            (value & 0x20)?'Y':'N',
+            (value & 0x10)?'I':'O',
+            (value & 0x08)?'Y':'N',
+            (value & 0x04)?'Y':'N',
+            (value & 0x02)?'Y':'N',
+            (value & 0x01)?'Y':'N');
         break;
 
     case 0x04:
+        if (ws_gpu_operatingInColor)
+        {
+            Log(TLOG_DEBUG, "GPU", "Sprite base: %04X", (value & 0x1F) << 9);
+        }
+        else
+        {
+            Log(TLOG_DEBUG, "GPU", "Sprite base: %04X", (value & 0x3F) << 9);
+        }
+        break;
     case 0x07:
+        if (ws_gpu_operatingInColor)
+        {
+            Log(TLOG_DEBUG, "GPU", "Sprite Screen1 base: %04X", (value & 0x7) << 11);
+            Log(TLOG_DEBUG, "GPU", "Sprite Screen2 base: %04X", (value & 0x70) << (11-4));
+        }
+        else
+        {
+            Log(TLOG_DEBUG, "GPU", "Sprite Screen1 base: %04X", (value & 0xF) << 11);
+            Log(TLOG_DEBUG, "GPU", "Sprite Screen2 base: %04X", (value & 0xF0) << (11-4));
+        }
+        break;
+    case 0x10:
+        //Log(TLOG_DEBUG, "GPU", "Sprite Screen1 X scroll: %d", value);
+        break;
+    case 0x11:
+        //Log(TLOG_DEBUG, "GPU", "Sprite Screen1 T scroll: %d", value);
+        break;
+    case 0x12:
+        //Log(TLOG_DEBUG, "GPU", "Sprite Screen2 X scroll: %d", value);
+        break;
+    case 0x13:
+        //Log(TLOG_DEBUG, "GPU", "Sprite Screen2 Y scroll: %d", value);
+        break;
+
     case 0x01:
     case 0x02:
     case 0x03:
@@ -682,10 +722,6 @@ void cpu_writeport(uint32_t port, uint8_t value)
     case 0x0D:
     case 0x0E:
     case 0x0F:
-    case 0x10:
-    case 0x11:
-    case 0x12:
-    case 0x13:
     case 0x14:
         break;
 
@@ -787,6 +823,7 @@ void cpu_writeport(uint32_t port, uint8_t value)
         /* GPU (again) */
     case 0x60:
         break;
+
         /* System */
     case 0x62:
         Log(TLOG_DEBUG, "io", "HeyHo!");
