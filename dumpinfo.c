@@ -1,10 +1,11 @@
-/*
+/*******************************************************************************
  * NewOswan
  * dumpinfo.c: Tool to dump the metadata info about a cart rom image.
  *
  * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
- */
+ ******************************************************************************/
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

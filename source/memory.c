@@ -1,10 +1,11 @@
-/*
+/*******************************************************************************
  * NewOswan
- * memory.c: Memory implementatoion
+ * memory.c: Memory implementation
  * Based on the original Oswan-unix
  * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
- */
+ ******************************************************************************/
+
 ////////////////////////////////////////////////////////////////////////////////
 // Notes: need to optimize cpu_writemem20
 //

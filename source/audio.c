@@ -1,10 +1,11 @@
-/*
+/*******************************************************************************
  * NewOswan
  * audio.c:
  * Based on the original Oswan-unix
  * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
- */
+ ******************************************************************************/
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Sound information thanks to toshi (wscamp wonderswan emulator)

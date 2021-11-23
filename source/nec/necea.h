@@ -1,10 +1,10 @@
-/*
+/******************************************************************************
  * NewOswan
  * necea.h:
  * Based on the original Oswan-unix
  * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
- */
+ ******************************************************************************/
 
 static uint32_t EA;
 static uint16_t EO;

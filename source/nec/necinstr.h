@@ -1,10 +1,10 @@
-/*
+/******************************************************************************
  * NewOswan
  * necinstr.h:
  * Based on the original Oswan-unix
  * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
- */
+ ******************************************************************************/
 
 static void i_add_br8(void);
 static void i_add_wr16(void);

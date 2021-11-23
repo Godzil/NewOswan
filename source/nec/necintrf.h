@@ -1,10 +1,11 @@
-/*
+/******************************************************************************
  * NewOswan
  * necintrf.h:
  * Based on the original Oswan-unix
  * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
- */
+ ******************************************************************************/
+
 /* ASG 971222 -- rewrote this interface */
 #ifndef __NECITRF_H_
 #define __NECITRF_H_

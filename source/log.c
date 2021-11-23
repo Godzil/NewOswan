@@ -1,10 +1,10 @@
-/*
- * C Fancy Logger
- * log.c:
+/*******************************************************************************
+ * NewOswan
+ * log.c: C Fancy Logger
  * Copyright (c) 2009-2021 986-Studio. All rights reserved.
  *
  * Created by Manoël Trapier on 20/01/2009.
- */
+ ******************************************************************************/
 
 #define __LOG_C_INTERNAL_
 
