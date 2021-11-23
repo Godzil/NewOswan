@@ -15,6 +15,10 @@
 #include <errno.h>   /* Error number definitions */
 #include <termios.h> /* POSIX terminal control definitions */
 
+/*
+ * The code, as is, was part of a fuzzer for the WonderSwan Tetris game.
+ */
+
 /* Serial port */
 #define BDR_9600 (0)
 #define BDR_38400 (1)
