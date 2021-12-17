@@ -115,30 +115,30 @@ typedef struct
 
 #define DefaultBase(Seg) ((seg_prefix && (Seg==DS || Seg==SS)) ? (prefix_base) : (uint32_t)(I.sregs[Seg] << 4))
 
-#define GetMemB(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint8_t)cpu_readmem20((DefaultBase(Seg)+(Off))))
-#define GetMemW(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint16_t) cpu_readmem20((DefaultBase(Seg)+(Off))) + (cpu_readmem20((DefaultBase(Seg)+((Off)+1)))<<8) )
+#define GetMemB(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint8_t)mem_readmem20((DefaultBase(Seg)+(Off))))
+#define GetMemW(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint16_t) mem_readmem20((DefaultBase(Seg)+(Off))) + (mem_readmem20((DefaultBase(Seg)+((Off)+1)))<<8) )
 
-#define PutMemB(Seg, Off, x) { /*nec_ICount-=((Off)&1)?1:0*/; cpu_writemem20((DefaultBase(Seg)+(Off)),(x)); }
+#define PutMemB(Seg, Off, x) { /*nec_ICount-=((Off)&1)?1:0*/; mem_writemem20((DefaultBase(Seg)+(Off)),(x)); }
 #define PutMemW(Seg, Off, x) { /*nec_ICount-=((Off)&1)?1:0*/; PutMemB(Seg,Off,(x)&0xff); PutMemB(Seg,(Off)+1,(uint8_t)((x)>>8)); }
 
 /* Todo:  Remove these later - plus readword could overflow */
-#define ReadByte(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ (uint8_t)cpu_readmem20((ea)))
-#define ReadWord(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ cpu_readmem20((ea))+(cpu_readmem20(((ea)+1))<<8))
-#define WriteByte(ea, val) { /*nec_ICount-=((ea)&1)?1:0*/; cpu_writemem20((ea),val); }
-#define WriteWord(ea, val) { /*nec_ICount-=((ea)&1)?1:0*/; cpu_writemem20((ea),(uint8_t)(val)); cpu_writemem20(((ea)+1),(val)>>8); }
+#define ReadByte(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ (uint8_t)mem_readmem20((ea)))
+#define ReadWord(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ mem_readmem20((ea))+(mem_readmem20(((ea)+1))<<8))
+#define WriteByte(ea, val) { /*nec_ICount-=((ea)&1)?1:0*/; mem_writemem20((ea),val); }
+#define WriteWord(ea, val) { /*nec_ICount-=((ea)&1)?1:0*/; mem_writemem20((ea),(uint8_t)(val)); mem_writemem20(((ea)+1),(val)>>8); }
 
-#define read_port(port) cpu_readport(port)
-#define write_port(port, val) cpu_writeport(port,val)
+#define read_port(port) io_readport(port)
+#define write_port(port, val) io_writeport(port,val)
 
-#define FETCH (cpu_readop_arg((I.sregs[CS]<<4)+I.ip++))
-#define FETCHOP (cpu_readop((I.sregs[CS]<<4)+I.ip++))
-#define FETCHWORD(var) { var=cpu_readop_arg((((I.sregs[CS]<<4)+I.ip)))+(cpu_readop_arg((((I.sregs[CS]<<4)+I.ip+1)))<<8); I.ip+=2; }
+#define FETCH (mem_readop_arg((I.sregs[CS]<<4)+I.ip++))
+#define FETCHOP (mem_readop((I.sregs[CS]<<4)+I.ip++))
+#define FETCHWORD(var) { var=mem_readop_arg((((I.sregs[CS]<<4)+I.ip)))+(mem_readop_arg((((I.sregs[CS]<<4)+I.ip+1)))<<8); I.ip+=2; }
 #define PUSH(val) { I.regs.w[SP]-=2; WriteWord((((I.sregs[SS]<<4)+I.regs.w[SP])),val); }
 #define POP(var) { var = ReadWord((((I.sregs[SS]<<4)+I.regs.w[SP]))); I.regs.w[SP]+=2; }
-#define PEEK(addr) ((uint8_t)cpu_readop_arg(addr))
-#define PEEKOP(addr) ((uint8_t)cpu_readop(addr))
+#define PEEK(addr) ((uint8_t)mem_readop_arg(addr))
+#define PEEKOP(addr) ((uint8_t)mem_readop(addr))
 
-#define GetModRM uint32_t ModRM=cpu_readop_arg((I.sregs[CS]<<4)+I.ip++)
+#define GetModRM uint32_t ModRM=mem_readop_arg((I.sregs[CS]<<4)+I.ip++)
 
 /* Cycle count macros:
 	CLK  - cycle count is the same on all processors

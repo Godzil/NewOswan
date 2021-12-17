@@ -33,10 +33,13 @@ extern uint8_t ws_key_y3;
 extern uint8_t ws_key_button_a;
 extern uint8_t ws_key_button_b;
 
-void ws_io_init(void);
-void ws_io_reset(void);
-void ws_io_flipControls(void);
-void ws_io_done(void);
+void io_init(void);
+void io_reset(void);
+void io_flipControls(void);
+void io_done(void);
+
+uint8_t io_readport(uint8_t port);
+void io_writeport(uint32_t port, uint8_t value);
 
 #endif
 

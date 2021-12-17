@@ -439,24 +439,25 @@ void ws_emulate(void)
 
     dNormalLast = getTicks();
 
+#define HCLK (1000. / 12000.)
+
     while (1)
     {
 
         dTemp = getTicks();
         dTime = dTemp - dNormalLast;
 
-
-        nCount = (int32_t)(dTime * 0.07547); // does this calculation make sense?
+        nCount = (int32_t)(dTime * HCLK); // does this calculation make sense?
 
         if (nCount <= 0)
         {
-            /* Sleep for 2ms */
-            usleep(2000);
+            /* Sleep for 500us */
+            usleep(500);
         } // No need to do anything for a bit
         else
         {
 
-            dNormalLast += nCount * (1 / 0.07547);
+            dNormalLast += nCount * (1 / HCLK);
 
             if (nCount > 10)
             {
@@ -475,7 +476,7 @@ void ws_emulate(void)
                 }
             }
 
-
+            /* What is this mess? Frameskip? */
             for (i = 0 ; i < nCount - 1 ; i++)
             {
                 while (!ws_executeLine(backBuffer, 0))

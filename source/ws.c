@@ -133,13 +133,13 @@ int ws_init(char *rompath)
     ws_memory_init(rom, romSize);
     ws_patchRom();
 
-    ws_io_init();
+    io_init();
     ws_audio_init();
     ws_gpu_init();
 
     if (ws_rotated())
     {
-        ws_io_flipControls();
+        io_flipControls();
     }
 
     return (1);
@@ -159,7 +159,7 @@ int ws_init(char *rompath)
 void ws_reset(void)
 {
     ws_memory_reset();
-    ws_io_reset();
+    io_reset();
     ws_audio_reset();
     ws_gpu_reset();
     nec_reset(NULL);
@@ -288,7 +288,7 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
 void ws_done(void)
 {
     ws_memory_done();
-    ws_io_done();
+    io_done();
     ws_audio_done();
     ws_gpu_done();
 }

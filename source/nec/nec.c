@@ -40,6 +40,9 @@
 
 #include <log.h>
 
+#include "memory.h"
+#include "io.h"
+
 #include "nec.h"
 #include "necintrf.h"
 #include "nec_debugger.h"
@@ -4222,11 +4225,11 @@ int nec_execute(int cycles)
     while (nec_ICount > 0)
     {
 #if 0
-        if ((I.sregs[CS] == 0x0600) /* && (I.ip > 0x0050) */)
+        if ((I.sregs[CS] == 0xF000) && (I.ip >= 0x0000) )
         {
             int tmp;
             char buffer[256];
-            uint8_t op = cpu_readmem20((I.sregs[CS] << 4) + I.ip);
+            uint8_t op = mem_readmem20((I.sregs[CS] << 4) + I.ip);
             //Log(TLOG_NORMAL, "NEC v30", "[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip, op, instructionsName[op], I.IF);
             printf("AX: %04X, BX: %04X, CX: %04X, DX: %04X, SI: %04X, DI: %04X, SP: %04X\n",
                    I.regs.w[AW],  I.regs.w[BW],  I.regs.w[CW],  I.regs.w[DW],

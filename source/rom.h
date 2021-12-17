@@ -33,7 +33,11 @@
 #define WS_EEPROM_SIZE_NONE 0
 #define WS_EEPROM_SIZE_1k 0x10
 #define WS_EEPROM_SIZE_16k 0x20
+#define WS_EEPROM_SIZE_32k 0x30
+/* 40 is not valid */
 #define WS_EEPROM_SIZE_8k 0x50
+#define WS_EEPROM_SIZE_4k 0x60
+#define WS_EEPROM_SIZE_2k 0x70
 
 #define WS_SRAM_SIZE_NONE 0
 #define WS_SRAM_SIZE_64k 0x01
@@ -45,15 +49,16 @@
 #pragma pack(1)
 typedef struct ws_romHeaderStruct
 {
-    uint8_t developperId;
-    uint8_t minimumSupportSystem;
-    uint8_t cartId;
-    uint8_t gameVertion;
-    uint8_t romSize;
-    uint8_t saveSize;
-    uint8_t cartFlags;
-    uint8_t realtimeClock;
-    uint16_t checksum;
+    /* Miss "Fixed Data" (F5h) */
+    uint8_t developperId;           /* Maker Code L */  
+    uint8_t minimumSupportSystem;   /* Maker Code H */
+    uint8_t cartId;                 /* Title code */
+    uint8_t gameVertion;            /* Version */
+    uint8_t romSize;                /* ROM Size */
+    uint8_t saveSize;               /* XROM/XEROM Size */
+    uint8_t cartFlags;              /* Boot loader */
+    uint8_t realtimeClock;          /* Syb System LSI */
+    uint16_t checksum;              /* Checksum */
 } ws_romHeaderStruct;
 #pragma pack()
 

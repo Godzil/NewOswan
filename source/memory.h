@@ -59,6 +59,11 @@ uint8_t *getRom(uint32_t *size);
 uint8_t *getSram(uint32_t *size);
 #endif
 
+#define mem_readop mem_readmem20
+#define mem_readop_arg mem_readmem20
+void mem_writemem20(uint32_t addr, uint8_t value);
+uint8_t mem_readmem20(uint32_t addr);
+
 #define BW_IEEPROM_SIZE (128)
 #define COLOR_IEEPROM_SIZE (2048)
 

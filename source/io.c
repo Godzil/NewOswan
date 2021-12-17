@@ -102,7 +102,7 @@ FILE *ioLogFp = NULL;
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_io_reset(void)
+void io_reset(void)
 {
     ws_key_start = 0;
     ws_key_x4 = 0;
@@ -146,14 +146,14 @@ void ws_io_reset(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_io_init(void)
+void io_init(void)
 {
     if (ws_ioRam == NULL)
     {
         ws_ioRam = (uint8_t *)malloc(0x100);
     }
 
-    ws_io_reset();
+    io_reset();
     ws_key_flipped = 0;
 
 #ifdef IO_DUMP
@@ -172,7 +172,7 @@ void ws_io_init(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_io_flipControls(void)
+void io_flipControls(void)
 {
     ws_key_flipped = !ws_key_flipped;
 }
@@ -188,7 +188,7 @@ void ws_io_flipControls(void)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void ws_io_done(void)
+void io_done(void)
 {
     if (ws_ioRam == NULL)
     {
@@ -259,7 +259,7 @@ void set_baudrate(int speed)
     tcsetattr(serialfd, TCSANOW, &options);
 
     /* Make sure read is not blocking */
-    fcntl(serialfd, F_SETFL, FNDELAY);
+        fcntl(serialfd, F_SETFL, FNDELAY);
 }
 
 void close_serial()
@@ -351,7 +351,7 @@ void write_serial(unsigned char value)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint8_t cpu_readport(uint8_t port)
+uint8_t io_readport(uint8_t port)
 {
     int w1, w2;
     uint8_t retVal = 0;
@@ -619,9 +619,28 @@ uint8_t cpu_readport(uint8_t port)
 
 
 exit:
+
+    if (port < 0xC0)
+    {
+        switch(port)
+        {
+        case 0x02:
+        case 0x84:
+        case 0x85:
+        case 0x90:
+        case 0x91:
+        case 0xB5:
+            break;
+
+        default:
+            Log(TLOG_DEBUG, "io", "ReadIO %02X <= %02X", port, retVal);
+            break;
+        }
+    }
+
     if (ioLogFp)
     {
-        fprintf(ioLogFp, "%ld, R, %02X, %02X\n", nec_monotonicCycles, port, retVal);
+        fprintf(ioLogFp, "%llu, R, %02X, %02X\n", nec_monotonicCycles, port, retVal);
     }
     return retVal;
 }
@@ -637,13 +656,13 @@ exit:
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void cpu_writeport(uint32_t port, uint8_t value)
+void io_writeport(uint32_t port, uint8_t value)
 {
     int unknown_io_port = 0;
 
     if (ioLogFp)
     {
-        fprintf(ioLogFp, "%ld, W, %02X, %02X\n", nec_monotonicCycles, port, value);
+        fprintf(ioLogFp, "%llu, W, %02X, %02X\n", nec_monotonicCycles, port, value);
     }
 
     if (port > 0x100)
@@ -793,7 +812,7 @@ void cpu_writeport(uint32_t port, uint8_t value)
 
             for (int ix = 0 ; ix < dma_size ; ix++)
             {
-                cpu_writemem20(dma_end++, cpu_readmem20(dma_start++));
+                mem_writemem20(dma_end++, mem_readmem20(dma_start++));
             }
 
             ws_ioRam[0x47] = 0;

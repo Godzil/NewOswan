@@ -7,7 +7,7 @@
  ******************************************************************************/
 
 ////////////////////////////////////////////////////////////////////////////////
-// Notes: need to optimize cpu_writemem20
+// Notes: need to optimize mem_writemem20
 //
 //
 //
@@ -136,7 +136,7 @@ void dump_memory()
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-void cpu_writemem20(uint32_t addr, uint8_t value)
+void mem_writemem20(uint32_t addr, uint8_t value)
 {
     uint32_t offset = addr & 0xffff;
     uint32_t bank = addr >> 16;
@@ -167,7 +167,7 @@ void cpu_writemem20(uint32_t addr, uint8_t value)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-uint8_t cpu_readmem20(uint32_t addr)
+uint8_t mem_readmem20(uint32_t addr)
 {
     uint32_t offset = addr & 0xffff;
     uint32_t bank = addr >> 16;
@@ -260,7 +260,7 @@ uint8_t cpu_readmem20(uint32_t addr)
 uint8_t *pagedMemory[0x100];
 
 /* Memory address is 20bit and split in 8 (page) - 12 (offset) */
-void cpu_writemem20(uint32_t addr, uint8_t value)
+void mem_writemem20(uint32_t addr, uint8_t value)
 {
     uint8_t page = addr >> 12;
     uint16_t offset = addr & 0xFFF;
@@ -274,7 +274,7 @@ void cpu_writemem20(uint32_t addr, uint8_t value)
     }
 }
 
-uint8_t cpu_readmem20(uint32_t addr)
+uint8_t mem_readmem20(uint32_t addr)
 {
     uint8_t page = addr >> 12;
     uint16_t offset = addr & 0xFFF;
