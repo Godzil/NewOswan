@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#define ALLOW_COLORS
+//#define ALLOW_COLORS
 
 #ifdef ALLOW_COLORS
 #define __C(c) "\x1B[" c "m"

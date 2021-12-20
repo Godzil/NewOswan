@@ -11,10 +11,10 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "log.h"
-#include "nec_debugger.h"
-#include "necintrf.h"
-#include "memory.h"
+#include <log.h>
+#include <nec_debugger.h>
+#include <necintrf.h>
+#include <memory.h>
 
 /***
  * Note: the while code to decode instruction is not meant to be optimised, but to be easy to maintain.

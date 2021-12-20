@@ -27,12 +27,13 @@
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
-#include "log.h"
-#include "rom.h"
-#include "./nec/nec.h"
-#include "io.h"
-#include "gpu.h"
-#include "ws.h"
+#include <log.h>
+#include <rom.h>
+#include "nec.h"
+#include <io.h>
+#include <gpu.h>
+#include <ws.h>
+#include <memory.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -187,7 +188,6 @@ void ws_gpu_changeVideoMode(uint8_t value)
         (value & 0x80)?'Y':'N',
         (value & 0x40)?'4':'2',
         (value & 0x20)?"Packed":"Planar");
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

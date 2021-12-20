@@ -28,12 +28,12 @@
 #include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
-#include "log.h"
-#include "rom.h"
-#include "./nec/nec.h"
-#include "memory.h"
-#include "io.h"
-#include "audio.h"
+#include <log.h>
+#include <rom.h>
+#include "nec.h"
+#include <memory.h>
+#include <io.h>
+#include <audio.h>
 
 #define    SNDP    ws_ioRam[0x80]
 #define SNDV    ws_ioRam[0x88]

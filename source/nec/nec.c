@@ -40,12 +40,12 @@
 
 #include <log.h>
 
-#include "memory.h"
-#include "io.h"
+#include <memory.h>
+#include <io.h>
 
-#include "nec.h"
-#include "necintrf.h"
-#include "nec_debugger.h"
+#include <nec.h>
+#include <necintrf.h>
+#include <nec_debugger.h>
 
 /***************************************************************************/
 /* cpu state                                                               */
@@ -4225,21 +4225,21 @@ int nec_execute(int cycles)
     while (nec_ICount > 0)
     {
 #if 0
-        if ((I.sregs[CS] == 0xF000) && (I.ip >= 0x0000) )
+        if ( ws_ioRam[0xA0] & 0x01 )
         {
             int tmp;
             char buffer[256];
             uint8_t op = mem_readmem20((I.sregs[CS] << 4) + I.ip);
             //Log(TLOG_NORMAL, "NEC v30", "[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip, op, instructionsName[op], I.IF);
-            printf("AX: %04X, BX: %04X, CX: %04X, DX: %04X, SI: %04X, DI: %04X, SP: %04X\n",
+            fprintf(stderr, "AX: %04X, BX: %04X, CX: %04X, DX: %04X, SI: %04X, DI: %04X, SP: %04X\n",
                    I.regs.w[AW],  I.regs.w[BW],  I.regs.w[CW],  I.regs.w[DW],
                    I.regs.w[IX],  I.regs.w[IY],  I.regs.w[SP]);
-            printf("CS: %04X, DS: %04X, SS: %04X, ES: %04X\n",
+            fprintf(stderr, "CS: %04X, DS: %04X, SS: %04X, ES: %04X\n",
                    I.sregs[CS], I.sregs[DS], I.sregs[SS], I.sregs[ES]);
             memset(buffer, 0, 256);
             nec_decode_instruction(I.sregs[CS], I.ip, buffer, 255);
-            printf("[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip, op, buffer, I.IF);
-            tmp = getchar();
+            fprintf(stderr, "[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip, op, buffer, I.IF);
+            //tmp = getchar();
         }
 #endif
         nec_instruction[FETCHOP]();

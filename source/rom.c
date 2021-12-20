@@ -24,8 +24,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "log.h"
-#include "rom.h"
+#include <log.h>
+#include <rom.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -38,15 +38,15 @@
 #endif
 #endif /* PRETENT_DISPLAY */
 
-#include "log.h"
-#include "io.h"
-#include "ws.h"
-#include "rom.h"
-#include "./nec/nec.h"
-#include "./nec/necintrf.h"
-#include "gpu.h"
-#include "audio.h"
-#include "memory.h"
+#include <log.h>
+#include <io.h>
+#include <ws.h>
+#include <rom.h>
+#include "nec.h"
+#include "necintrf.h"
+#include <gpu.h>
+#include <audio.h>
+#include <memory.h>
 
 char app_window_title[256];
 int app_terminate = 0;
@@ -479,7 +479,7 @@ void ws_emulate(void)
             /* What is this mess? Frameskip? */
             for (i = 0 ; i < nCount - 1 ; i++)
             {
-                while (!ws_executeLine(backBuffer, 0))
+                while (!ws_executeLine(backBuffer, 1))
                 {
                 }
             }

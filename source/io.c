@@ -18,59 +18,34 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <fcntl.h>
 #include <time.h>
-#include <unistd.h>  /* UNIX standard function definitions */
-#include <errno.h>   /* Error number definitions */
-#include <termios.h> /* POSIX terminal control definitions */
-#include <sys/mman.h>
-
-#include "log.h"
-#include "rom.h"
-#include "./nec/nec.h"
-#include "./nec/necintrf.h"
-#include "gpu.h"
-#include "audio.h"
-#include "memory.h"
-#include "ws.h"
 #include <stdbool.h>
+
+#include <log.h>
+#include <rom.h>
+#include <nec.h>
+#include <necintrf.h>
+#include <gpu.h>
+#include <audio.h>
+#include <memory.h>
+#include <ws.h>
+#include <io.h>
 
 //#define IO_DUMP
 //define EEPROM_DEBUG
 
-extern uint8_t *externalEeprom;
+typedef struct ioregistry_t
+{
+    io_read read;       /***< Read function for a specific IO port */
+    io_write write;     /***< Write function for a specific IO port */
+    void *private;      /***< Private data for the peripheral if needed. */
+} ioregistry_t;
+ioregistry_t io_registry[0x100];
+
 extern uint32_t romAddressMask;
-extern uint16_t *internalEeprom;
 extern nec_Regs I;
 extern uint64_t nec_monotonicCycles;
 extern uint32_t sramSize;
-
-enum
-{
-    EEPROM_SUBCOMMAND = 0,  /* 00 00 */
-    EEPROM_WRITE,           /* 01 xx */
-    EEPROM_READ,            /* 10 xx */
-    EEPROM_ERASE,           /* 11 xx */
-    EEPROM_WRITEDISABLE,    /* 00 00 */
-    EEPROM_WRITEALL,        /* 00 01 */
-    EEPROM_ERASEALL,        /* 00 10 */
-    EEPROM_WRITEENABLE      /* 00 11 */
-};
-
-char *eii_CommandName[] = {
-    "SUB", "WRI", "RED", "ERA", "WRD", "WRA", "ERL", "WRE",
-};
-
-uint8_t iee_WriteEnable = false;
-uint16_t iee_SelAddress = 0;
-uint16_t iee_Databuffer = 0;
-uint8_t iee_Mode = EEPROM_READ;
-
-uint8_t cee_WriteEnable = true;
-uint16_t cee_SelAddress = 0;
-uint16_t cee_Databuffer = 0;
-uint8_t cee_Mode = EEPROM_READ;
-
 
 uint8_t *ws_ioRam = NULL;
 
@@ -86,8 +61,6 @@ uint8_t ws_key_y3;
 uint8_t ws_key_button_a;
 uint8_t ws_key_button_b;
 uint8_t ws_key_flipped;
-
-int rtcDataRegisterReadCount = 0;
 
 FILE *ioLogFp = NULL;
 
@@ -131,8 +104,6 @@ void io_reset(void)
     ws_ioRam[0xC1] = 0xFF;
     ws_ioRam[0xC2] = 0xFF;
     ws_ioRam[0xC3] = 0xFF;
-
-    rtcDataRegisterReadCount = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -200,146 +171,6 @@ void io_done(void)
 #endif
 }
 
-/* Serial port */
-#define BDR_9600 (0)
-#define BDR_38400 (1)
-#define SERIAL_PORT "/dev/tty.USA19H141P1.1"
-int serialfd = -1;
-int serial_have_data = 0;
-unsigned char serial_data = 0;
-int serial_speed = BDR_9600;
-
-void open_serial()
-{
-    if (serialfd < 0)
-    {
-        serialfd = open(SERIAL_PORT, O_RDWR | O_NOCTTY | O_NDELAY);
-
-        //set_baudrate(serial_speed);
-        serial_have_data = 0;
-    }
-}
-
-void set_baudrate(int speed)
-{
-    struct termios options;
-
-    if (serialfd < 0)
-    {
-        return;
-    }
-
-    tcgetattr(serialfd, &options);
-
-    options.c_cflag &= ~PARENB;
-    options.c_cflag &= ~CSTOPB;
-    options.c_cflag &= ~CSIZE;
-    options.c_cflag |= CS8;
-
-    if (speed == BDR_9600)
-    {
-        cfsetispeed(&options, B9600);
-    }
-    else
-    {
-        cfsetospeed(&options, B38400);
-    }
-
-#if 0
-    options.c_cflag &= ~CNEW_RTSCTS;
-#else
-    options.c_cflag &= ~CRTSCTS;
-#endif
-    options.c_cflag |= (CLOCAL | CREAD);
-
-    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-
-    options.c_oflag &= ~OPOST;
-
-    tcsetattr(serialfd, TCSANOW, &options);
-
-    /* Make sure read is not blocking */
-        fcntl(serialfd, F_SETFL, FNDELAY);
-}
-
-void close_serial()
-{
-    close(serialfd);
-    serialfd = -1;
-}
-
-void check_serial_data()
-{
-    unsigned char buf[10];
-    int f;
-
-    if (serialfd < 0)
-    {
-        return;
-    }
-
-    if (serial_have_data == 0)
-    {
-        f = read(serialfd, buf, 1);
-
-        if (f > 0)
-        {
-            Log(TLOG_DEBUG, "serial", "Have data from serial [%d]!", f);
-            fflush(stdout);
-            serial_have_data = 0x01;
-            serial_data = buf[0];
-        }
-    }
-
-    if (serial_have_data > 0)
-    {
-        /* Gen an int if enabled */
-        if (ws_ioRam[0xB2] & 0x04)
-        {
-            ws_ioRam[0xb6] &= ~0x04;
-            Log(TLOG_DEBUG, "serial", "SERIAL INNNNNTTTT!!!!!!!");
-            nec_int((ws_ioRam[0xb0] + 3) * 4);
-        }
-    }
-}
-
-unsigned char read_serial()
-{
-    unsigned char buf[10];
-    int f;
-
-    if (serialfd < 0)
-    {
-        return 0xFF;
-    }
-
-    if (serial_have_data > 0)
-    {
-        serial_have_data = 0;
-        return serial_data;
-    }
-
-    f = read(serialfd, buf, 1);
-
-    if (f == 1)
-    {
-        return buf[0];
-    }
-
-    return 0x42;
-}
-
-void write_serial(unsigned char value)
-{
-    if (serialfd < 0)
-    {
-        return;
-    }
-
-    write(serialfd, &value, 1);
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,21 +182,45 @@ void write_serial(unsigned char value)
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
+uint8_t io_readport_new(uint8_t port)
+{
+    if (io_registry[port].read)
+    {
+        return io_registry[port].read(io_registry[port].private, port);
+    }
+    return 0x90;
+}
+
+void io_writeport_new(uint8_t port, uint8_t value)
+{
+    if (io_registry[port].write)
+    {
+        return io_registry[port].write(io_registry[port].private, port, value);
+    }
+}
+
+void register_io_hook(uint8_t port, io_read *readHook, io_write writeHook, void *pdata)
+{
+    io_registry[port].read = readHook;
+    io_registry[port].write = writeHook;
+    io_registry[port].private = pdata;
+}
+
+void register_io_hook_array(uint8_t *portList, uint8_t listLen, io_read *readHook, io_write writeHook, void *pdata)
+{
+    uint16_t i;
+    for(i = 0; i < listLen; i++)
+    {
+        io_registry[portList[i]].read = readHook;
+        io_registry[portList[i]].write = writeHook;
+        io_registry[portList[i]].private = pdata;
+    }
+}
+
 uint8_t io_readport(uint8_t port)
 {
     int w1, w2;
     uint8_t retVal = 0;
-
-    /*
-       if (port > 0x100)
-       {
-          port &= 0xFF;
-          if (port > 0x100)
-          {
-             return 0x00;
-          }
-       }
-    */
 
     switch (port)
     {
@@ -425,25 +280,7 @@ uint8_t io_readport(uint8_t port)
 
         break;
 
-    case 0xbe:  // internal eeprom status/command register
 
-        // ack eeprom write
-        if (ws_ioRam[0xbe] & 0x20)
-        {
-            retVal = ws_ioRam[0xbe] | 2;
-            break;
-        }
-
-        // ack eeprom read
-        if (ws_ioRam[0xbe] & 0x10)
-        {
-            retVal = ws_ioRam[0xbe] | 1;
-            break;
-        }
-
-        // else ack both
-        retVal = ws_ioRam[0xbe] | 3;
-        break;
 
     case 0x62:
         switch (ws_get_system())
@@ -460,132 +297,15 @@ uint8_t io_readport(uint8_t port)
         }
         break;
 
-    case 0xba:  // eeprom even byte read
-        retVal = iee_Databuffer & 0x00FF;
-        break;
 
-    case 0xbb:  // eeprom odd byte read
-        retVal = (iee_Databuffer & 0xFF00) >> 8;
-        break;
 
     case 0xc0 : // ???
         retVal = ((ws_ioRam[0xc0] & 0xf) | 0x20);
         goto exit;
 
 
-    case 0xC8:
-        // ack eeprom write
-        if (ws_ioRam[0xbe] & 0x20)
-        {
-            retVal = ws_ioRam[0xbe] | 2;
-            break;
-        }
-
-        // ack eeprom read
-        if (ws_ioRam[0xbe] & 0x10)
-        {
-            retVal = ws_ioRam[0xbe] | 1;
-            break;
-        }
-
-        // else ack both
-        retVal = ws_ioRam[0xbe] | 3;
-        break;
-
-    case 0xC4:  // eeprom even byte read
-        return cee_Databuffer & 0x00FF;
-
-    case 0xC5:  // eeprom odd byte read
-        return (cee_Databuffer & 0xFF00) >> 8;
-
-    case 0xca : // RTC Command and status register
-        // set ack to always 1
-        retVal = (ws_ioRam[0xca] | 0x80);
-        goto exit;
-
-    case 0xcb : // RTC data register
-
-        if (ws_ioRam[0xca] == 0x15)   // get time command
-        {
-            struct tm *newtime;
-            time_t long_time;
-            time(&long_time);
-            newtime = localtime(&long_time);
-
-#define  BCD(value) ((value/10)<<4)|(value%10)
-
-            switch (rtcDataRegisterReadCount)
-            {
-            case 0:
-                rtcDataRegisterReadCount++;
-                retVal = BCD(newtime->tm_year - 100);
-                goto exit;
-
-            case 1:
-                rtcDataRegisterReadCount++;
-                retVal = BCD(newtime->tm_mon);
-                goto exit;
-
-            case 2:
-                rtcDataRegisterReadCount++;
-                retVal = BCD(newtime->tm_mday);
-                goto exit;
-
-            case 3:
-                rtcDataRegisterReadCount++;
-                retVal = BCD(newtime->tm_wday);
-                goto exit;
-
-            case 4:
-                rtcDataRegisterReadCount++;
-                retVal = BCD(newtime->tm_hour);
-                goto exit;
-
-            case 5:
-                rtcDataRegisterReadCount++;
-                retVal = BCD(newtime->tm_min);
-                goto exit;
-
-            case 6:
-                rtcDataRegisterReadCount = 0;
-                retVal = BCD(newtime->tm_sec);
-                goto exit;
-            }
-
-            return 0;
-        }
-        else
-        {
-            // set ack
-            retVal = (ws_ioRam[0xcb] | 0x80);
-            goto exit;
-        }
-
     case 0xD0:
         retVal = 0;
-        goto exit;
-
-        /* Serial port link.. */
-    case 0xB1:
-        retVal = read_serial();
-        Log(TLOG_DEBUG, "serial", "Read %02X", retVal);
-        goto exit;
-
-    case 0xB3:
-        check_serial_data();
-
-        if (ws_ioRam[0xB3] & 0x80)
-        {
-            retVal = (ws_ioRam[0xB3] & ~1) | serial_have_data | 0x04;
-        }
-        else
-        {
-            retVal = 0x00;
-        }
-
-        Log(TLOG_DEBUG, "serial", "<<<<RS232STA: %02X [%c%c%cxx%c%c%c]", retVal, (retVal & 0x80) ? 'E' : 'd',
-               (retVal & 0x40) ? '3' : '9', (retVal & 0x20) ? 'R' : 'n', (retVal & 0x04) ? 'E' : 'f',
-               (retVal & 0x02) ? 'V' : 'n', (retVal & 0x01) ? 'D' : 'e');
         goto exit;
 
     case 0xCC:
@@ -597,7 +317,7 @@ uint8_t io_readport(uint8_t port)
         retVal = ws_ioRam[port];
         if (port > 0xD0)
         {
-            Log(TLOG_DEBUG, "io", "ReadIO %02X <= %02X", port, retVal);
+            Log(TLOG_DEBUG, "io", "ReadIO(%02X) <= %02X [%04X:%04Xh];", port, retVal, I.sregs[CS], I.ip);
         }
         break;
 
@@ -611,10 +331,14 @@ uint8_t io_readport(uint8_t port)
 
     }
 
+    if (port == 0xA0)
+    {
+        Log(TLOG_ALWAYS, "A0", "Hello I'm A0 and read %02X!!!", retVal);
+    }
 
     if (port >= 0xC4)
     {
-        Log(TLOG_DEBUG, "io", "ReadMBCIO(%02X) <= %02X", port, retVal);
+        Log(TLOG_DEBUG, "io", "ReadMBCIO(%02X) <= %02X [%04X:%04Xh];", port, retVal, I.sregs[CS], I.ip);
     }
 
 
@@ -633,7 +357,7 @@ exit:
             break;
 
         default:
-            Log(TLOG_DEBUG, "io", "ReadIO %02X <= %02X", port, retVal);
+            Log(TLOG_DEBUG, "io", "ReadIO(%02X) <= %02X [%04X:%04Xh];", port, retVal, I.sregs[CS], I.ip);
             break;
         }
     }
@@ -804,23 +528,30 @@ void io_writeport(uint32_t port, uint8_t value)
         // bit 7 set to start dma transfer
         if (value & 0x80)
         {
-            int dma_start = (((uint32_t)ws_ioRam[0x41]) << 8) | (((uint32_t)ws_ioRam[0x40])) |
-                            (((uint32_t)ws_ioRam[0x42]) << 16);
-            int dma_end = (((uint32_t)ws_ioRam[0x45]) << 8) | (((uint32_t)ws_ioRam[0x44])) |
-                          (((uint32_t)ws_ioRam[0x43]) << 16);
-            int dma_size = (((uint32_t)ws_ioRam[0x47]) << 8) | (((uint32_t)ws_ioRam[0x46]));
+            uint32_t dma_start = (ws_ioRam[0x41] << 8) | (ws_ioRam[0x40]) | (ws_ioRam[0x42] << 16);
+            uint32_t dma_dest = (ws_ioRam[0x45] << 8) | (ws_ioRam[0x44]) | (ws_ioRam[0x43] << 16);
+            uint32_t dma_size = (ws_ioRam[0x47] << 8) | (ws_ioRam[0x46]);
 
-            for (int ix = 0 ; ix < dma_size ; ix++)
+            uint8_t dma_inc = (value & 0x01) ? -1: 1;
+
+            Log(TLOG_VERBOSE, "DMA", "Starting DMA from %08X to %08X (len: %08X, inc: %d)",
+                dma_start, dma_dest, dma_size, dma_inc);
+
+
+
+            for (uint32_t ix = 0 ; ix < dma_size ; ix++)
             {
-                mem_writemem20(dma_end++, mem_readmem20(dma_start++));
+                mem_writemem20(dma_dest, mem_readmem20(dma_start));
+                dma_start += dma_inc;
+                dma_dest += dma_inc;
             }
 
             ws_ioRam[0x47] = 0;
             ws_ioRam[0x46] = 0;
             ws_ioRam[0x41] = (uint8_t)(dma_start >> 8);
             ws_ioRam[0x40] = (uint8_t)(dma_start & 0xff);
-            ws_ioRam[0x45] = (uint8_t)(dma_end >> 8);
-            ws_ioRam[0x44] = (uint8_t)(dma_end & 0xff);
+            ws_ioRam[0x45] = (uint8_t)(dma_dest >> 8);
+            ws_ioRam[0x44] = (uint8_t)(dma_dest & 0xff);
             ws_ioRam[0x48] = 0;
         }
 
@@ -842,6 +573,19 @@ void io_writeport(uint32_t port, uint8_t value)
 
         /* GPU (again) */
     case 0x60:
+#ifdef USE_PAGED_MEMORY_ACCESS
+        if (ws_get_system() != WS_SYSTEM_MONO)
+        {
+            if (value & 0x80)
+            {
+                set_iram_access(IRAM_FULL_ACCESS);
+            }
+            else
+            {
+                set_iram_access(IRAM_LIMITED_ACCESS);
+            }
+        }
+#endif
         break;
 
         /* System */
@@ -890,16 +634,17 @@ void io_writeport(uint32_t port, uint8_t value)
         /* Force cart handshake to be set */
         ws_ioRam[port] |= 0x80;
 
-#ifdef USE_PAGED_MEMORY_ACCESS
         if (value & 0x01)
         {
             Log(TLOG_WARNING, "A0", "Oh yeah %02X BABY", value);
+#ifdef USE_PAGED_MEMORY_ACCESS
             uint32_t romSize;
             uint8_t *rom = getRom(&romSize);
             set_memory_bank(0xF, ws_get_page_ptr(rom, romSize, (ws_ioRam[0xC0] & 0x0F << 4) + 0x0F));
+#endif
         }
         break;
-#endif
+
         /* Timers */
     case 0xA2:
     case 0xA4:
@@ -920,168 +665,9 @@ void io_writeport(uint32_t port, uint8_t value)
     case 0xB6:
         break;
 
-        /* Serial */
-    case 0xB1:
-        write_serial(value);
-        break;
-
-    case 0xB3:
-        Log(TLOG_DEBUG, "serial", ">>>>RS232STA: %02X [%c%c%cxx%c%c%c]", value, (value & 0x80) ? 'E' : 'd', (value & 0x40) ? '3' : '9',
-               (value & 0x20) ? 'R' : 'n', (value & 0x04) ? 'E' : 'f', (value & 0x02) ? 'V' : 'n',
-               (value & 0x01) ? 'D' : 'e');
-
-        /* Serial status: 7 = Enable, 6 = baudrate, 5 = Overrun reset
-           2 = Send Buffer empty
-           1 = Overrun
-           0 = Data Received
-         */
-        serial_speed = ((value & 040) == 0x00) ? BDR_9600 : BDR_38400;
-
-        if ((value & 0x80) == 0x80)
-        {
-            open_serial();
-            set_baudrate(serial_speed);
-            check_serial_data();
-        }
-
-        break;
-
         /* buttons */
     case 0xB5:
         break;
-
-        /* Internal EEPROM */
-    case 0xba: /* DATA Low */
-        iee_Databuffer = iee_Databuffer & 0xFF00;
-        iee_Databuffer = iee_Databuffer | (value);
-        break;
-
-    case 0xbb: /* Data High */
-        iee_Databuffer = iee_Databuffer & 0x00FF;
-        iee_Databuffer = iee_Databuffer | (value << 8);
-        break;
-
-    case 0xBC: /* Address Low */
-    case 0xBD: /* Address High */
-        break;
-
-    case 0xBE: /* Command / Status */
-    {
-        uint16_t address, command, subcmd;
-
-        iee_SelAddress = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
-
-        if (ws_gpu_operatingInColor)
-        {
-            /* 
-            13 00
-               S CCaa AAAA AAAA
-            0001 0011 0000 0000
-
-            */
-            /* S CC aaAAAAAAAA */
-            command = (iee_SelAddress >> 10) & 0x3;
-            address = iee_SelAddress & 0x3FF;
-            subcmd = (iee_SelAddress >> 8) & 0x03;
-        }
-        else
-        {
-            /* S CC aaAAAA */
-            command = (iee_SelAddress >> 6) & 0x3;
-            address = iee_SelAddress & 0x3F;
-            subcmd = (iee_SelAddress >> 4) & 0x03;
-        }
-
-
-        if (command == EEPROM_SUBCOMMAND)
-        {
-            command = EEPROM_WRITEDISABLE + subcmd;
-        }
-#ifdef EEPROM_DEBUG
-        printf("IEEP: RA:%04X RD:%04X A:%03X C:%s", iee_SelAddress, iee_Databuffer, address, eii_CommandName[command]);
-#endif
-        if (value & 0x40)
-        {
-            /* Sub command */
-#ifdef EEPROM_DEBUG
-            printf(" - Sub");
-#endif
-            if (command == EEPROM_WRITEENABLE)
-            {
-#ifdef EEPROM_DEBUG
-                printf(" Write Enable\n");
-#endif
-                iee_WriteEnable = true;
-            }
-            else if (command == EEPROM_WRITEDISABLE)
-            {
-#ifdef EEPROM_DEBUG
-                printf(" Write Disable\n");
-#endif
-                iee_WriteEnable = false;
-            }
-            else if (command == EEPROM_ERASEALL)
-            {
-#ifdef EEPROM_DEBUG
-                printf(" Erase All\n");
-#endif
-                if (ws_gpu_operatingInColor)
-                {
-                    memset(internalEeprom, 0, COLOR_IEEPROM_SIZE);
-                }
-                else
-                {
-                    memset(internalEeprom, 0, BW_IEEPROM_SIZE);
-                }
-            }
-#ifdef EEPROM_DEBUG
-            else
-            {
-                printf(" Write All?\n");
-            }
-#endif
-        }
-        else if (value & 0x20)
-        {
-            /* Write */
-#ifdef EEPROM_DEBUG
-            printf(" - Write?");
-#endif
-            if (iee_WriteEnable)
-            {
-#ifdef EEPROM_DEBUG
-                printf(" Yes : %04X\n", iee_Databuffer);
-#endif
-                internalEeprom[address] = iee_Databuffer;
-            }
-#ifdef EEPROM_DEBUG
-            else
-            {
-                printf(" No\n");
-            }
-#endif
-        }
-        else if (value & 0x10)
-        {
-            /* Read */
-#ifdef EEPROM_DEBUG
-            printf(" - Read");
-#endif
-            iee_Databuffer = internalEeprom[address];
-#ifdef EEPROM_DEBUG
-            printf(" Data : %04X\n", iee_Databuffer);
-#endif
-        }
-#ifdef EEPROM_DEBUG
-        else
-        {
-            printf(" Unknown value: %02X\n", value);
-        }
-#endif
-        fflush(stdout);
-    }
-        break;
-
 
         /* MBC */
 #ifndef USE_PAGED_MEMORY_ACCESS
@@ -1140,116 +726,6 @@ void io_writeport(uint32_t port, uint8_t value)
 
 #endif
 
-        /* Cart EEPROM */
-    case 0xC4: /* Data High */
-        cee_Databuffer = cee_Databuffer & 0xFF00;
-        cee_Databuffer = cee_Databuffer | (value);
-        break;
-
-    case 0xC5: /* Data High */
-        cee_Databuffer = cee_Databuffer & 0x00FF;
-        cee_Databuffer = cee_Databuffer | (value << 8);
-        break;
-
-    case 0xC6: /* Address Low */
-    case 0xC7: /* Address High */
-        break;
-
-    case 0xC8: /* Command / Status */
-    {
-        uint16_t address, command, subcmd; /*, start;*/
-
-        cee_SelAddress = (ws_ioRam[0xBD] << 8) | ws_ioRam[0xBC];
-
-        /* S CC aaAAAA */
-        command = (cee_SelAddress >> 6) & 0x3;
-        address = cee_SelAddress & 0x3F;
-        subcmd = (cee_SelAddress >> 4) & 0x03;
-
-
-        if (command == EEPROM_SUBCOMMAND)
-        {
-            command = EEPROM_WRITEDISABLE + subcmd;
-        }
-
-        printf("CEEP: RA:%04X RD:%04X A:%03X C:%s", cee_SelAddress, cee_Databuffer, address, eii_CommandName[command]);
-
-        if (value & 0x40)
-        {
-            /* Sub command */
-            printf(" - Sub");
-            if (command == EEPROM_WRITEENABLE)
-            {
-                printf(" Write Enable\n");
-                cee_WriteEnable = true;
-            }
-            else if (command == EEPROM_WRITEDISABLE)
-            {
-                printf(" Write Disable\n");
-                cee_WriteEnable = false;
-            }
-            else if (command == EEPROM_ERASEALL)
-            {
-                printf(" Erase All\n");
-                /* Nothing here at the moment */
-            }
-            else
-            {
-                printf(" Write All?\n");
-            }
-        }
-        else if (value & 0x20)
-        {
-            /* Write */
-            printf(" - Write?");
-            if (cee_WriteEnable)
-            {
-                printf(" Yes : %04X\n", cee_Databuffer);
-                externalEeprom[address] = cee_Databuffer;
-            }
-            else
-            {
-                printf(" No\n");
-            }
-        }
-        else if (value & 0x10)
-        {
-            /* Read */
-            printf(" - Read");
-            cee_Databuffer = externalEeprom[address];
-            printf(" Data : %04X\n", cee_Databuffer);
-        }
-        else
-        {
-            printf(" Unknown value: %02X@", value);
-        }
-        fflush(stdout);
-    }
-        break;
-
-    case 0xca:
-        if (value == 0x15)
-        {
-            rtcDataRegisterReadCount = 0;
-        }
-
-        break;
-        break;
-
-    case 0xCB:
-        break;
-
-    case 0xF0:
-        break;
-
-    case 0xF1:
-        printf("%d\n", (signed short)((value << 8) | ws_ioRam[0xF0]));
-        break;
-
-    case 0xF2:
-        printf("%c", value);
-        fflush(stdout);
-        break;
 
     case 0xB7:
         break; /* Somwthing to write there, but what? */
@@ -1262,9 +738,28 @@ void io_writeport(uint32_t port, uint8_t value)
     {
         Log(TLOG_DEBUG, "io", "WriteIO(%02X, %02X) [%04X:%04Xh];", port, value, I.sregs[CS], I.ip);
     }
-
     if (port >= 0xC4)
     {
-        Log(TLOG_DEBUG, "io", "WriteMBCIO(%02X, %02X);", port, value);
+        Log(TLOG_DEBUG, "io", "WriteMBCIO(%02X, %02X) [%04X:%04Xh];", port, value, I.sregs[CS], I.ip);
     }
+
+
+    if (port < 0xC0)
+    {
+        switch(port)
+        {
+        case 0x05: case 0x06:
+        case 0x10: case 0x11: case 0x12: case 0x13:
+        case 0x1C: case 0x1D: case 0x1E: case 0x1F:
+        case 0xB5:
+        case 0xB6:
+            break;
+
+        default:
+            Log(TLOG_DEBUG, "io", "WriteIO(%02X, %02X) [%04X:%04Xh];", port, value, I.sregs[CS], I.ip);
+            break;
+        }
+    }
+
+
 }

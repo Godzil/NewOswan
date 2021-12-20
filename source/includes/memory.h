@@ -57,6 +57,16 @@ void set_irom_overlay();
 
 uint8_t *getRom(uint32_t *size);
 uint8_t *getSram(uint32_t *size);
+
+void mem_dump_info();
+
+typedef enum {
+    IRAM_FULL_ACCESS,
+    IRAM_LIMITED_ACCESS,
+} iram_access_t;
+
+void set_iram_access(iram_access_t mode);
+
 #endif
 
 #define mem_readop mem_readmem20

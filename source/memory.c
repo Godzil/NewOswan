@@ -28,14 +28,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "ws.h"
-#include "log.h"
-#include "rom.h"
-#include "./nec/nec.h"
-#include "io.h"
-#include "gpu.h"
-#include "audio.h"
-#include "memory.h"
+#include <ws.h>
+#include <log.h>
+#include <rom.h>
+#include "nec.h"
+#include <io.h>
+#include <gpu.h>
+#include <audio.h>
+#include <memory.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -330,6 +330,47 @@ uint8_t *getSram(uint32_t *size)
     *size = sramSize;
     return ws_staticRam;
 }
+
+void set_iram_access(iram_access_t mode)
+{
+    /* IRAM */
+    set_memory_bank(0, internalRam);
+
+    if (mode == IRAM_LIMITED_ACCESS)
+    {
+        for (int i = 0x4 ; i < 0x10 ; i++)
+        {
+            set_memory_page(i, NULL);
+        }
+    }
+}
+
+void mem_dump_info()
+{
+    if (ws_get_system() == WS_SYSTEM_MONO)
+    {
+        Log(TLOG_VERBOSE, "MEM", "System is B&W");
+        Log(TLOG_VERBOSE, "MEM", "internal ROM: %09p", internalBWIRom);
+    }
+    else if (ws_get_system() == WS_SYSTEM_COLOR)
+    {
+        Log(TLOG_VERBOSE, "MEM", "System is Color");
+        Log(TLOG_VERBOSE, "MEM", "internal ROM: %09p", internalColorIRom);
+    }
+    else if (ws_get_system() == WS_SYSTEM_CRYSTAL)
+    {
+        Log(TLOG_VERBOSE, "MEM", "System is Crystal");
+        Log(TLOG_VERBOSE, "MEM", "internal ROM: %09p", internalCrystalIRom);
+    }
+
+    Log(TLOG_VERBOSE, "MEM", "internal RAM: %p", internalRam);
+    Log(TLOG_VERBOSE, "MEM", "Cart        : %p", ws_rom);
+    for(int i = 0; i < 0x100; i += 4)
+    {
+        Log(TLOG_VERBOSE, "MEM", "Page %02X [%011p] | Page %02X [%011p] | Page %02X [%011p] | Page %02X [%011p]",
+            i, pagedMemory[i], i+1, pagedMemory[i+1], i+2, pagedMemory[i+2], i+3, pagedMemory[i+3]);
+    }
+}
 #endif
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -482,12 +523,12 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
     ws_haveColorIRom = false;
     ws_haveCrystalIRom = false;
 
-    if (internalColorIRom != NULL)
+    if (internalBWIRom != NULL)
     {
         Log(TLOG_DEBUG, "memory", "B&W IROM Found!");
         ws_haveColorIRom = true;
     }
-    if (internalBWIRom != NULL)
+    if (internalColorIRom != NULL)
     {
         Log(TLOG_DEBUG, "memory", "Color IROM Found!");
         ws_haveBWIRom = true;
@@ -507,12 +548,8 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
         pagedMemory[i] = NULL;
     }
 
-    /* IRAM */
-    set_memory_bank(0, internalRam);
-    for(int i = 0x4; i < 0x10; i++)
-    {
-        set_memory_page(i, NULL);
-    }
+    /* We start in B&W mode */
+    set_iram_access(IRAM_LIMITED_ACCESS);
 
     /* Cart SRAM */
     if (sramSize > 0)
@@ -527,6 +564,7 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
     {
         set_memory_bank(i, ws_get_page_ptr(ws_rom, romSize, 0xF0 + i));
     }
+    mem_dump_info();
 
     set_irom_overlay();
 #endif

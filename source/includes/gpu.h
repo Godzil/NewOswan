@@ -11,6 +11,12 @@
 
 #include <stdint.h>
 
+struct ws_gpu_t
+{
+    uint8_t scanline;
+    uint32_t cyclecount;
+};
+
 extern uint8_t ws_gpu_scanline;
 extern uint8_t ws_gpu_operatingInColor;
 extern uint8_t ws_videoMode;

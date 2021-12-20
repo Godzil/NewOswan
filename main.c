@@ -21,15 +21,15 @@
 #include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
-#include "source/log.h"
-#include "source/rom.h"
-#include "source/nec/nec.h"
-#include "source/memory.h"
-#include "source/gpu.h"
-#include "source/io.h"
-#include "source/ws.h"
-#include "source/emulate.h"
-#include "source/audio.h"
+#include <log.h>
+#include <rom.h>
+#include <nec.h>
+#include <memory.h>
+#include <gpu.h>
+#include <io.h>
+#include <ws.h>
+#include <emulate.h>
+#include <audio.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -182,7 +182,6 @@ int main(int argc, char *argv[])
             if (ws_init(ws_rom_path))
             {
                 ws_reset();
-
                 ws_emulate();
             }
 

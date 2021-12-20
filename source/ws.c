@@ -27,15 +27,15 @@
 #include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
-#include "log.h"
-#include "rom.h"
-#include "./nec/nec.h"
-#include "./nec/necintrf.h"
-#include "memory.h"
-#include "gpu.h"
-#include "io.h"
-#include "audio.h"
-#include "ws.h"
+#include <log.h>
+#include <rom.h>
+#include "nec.h"
+#include "necintrf.h"
+#include <memory.h>
+#include <gpu.h>
+#include <io.h>
+#include <audio.h>
+#include <ws.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
