@@ -44,7 +44,7 @@ jobs:
         submodules: true
 
     - name: Install needed dependencies
-      run: sudo apt install xorg-dev libglu1-mesa-dev
+      run: sudo apt update && sudo apt install xorg-dev libglu1-mesa-dev
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
