@@ -1,19 +1,12 @@
 /*******************************************************************************
  * NewOswan
  * io.c: I/O ports implementaton
+ *
  * Based on the original Oswan-unix
- * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
 
-//////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -47,8 +40,6 @@ extern nec_Regs I;
 extern uint64_t nec_monotonicCycles;
 extern uint32_t sramSize;
 
-uint8_t *ws_ioRam = NULL;
-
 uint8_t ws_key_start;
 uint8_t ws_key_x4;
 uint8_t ws_key_x2;
@@ -64,17 +55,6 @@ uint8_t ws_key_flipped;
 
 FILE *ioLogFp = NULL;
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void io_reset(void)
 {
     ws_key_start = 0;
@@ -88,42 +68,10 @@ void io_reset(void)
     ws_key_y3 = 0;
     ws_key_button_a = 0;
     ws_key_button_b = 0;
-    int i;
-
-    for (i = 0 ; i < 0x100 ; i++)
-    {
-        /*
-         * 0x90 should probably be a better value as for some reason
-         * the Swan seems to like to returh 0x90 for not connected memory/IO
-         * Keep 0x00 for now until the whole IO "default" value is solved.
-         */
-        ws_ioRam[i] = 0x00;
-    }
-
-    ws_ioRam[0xC0] = 0xFF;
-    ws_ioRam[0xC1] = 0xFF;
-    ws_ioRam[0xC2] = 0xFF;
-    ws_ioRam[0xC3] = 0xFF;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void io_init(void)
 {
-    if (ws_ioRam == NULL)
-    {
-        ws_ioRam = (uint8_t *)malloc(0x100);
-    }
-
     io_reset();
     ws_key_flipped = 0;
 
@@ -132,33 +80,11 @@ void io_init(void)
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void io_flipControls(void)
 {
     ws_key_flipped = !ws_key_flipped;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void io_done(void)
 {
     if (ws_ioRam == NULL)
@@ -171,42 +97,14 @@ void io_done(void)
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-uint8_t io_readport_new(uint8_t port)
-{
-    if (io_registry[port].read)
-    {
-        return io_registry[port].read(io_registry[port].private, port);
-    }
-    return 0x90;
-}
-
-void io_writeport_new(uint8_t port, uint8_t value)
-{
-    if (io_registry[port].write)
-    {
-        return io_registry[port].write(io_registry[port].private, port, value);
-    }
-}
-
-void register_io_hook(uint8_t port, io_read *readHook, io_write writeHook, void *pdata)
+void register_io_hook(uint8_t port, io_read readHook, io_write writeHook, void *pdata)
 {
     io_registry[port].read = readHook;
     io_registry[port].write = writeHook;
     io_registry[port].private = pdata;
 }
 
-void register_io_hook_array(uint8_t *portList, uint8_t listLen, io_read *readHook, io_write writeHook, void *pdata)
+void register_io_hook_array(uint8_t *portList, uint8_t listLen, io_read readHook, io_write writeHook, void *pdata)
 {
     uint16_t i;
     for(i = 0; i < listLen; i++)
@@ -219,9 +117,21 @@ void register_io_hook_array(uint8_t *portList, uint8_t listLen, io_read *readHoo
 
 uint8_t io_readport(uint8_t port)
 {
-    int w1, w2;
     uint8_t retVal = 0;
 
+    if (io_registry[port].read)
+    {
+        retVal = io_registry[port].read(io_registry[port].private, port);
+    }
+
+    if (ioLogFp)
+    {
+        fprintf(ioLogFp, "%llu, R, %02X, %02X\n", nec_monotonicCycles, port, retVal);
+    }
+
+    return retVal;
+
+#if 0
     switch (port)
     {
     case 0x4e:
@@ -361,43 +271,27 @@ exit:
             break;
         }
     }
-
     if (ioLogFp)
     {
         fprintf(ioLogFp, "%llu, R, %02X, %02X\n", nec_monotonicCycles, port, retVal);
     }
     return retVal;
+#endif
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-void io_writeport(uint32_t port, uint8_t value)
+void io_writeport(uint8_t port, uint8_t value)
 {
-    int unknown_io_port = 0;
-
     if (ioLogFp)
     {
         fprintf(ioLogFp, "%llu, W, %02X, %02X\n", nec_monotonicCycles, port, value);
     }
 
-    if (port > 0x100)
+    if (io_registry[port].write)
     {
-        port &= 0xFF;
-        if (port > 0x100)
-        {
-            return;
-        }
+        io_registry[port].write(io_registry[port].private, port, value);
     }
 
+#if 0
     if ((port == 0xA0) && (ws_ioRam[port] & 0x01) && (~value & 0x01))
     {
         value |= 0x01;
@@ -760,6 +654,5 @@ void io_writeport(uint32_t port, uint8_t value)
             break;
         }
     }
-
-
+#endif
 }

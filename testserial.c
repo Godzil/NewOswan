@@ -2,7 +2,7 @@
  * NewOswan
  * testserial.c: A simple tool to test serial in/out
  *
- * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
 

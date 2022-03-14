@@ -1,10 +1,11 @@
-/*
+/******************************************************************************
  * NewOswan
  * nec_debugger.h:
- * Created by Manoël Trapier on 14/04/2021.
- * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
- */
+ * Created by Manoël Trapier on 14/04/2021.
+ * Copyright (c) 2014-2022 986-Studio. All rights reserved.
+ *
+ ******************************************************************************/
 
 #ifndef NEWOSWAN_SOURCE_NEC_NEC_DEBUGGER_H
 #define NEWOSWAN_SOURCE_NEC_NEC_DEBUGGER_H

@@ -1,8 +1,9 @@
 /*******************************************************************************
  * NewOswan
  * audio.h:
+ *
  * Based on the original Oswan-unix
- * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
 
