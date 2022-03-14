@@ -115,7 +115,7 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
     ws_audio_process();
 
     // update scanline register
-    ws_ioRam[2] = ws_gpu_scanline;
+    //ws_ioRam[2] = ws_gpu_scanline;
 
     /* Why twice like that and random cycle count???? */
     ws_cycles = nec_execute((ws_cyclesByLine >> 1) + (rand() & 7));
@@ -152,29 +152,34 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
     {
         ws_gpu_scanline = 0;
         {
+#if 0
             if ((ws_ioRam[0xb2] & 32)) /* VBLANK Timer */
             {
                 /* TODO: REPAIR THAT SHIT */
                 ws_ioRam[0xb6] &= ~32;
                 nec_int((ws_ioRam[0xb0] + 5) * 4);
             }
+#endif
         }
     }
 
+#if 0
     ws_ioRam[2] = ws_gpu_scanline;
+#endif
 
     if (drawWholeScreen)
     {
-
+#if 0
         if (ws_ioRam[0xb2] & 64) /* VBLANK INT */
         {
             ws_ioRam[0xb6] &= ~64;
             nec_int((ws_ioRam[0xb0] + 6) * 4);
         }
-
+#endif
         vblank_count++;
     }
 
+#if 0
     if (ws_ioRam[0xa4] && (ws_ioRam[0xb2] & 128)) /*HBLANK TMR*/
     {
         /* TODO: Check that shit */
@@ -201,6 +206,7 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
         ws_ioRam[0xb6] &= ~16;
         nec_int((ws_ioRam[0xb0] + 4) * 4);
     }
+#endif
 
     return (drawWholeScreen);
 }
@@ -233,6 +239,8 @@ wssystem_t ws_get_system()
 
 int ws_loadState(char *statepath)
 {
+    // TODO: need a complete rewrite
+#if 0
     Log(TLOG_NORMAL, "ws", "loading %s\n", statepath);
     uint16_t crc = memory_getRomCrc();
     uint16_t newCrc;
@@ -287,6 +295,7 @@ int ws_loadState(char *statepath)
 
     // force a video mode change to make all tiles dirty
     ws_gpu_clearCache();
+#endif
     return (1);
 }
 
@@ -296,6 +305,8 @@ int ws_loadState(char *statepath)
 
 int ws_saveState(char *statepath)
 {
+    // TODO: need a complete rewrite
+#if 0
     uint16_t crc = memory_getRomCrc();
     uint32_t value;
     char newPath[1024];
@@ -370,7 +381,7 @@ int ws_saveState(char *statepath)
 
     ws_audio_writeState(fp);
     close(fp);
-
+#endif
     return (1);
 }
 

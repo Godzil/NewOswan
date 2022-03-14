@@ -63,6 +63,8 @@ extern nec_Regs I;
 
 void dump_memory()
 {
+    // TODO: Need complete rewrite
+#if 0
     int i;
     FILE *fp;
     printf("Dumping memory....\n");
@@ -103,118 +105,9 @@ void dump_memory()
     /* IP */
     fwrite(&I.ip, 1, 2, fp);
     fclose(fp);
+#endif
 }
 
-#ifndef USE_PAGED_MEMORY_ACCESS
-void mem_writemem20(uint32_t addr, uint8_t value)
-{
-    uint32_t offset = addr & 0xffff;
-    uint32_t bank = addr >> 16;
-
-    if (!bank)
-    {
-        // 0 - RAM - 16 KB (WS) / 64 KB (WSC) internal RAM
-        ws_gpu_write_byte(offset, value);
-        ws_audio_write_byte(offset, value);
-    }
-    else if (bank == 1)
-    {
-        // 1 - SRAM (cart)
-        ws_staticRam[offset & sramAddressMask] = value;
-    }
-
-    // other banks are read-only
-}
-
-uint8_t mem_readmem20(uint32_t addr)
-{
-    uint32_t offset = addr & 0xffff;
-    uint32_t bank = addr >> 16;
-    //uint16_t romBank;
-    uint8_t hwReg;
-    uint32_t temp;
-    uint8_t ret;
-    wssystem_t currentSystem = ws_get_system();
-
-    switch (bank)
-    {
-    case 0:
-        /*
-         * So the original WonderSwan, and Color/Crystal in B&W mode have 16KB of IRAM Mapped.
-         * Color/Crystal in color mode have 64 KB IRAM mapped.
-         */
-        if (ws_gpu_operatingInColor)
-        {
-            return (internalRam[offset]);
-        }
-        else if (offset < 0x4000)
-        {
-            return (internalRam[offset]);
-        }
-
-        return (0x90);
-
-    case 1:     // 1 - SRAM (cart)
-        return ws_staticRam[offset & sramAddressMask];
-
-    case 2:
-        // Bank 2
-        hwReg = ws_ioRam[0xC2];
-        temp = hwReg << 16;
-        temp += offset;
-        temp &= (romSize - 1);
-        return ws_rom[temp];
-    case 3:
-        // Bank 3
-        hwReg = ws_ioRam[0xC3];
-        temp = hwReg << 16;
-        temp += offset;
-        temp &= (romSize - 1);
-        return ws_rom[temp];
-
-    case 0xF:
-        hwReg = ws_ioRam[0xA0];
-
-        if (!(hwReg & 1))
-        {
-            if (currentSystem == WS_SYSTEM_COLOR && ws_haveColorIRom)
-            {
-                if (addr >= 0xFE000)
-                {
-                    ret = internalColorIRom[addr & ~0xFE000];
-                    return ret;
-                }
-            }
-            else if (currentSystem == WS_SYSTEM_CRYSTAL && ws_haveColorIRom)
-            {
-                if (addr >= 0xFE000)
-                {
-                    ret = internalCrystalIRom[addr & ~0xFE000];
-                    return ret;
-                }
-            }
-            else if (currentSystem == WS_SYSTEM_MONO && ws_haveBWIRom)
-            {
-                if (addr >= 0xFF000)
-                {
-                    ret = internalBWIRom[addr & ~0xFF000];
-                    return ret;
-                }
-            }
-        }
-        // fall through
-
-    default:
-        hwReg = ws_ioRam[0xC0];
-        temp = hwReg << 20;
-        temp += addr & 0xFFFFF;
-        temp &= (romSize - 1);
-        return ws_rom[temp];
-    }
-
-    return (0x90);
-}
-#else
 /* 256 page of 12 bits */
 uint8_t *pagedMemory[0x100];
 
@@ -330,7 +223,6 @@ void mem_dump_info()
             i, pagedMemory[i], i+1, pagedMemory[i+1], i+2, pagedMemory[i+2], i+3, pagedMemory[i+3]);
     }
 }
-#endif
 
 char *load_file(char *filename)
 {
@@ -468,15 +360,10 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
 
     romAddressMask = romSize - 1;
 
-
-#ifdef USE_PAGED_MEMORY_ACCESS
     for(int i = 0; i < 0x100; i++)
     {
         pagedMemory[i] = NULL;
     }
-
-    /* We start in B&W mode */
-    set_iram_access(IRAM_LIMITED_ACCESS);
 
     /* Cart SRAM */
     if (sramSize > 0)
@@ -494,7 +381,6 @@ void ws_memory_init(uint8_t *rom, uint32_t wsRomSize)
     mem_dump_info();
 
     set_irom_overlay();
-#endif
 }
 
 void ws_memory_reset(void)

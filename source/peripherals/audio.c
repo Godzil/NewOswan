@@ -1,7 +1,6 @@
 /*******************************************************************************
  * NewOswan
  * audio.c:
- *
  * Based on the original Oswan-unix
  * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
@@ -109,6 +108,9 @@ const long TblMainVol[4]=  				// 1,1/2,1/4,1/8
 uint32_t ws_audio_channel_isPlaying[6];
 
 static unsigned int ws_audio_log;
+
+// TODO: Temporary to let build for now
+static uint8_t ws_ioRam[0x100];
 
 void ws_audio_init(void)
 {

@@ -23,6 +23,9 @@
 
 extern uint8_t *internalRam;
 
+// TODO: Temporary to let build for now
+static uint8_t ws_ioRam[0x100];
+
 enum VideoModes
 {
     DISPLAY_MODE_GRAY = 0, DISPLAY_MODE_2BPP = 4, DISPLAY_MODE_P_4BPP = 7, DISPLAY_MODE_L_4BPP = 6,

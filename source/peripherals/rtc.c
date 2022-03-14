@@ -8,12 +8,18 @@
  ******************************************************************************/
 
 #include <stdint.h>
+#include <time.h>
 
 static int rtcDataRegisterReadCount = 0;
 
+// TODO: Temporary to let build for now
+static uint8_t ws_ioRam[0x100];
+
 uint8_t rtc_io_read(void *pdata, uint8_t port)
 {
-    case (port)
+    uint8_t retVal = 0;
+
+    switch (port)
     {
     case 0xca : // RTC Command and status register
         // set ack to always 1
@@ -78,6 +84,9 @@ uint8_t rtc_io_read(void *pdata, uint8_t port)
             goto exit;
         }
     }
+
+exit:
+    return retVal;
 }
 
 void rtc_io_write(void *pdata, uint8_t port, uint8_t value)

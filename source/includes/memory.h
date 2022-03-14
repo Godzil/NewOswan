@@ -38,8 +38,7 @@ char *create_file(char *filename, uint32_t size);
 char *load_file(char *filename);
 
 void dump_memory();
-//#define USE_PAGED_MEMORY_ACCESS
-#ifdef USE_PAGED_MEMORY_ACCESS
+
 /***
  * Set a memory page with a ganularity of 4-16
  * @param bank: the bank (0-F) to set
@@ -67,8 +66,6 @@ typedef enum {
 } iram_access_t;
 
 void set_iram_access(iram_access_t mode);
-
-#endif
 
 #define mem_readop mem_readmem20
 #define mem_readop_arg mem_readmem20

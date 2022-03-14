@@ -87,11 +87,6 @@ void io_flipControls(void)
 
 void io_done(void)
 {
-    if (ws_ioRam == NULL)
-    {
-        free(ws_ioRam);
-    }
-
 #ifdef IO_DUMP
     fclose(ioLogFp);
 #endif
