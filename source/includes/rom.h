@@ -50,10 +50,10 @@
 typedef struct ws_romHeaderStruct
 {
     /* Miss "Fixed Data" (F5h) */
-    uint8_t developperId;           /* Maker Code L */  
+    uint8_t developperId;           /* Maker Code L */
     uint8_t minimumSupportSystem;   /* Maker Code H */
     uint8_t cartId;                 /* Title code */
-    uint8_t gameVertion;            /* Version */
+    uint8_t gameVersion;            /* Version */
     uint8_t romSize;                /* ROM Size */
     uint8_t saveSize;               /* XROM/XEROM Size */
     uint8_t cartFlags;              /* Boot loader */
