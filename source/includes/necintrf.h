@@ -8,8 +8,8 @@
  ******************************************************************************/
 
 /* ASG 971222 -- rewrote this interface */
-#ifndef __NECITRF_H_
-#define __NECITRF_H_
+#ifndef __NECITRF_H__
+#define __NECITRF_H__
 
 #include <stdint.h>
 
@@ -46,4 +46,4 @@ unsigned nec_get_reg(int regnum);
 void nec_reset(void *param);
 void nec_int(uint16_t vector);
 
-#endif /* __NECITRF_H_ */
+#endif /* __NECITRF_H__ */

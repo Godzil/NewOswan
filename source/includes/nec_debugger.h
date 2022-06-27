@@ -7,10 +7,10 @@
  *
  ******************************************************************************/
 
-#ifndef NEWOSWAN_SOURCE_NEC_NEC_DEBUGGER_H
-#define NEWOSWAN_SOURCE_NEC_NEC_DEBUGGER_H
+#ifndef __NEC_DEBUGGER_H__
+#define __NEC_DEBUGGER_H__
 
 
 int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsigned int bufferSize);
 
-#endif /* NEWOSWAN_SOURCE_NEC_NEC_DEBUGGER_H */
+#endif /* __NEC_DEBUGGER_H__ */

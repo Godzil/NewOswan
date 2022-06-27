@@ -7,8 +7,8 @@
  *
  ******************************************************************************/
 
-#ifndef NEWOSWAN_DEVICE_H
-#define NEWOSWAN_DEVICE_H
+#ifndef __DEVICE_H__
+#define __DEVICE_H__
 
 typedef void (*device_init)(void);
 typedef void (*device_reset)(void);
