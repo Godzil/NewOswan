@@ -1,19 +1,11 @@
 /*******************************************************************************
  * NewOswan
  * rom.h:
+ *
  * Based on the original Oswan-unix
- * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////////
 
 #ifndef __ROM_H__
 #define __ROM_H__
@@ -75,4 +67,4 @@ static inline uint8_t *ws_get_page_ptr(uint8_t *wsrom, uint32_t romSize, uint16_
     return &wsrom[temp];
 }
 
-#endif
+#endif /* __ROM_H__ */

@@ -1,20 +1,19 @@
 /*******************************************************************************
  * NewOswan
- * emulate.h:
+ * memory.h:
  *
  * Based on the original Oswan-unix
  * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
 
-#ifndef EMULATE_H
-#define EMULATE_H
+#ifndef __FILE_ACCESS_H__
+#define __FILE_ACCESS_H__
 
 #include <stdint.h>
+#include <stdbool.h>
 
-extern char app_window_title[256];
-extern int app_terminate;
+char *create_file(char *filename, uint32_t size);
+char *load_file(char *filename, bool readOnly);
 
-void ws_emulate(void);
-
-#endif /* EMULATE_H */
+#endif /* __FILE_ACCESS_H__ */

@@ -1,10 +1,11 @@
-/*
+/******************************************************************************
  * NewOswan
  * nec_debugger.c:
- * Created by Manoël Trapier on 14/04/2021.
- * Copyright (c) 2014-2021 986-Studio. All rights reserved.
  *
- */
+ * Created by Manoël Trapier on 14/04/2021.
+ * Copyright (c) 2014-2022 986-Studio. All rights reserved.
+ *
+ ******************************************************************************/
 
 #include <stdio.h>
 #include <stdint.h>
@@ -17,7 +18,7 @@
 #include <memory.h>
 
 /***
- * Note: the while code to decode instruction is not meant to be optimised, but to be easy to maintain.
+ * Note: the whole code to decode instruction is not meant to be optimised, but to be easy to maintain.
  * It probably could be more concise, but this is code for the debugger, not runtime, so optimisation does
  * not really matter here.
  */
@@ -790,7 +791,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         /* Special case for C6 and C7, they are valid ONLY if reg == 0 */
         param1 = mem_readmem20(MAKE_LINEAR(segment, offset + 1));
         get_mod_reg_rm(param1, NULL, &reg, NULL, NULL);
-        if (reg > 0)
+        if (reg != 0)
         {
             strncat(buffer, "illegal", bufferSize);
             opcodeParams = PR_NONE;
@@ -800,6 +801,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         {
             strncat(buffer, "mov", bufferSize);
         }
+        break;
 
     default:
         strncat(buffer, opcodeName, bufferSize);

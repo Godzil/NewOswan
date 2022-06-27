@@ -1,14 +1,15 @@
 /******************************************************************************
  * NewOswan
  * necintrf.h:
+ *
  * Based on the original Oswan-unix
- * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
 
 /* ASG 971222 -- rewrote this interface */
-#ifndef __NECITRF_H_
-#define __NECITRF_H_
+#ifndef __NECITRF_H__
+#define __NECITRF_H__
 
 #include <stdint.h>
 
@@ -45,4 +46,4 @@ unsigned nec_get_reg(int regnum);
 void nec_reset(void *param);
 void nec_int(uint16_t vector);
 
-#endif /* __NECITRF_H_ */
+#endif /* __NECITRF_H__ */

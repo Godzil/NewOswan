@@ -1,24 +1,11 @@
 /*******************************************************************************
  * NewOswan
  * ws.c: Base wonderswan implementation
+ *
  * Based on the original Oswan-unix
- * Copyright (c) 2014-2021 986-Studio. All rights reserved.
+ * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-// 07.04.2002: speed problems partially fixed
-// 13.04.2002: Set cycles by line to 256 (according to toshi)
-//			   this seems to work well in most situations with
-//			   the new nec v30 cpu core
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,18 +24,6 @@
 #include <audio.h>
 #include <ws.h>
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-
 uint32_t ws_cycles;
 uint32_t ws_skip;
 uint32_t ws_cyclesByLine = 0;
@@ -59,43 +34,11 @@ char *ws_ieep_path = NULL;
 char *ws_rom_path = NULL;
 wssystem_t systemType;
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void ws_patchRom(void)
 {
 
-    uint8_t *rom = memory_getRom();
-    uint32_t romSize = memory_getRomSize();
-
-    Log(TLOG_DEBUG, "ws", "developper Id: 0x%.2x", rom[romSize - 10]);
-    Log(TLOG_DEBUG, "ws", "Game Id: 0x%.2x", rom[romSize - 8]);
-
-    if (!ws_cyclesByLine)
-    {
-        ws_cyclesByLine = 256;
-    }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 int ws_init(char *rompath)
 {
     uint8_t *rom;
@@ -106,7 +49,7 @@ int ws_init(char *rompath)
         Log(TLOG_PANIC, "ws", "Error: cannot load %s", rompath);
         return (0);
     }
-
+#if 0
     ws_staticRam = (uint8_t *)load_file(ws_sram_path);
     if (ws_staticRam == NULL)
     {
@@ -129,62 +72,34 @@ int ws_init(char *rompath)
         Log(TLOG_PANIC, "ws", "Card EEPROM load error!\n");
         return 0;
     }
-
     ws_memory_init(rom, romSize);
     ws_patchRom();
+#endif
 
     io_init();
-    ws_audio_init();
-    ws_gpu_init();
-
-    if (ws_rotated())
-    {
-        io_flipControls();
-    }
+    //ws_audio_init();
+    //ws_gpu_init();
 
     return (1);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void ws_reset(void)
 {
-    ws_memory_reset();
-    io_reset();
-    ws_audio_reset();
-    ws_gpu_reset();
+    //io_reset();
+    //ws_audio_reset();
+    //ws_gpu_reset();
     nec_reset(NULL);
     nec_set_reg(NEC_SP, 0x2000);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 int ws_executeLine(int16_t *framebuffer, int renderLine)
 {
     int drawWholeScreen = 0;
 
-    ws_audio_process();
+    //ws_audio_process();
 
     // update scanline register
-    ws_ioRam[2] = ws_gpu_scanline;
+    //ws_ioRam[2] = ws_gpu_scanline;
 
     /* Why twice like that and random cycle count???? */
     ws_cycles = nec_execute((ws_cyclesByLine >> 1) + (rand() & 7));
@@ -201,8 +116,10 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
 
     ws_cycles %= ws_cyclesByLine;
 
+#if 0
     for (uint32_t uI = 0 ; uI < ws_skip ; uI++)
     {
+
         if (renderLine)
         {
             ws_gpu_renderScanline(framebuffer);
@@ -214,36 +131,41 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
         {
             drawWholeScreen = 1;
         }
-
     }
 
     if (ws_gpu_scanline > 158)
     {
         ws_gpu_scanline = 0;
         {
+#if 0
             if ((ws_ioRam[0xb2] & 32)) /* VBLANK Timer */
             {
                 /* TODO: REPAIR THAT SHIT */
                 ws_ioRam[0xb6] &= ~32;
                 nec_int((ws_ioRam[0xb0] + 5) * 4);
             }
+#endif
         }
     }
+#endif
 
+#if 0
     ws_ioRam[2] = ws_gpu_scanline;
+#endif
 
     if (drawWholeScreen)
     {
-
+#if 0
         if (ws_ioRam[0xb2] & 64) /* VBLANK INT */
         {
             ws_ioRam[0xb6] &= ~64;
             nec_int((ws_ioRam[0xb0] + 6) * 4);
         }
-
+#endif
         vblank_count++;
     }
 
+#if 0
     if (ws_ioRam[0xa4] && (ws_ioRam[0xb2] & 128)) /*HBLANK TMR*/
     {
         /* TODO: Check that shit */
@@ -270,40 +192,18 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
         ws_ioRam[0xb6] &= ~16;
         nec_int((ws_ioRam[0xb0] + 4) * 4);
     }
+#endif
 
     return (drawWholeScreen);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void ws_done(void)
 {
-    ws_memory_done();
-    io_done();
-    ws_audio_done();
-    ws_gpu_done();
+    io_cleanup();
+    //ws_audio_done();
+    //ws_gpu_done();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 void ws_set_system(wssystem_t system)
 {
     if (system == WS_SYSTEM_AUTODETECT)
@@ -317,23 +217,15 @@ wssystem_t ws_get_system()
 {
     return systemType;
 }
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
+
 #define MacroLoadNecRegisterFromFile(F, R)        \
         read(fp,&value,sizeof(value));        \
         nec_set_reg(R,value);
 
 int ws_loadState(char *statepath)
 {
+    // TODO: need a complete rewrite
+#if 0
     Log(TLOG_NORMAL, "ws", "loading %s\n", statepath);
     uint16_t crc = memory_getRomCrc();
     uint16_t newCrc;
@@ -388,25 +280,18 @@ int ws_loadState(char *statepath)
 
     // force a video mode change to make all tiles dirty
     ws_gpu_clearCache();
+#endif
     return (1);
 }
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
+
 #define MacroStoreNecRegisterToFile(F, R)        \
         value=nec_get_reg(R); \
         write(fp,&value,sizeof(value));
 
 int ws_saveState(char *statepath)
 {
+    // TODO: need a complete rewrite
+#if 0
     uint16_t crc = memory_getRomCrc();
     uint32_t value;
     char newPath[1024];
@@ -481,25 +366,15 @@ int ws_saveState(char *statepath)
 
     ws_audio_writeState(fp);
     close(fp);
-
+#endif
     return (1);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-//
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
 int ws_rotated(void)
 {
-    uint8_t *rom = memory_getRom();
-    uint32_t romSize = memory_getRomSize();
+    //uint8_t *rom = memory_getRom();
+    //uint32_t romSize = memory_getRomSize();
 
-    return (rom[romSize - 4] & 1);
+    //return (rom[romSize - 4] & 1);
+    return 0;
 }
