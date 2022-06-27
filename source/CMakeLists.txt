@@ -1,9 +1,10 @@
-set(SOURCES emulate.c gpu.c io.c log.c memory.c rom.c ws.c)
+set(SOURCES emulate.c gpu.c io.c log.c memory.c rom.c ws.c file_access.c)
 set(PERIPHERAL_SOURCES peripherals/audio.c peripherals/buttons.c peripherals/color_gpu.c peripherals/color_system.c
         peripherals/debug.c peripherals/dma.c peripherals/eeprom.c peripherals/mono_gpu.c peripherals/mono_system.c
         peripherals/rtc.c peripherals/universal_luxor.c)
 set(HEADERS includes/audio.h includes/device.h includes/emulate.h includes/gpu.h includes/io.h includes/log.h
-        includes/memory.h includes/nec.h includes/nec_debugger.h includes/necintrf.h includes/rom.h includes/ws.h)
+        includes/memory.h includes/nec.h includes/nec_debugger.h includes/necintrf.h includes/rom.h includes/ws.h
+        includes/file_access.h)
 
 option(FAKE_DISPLAY "Disable OpenGL and fake displaying" OFF)
 
