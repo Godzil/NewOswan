@@ -10,7 +10,9 @@
 #ifndef __DEVICE_H__
 #define __DEVICE_H__
 
-typedef void (*device_init)(void *param);
+#include <stdint.h>
+
+typedef void (*device_init)(uint8_t baseAddress, void *param);
 typedef void (*device_reset)(void);
 typedef void (*device_free)(void);
 
@@ -31,11 +33,11 @@ typedef enum device_type_t
 
 typedef struct device_t
 {
-    device_init init;           /***< Function called to init the device */
-    device_reset reset;         /***< Function called to reset the device */
-    device_free free;           /***< Function called to deinit the device */
+    device_init init;           /***< Function called to init the device   - Non optional */
+    device_reset reset;         /***< Function called to reset the device  - Optional */
+    device_free free;           /***< Function called to deinit the device - Optional */
     device_type_t deviceType;   /***< Used to tell the type of device, could be useful to pass the
-                                 * right parameters to init */
+                                 * right parameters to init                - Non optional */
 } device_t;
 
 #endif /* __DEVICE_H__ */

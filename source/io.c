@@ -29,9 +29,10 @@
 
 typedef struct ioregistry_t
 {
-    io_read read;       /***< Read function for a specific IO port */
-    io_write write;     /***< Write function for a specific IO port */
-    void *private;      /***< Private data for the peripheral if needed. */
+    io_read read;         /***< Read function for a specific IO port */
+    io_write write;       /***< Write function for a specific IO port */
+    void *private;        /***< Private data for the peripheral if needed. */
+    uint8_t base_address; /***< Base IO address. Used create a "local" value when calling the read/write function */
 } ioregistry_t;
 ioregistry_t io_registry[0x100];
 
@@ -92,36 +93,39 @@ void io_done(void)
 #endif
 }
 
-void register_io_hook(uint8_t port, io_read readHook, io_write writeHook, void *pdata)
+void register_io_hook(uint8_t baseAddress, uint8_t port, io_read readHook, void *pdata, io_write writeHook)
 {
-    io_registry[port].read = readHook;
-    io_registry[port].write = writeHook;
-    io_registry[port].private = pdata;
+    io_registry[baseAddress + port].base_address = baseAddress;
+    io_registry[baseAddress + port].read = readHook;
+    io_registry[baseAddress + port].write = writeHook;
+    io_registry[baseAddress + port].private = pdata;
 }
 
-void register_io_hook_array(uint8_t *portList, uint8_t listLen, io_read readHook, io_write writeHook, void *pdata)
+void register_io_hook_array(uint8_t baseAddress, const uint8_t *portList, uint8_t listLen, io_read readHook, io_write writeHook,
+                       void *pdata)
 {
     uint16_t i;
     for(i = 0; i < listLen; i++)
     {
-        io_registry[portList[i]].read = readHook;
-        io_registry[portList[i]].write = writeHook;
-        io_registry[portList[i]].private = pdata;
+        io_registry[baseAddress + portList[i]].base_address = baseAddress;
+        io_registry[baseAddress + portList[i]].read = readHook;
+        io_registry[baseAddress + portList[i]].write = writeHook;
+        io_registry[baseAddress + portList[i]].private = pdata;
     }
 }
 
 uint8_t io_readport(uint8_t port)
 {
     uint8_t retVal = 0;
-
     if (io_registry[port].read)
     {
-        retVal = io_registry[port].read(io_registry[port].private, port);
+        uint8_t localPort = port - io_registry[port].base_address;
+        retVal = io_registry[port].read(io_registry[port].private, localPort);
     }
 
     if (ioLogFp)
     {
-        fprintf(ioLogFp, "%llu, R, %02X, %02X\n", nec_monotonicCycles, port, retVal);
+        fprintf(ioLogFp, "%lu, R, %02X, %02X\n", nec_monotonicCycles, port, retVal);
     }
 
     return retVal;
@@ -131,11 +135,12 @@ void io_writeport(uint8_t port, uint8_t value)
 {
     if (ioLogFp)
     {
-        fprintf(ioLogFp, "%llu, W, %02X, %02X\n", nec_monotonicCycles, port, value);
+        fprintf(ioLogFp, "%lu, W, %02X, %02X\n", nec_monotonicCycles, port, value);
     }
 
     if (io_registry[port].write)
     {
-        io_registry[port].write(io_registry[port].private, port, value);
+        uint8_t localPort = port - io_registry[port].base_address;
+        io_registry[port].write(io_registry[port].private, localPort, value);
     }
 }
