@@ -20,7 +20,7 @@
 #include <gpu.h>
 #include <ws.h>
 #include <memory.h>
-
+#if 0
 extern uint8_t *internalRam;
 
 // TODO: Temporary to let build for now
@@ -1926,3 +1926,5 @@ uint8_t ws_gpu_port_read(uint8_t port)
 
     return (ws_ioRam[port]);
 }
+
+#endif

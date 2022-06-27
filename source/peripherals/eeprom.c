@@ -187,11 +187,11 @@ void rs232_io_write(void *pdata, uint8_t port, uint8_t value)
 #endif
                 if (ws_gpu_operatingInColor)
                 {
-                    memset(internalEeprom, 0, COLOR_IEEPROM_SIZE);
+                    //memset(internalEeprom, 0, COLOR_IEEPROM_SIZE);
                 }
                 else
                 {
-                    memset(internalEeprom, 0, BW_IEEPROM_SIZE);
+                    //memset(internalEeprom, 0, BW_IEEPROM_SIZE);
                 }
             }
 #ifdef EEPROM_DEBUG

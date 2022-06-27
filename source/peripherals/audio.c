@@ -1029,7 +1029,7 @@ void ws_audio_write_byte(uint32_t offset, uint8_t value)
     if (!((offset - WaveMap) & 0xFFC0))
     {
         ws_audio_set_channels_pbuf(offset & 0x003F, value);
-        internalRam[offset] = value;
+        //internalRam[offset] = value;
     }
 }
 

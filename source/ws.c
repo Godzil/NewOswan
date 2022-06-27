@@ -37,16 +37,6 @@ wssystem_t systemType;
 void ws_patchRom(void)
 {
 
-    uint8_t *rom = memory_getRom();
-    uint32_t romSize = memory_getRomSize();
-
-    Log(TLOG_DEBUG, "ws", "developper Id: 0x%.2x", rom[romSize - 10]);
-    Log(TLOG_DEBUG, "ws", "Game Id: 0x%.2x", rom[romSize - 8]);
-
-    if (!ws_cyclesByLine)
-    {
-        ws_cyclesByLine = 256;
-    }
 }
 
 int ws_init(char *rompath)
@@ -59,7 +49,7 @@ int ws_init(char *rompath)
         Log(TLOG_PANIC, "ws", "Error: cannot load %s", rompath);
         return (0);
     }
-
+#if 0
     ws_staticRam = (uint8_t *)load_file(ws_sram_path);
     if (ws_staticRam == NULL)
     {
@@ -82,13 +72,13 @@ int ws_init(char *rompath)
         Log(TLOG_PANIC, "ws", "Card EEPROM load error!\n");
         return 0;
     }
-
     ws_memory_init(rom, romSize);
     ws_patchRom();
+#endif
 
     io_init();
-    ws_audio_init();
-    ws_gpu_init();
+    //ws_audio_init();
+    //ws_gpu_init();
 
     if (ws_rotated())
     {
@@ -100,10 +90,9 @@ int ws_init(char *rompath)
 
 void ws_reset(void)
 {
-    ws_memory_reset();
     io_reset();
-    ws_audio_reset();
-    ws_gpu_reset();
+    //ws_audio_reset();
+    //ws_gpu_reset();
     nec_reset(NULL);
     nec_set_reg(NEC_SP, 0x2000);
 }
@@ -132,8 +121,10 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
 
     ws_cycles %= ws_cyclesByLine;
 
+#if 0
     for (uint32_t uI = 0 ; uI < ws_skip ; uI++)
     {
+
         if (renderLine)
         {
             ws_gpu_renderScanline(framebuffer);
@@ -145,7 +136,6 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
         {
             drawWholeScreen = 1;
         }
-
     }
 
     if (ws_gpu_scanline > 158)
@@ -162,6 +152,7 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
 #endif
         }
     }
+#endif
 
 #if 0
     ws_ioRam[2] = ws_gpu_scanline;
@@ -213,10 +204,9 @@ int ws_executeLine(int16_t *framebuffer, int renderLine)
 
 void ws_done(void)
 {
-    ws_memory_done();
     io_done();
-    ws_audio_done();
-    ws_gpu_done();
+    //ws_audio_done();
+    //ws_gpu_done();
 }
 
 void ws_set_system(wssystem_t system)
@@ -387,8 +377,9 @@ int ws_saveState(char *statepath)
 
 int ws_rotated(void)
 {
-    uint8_t *rom = memory_getRom();
-    uint32_t romSize = memory_getRomSize();
+    //uint8_t *rom = memory_getRom();
+    //uint32_t romSize = memory_getRomSize();
 
-    return (rom[romSize - 4] & 1);
+    //return (rom[romSize - 4] & 1);
+    return 0;
 }
