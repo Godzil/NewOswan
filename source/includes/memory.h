@@ -2,7 +2,7 @@
  * NewOswan
  * memory.h:
  *
- * Based on the original Oswan-unix
+ *
  * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
@@ -27,11 +27,6 @@ void set_memory_bank(uint8_t bank, uint8_t *pointer);
  * @param pointer: a pointer to the memory to set
  */
 void set_memory_page(uint8_t page, uint8_t *pointer);
-
-void set_irom_overlay();
-
-uint8_t *getRom(uint32_t *size);
-uint8_t *getSram(uint32_t *size);
 
 #define mem_readop mem_readmem20
 #define mem_readop_arg mem_readmem20

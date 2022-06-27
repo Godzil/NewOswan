@@ -2,7 +2,7 @@
  * NewOswan
  * file_access.c: File manipulation functions
  *
- * Based on the original Oswan-unix
+ * Created by Manoël Trapier on 27/06/2022.
  * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  * This file is OS specific and this need to be changed at some point.

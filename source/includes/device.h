@@ -17,7 +17,7 @@
  * Each device which need to be clocked use a multiple of the tick
  * number as their own clock.
  */
-typedef uint64_t tick_t
+typedef uint64_t tick_t;
 
 typedef void (*device_init)(uint8_t baseAddress, void *param);
 typedef void (*device_reset)(void);

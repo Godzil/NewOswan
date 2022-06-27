@@ -2,7 +2,7 @@
  * NewOswan
  * interrupt_controller.h:
  *
- * Created by mlt on 14/03/2022.
+ * Created by Manoël Trapier on 14/03/2022.
  * Copyright (c) 2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
