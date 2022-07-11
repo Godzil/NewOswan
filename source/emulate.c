@@ -33,7 +33,7 @@
 #include <log.h>
 #include <io.h>
 #include <ws.h>
-#include <rom.h>
+#include <wsrom.h>
 #include "nec.h"
 #include "necintrf.h"
 #include <gpu.h>

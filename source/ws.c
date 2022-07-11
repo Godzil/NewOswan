@@ -15,7 +15,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <log.h>
-#include <rom.h>
+#include <wsrom.h>
 #include "nec.h"
 #include "necintrf.h"
 #include <memory.h>

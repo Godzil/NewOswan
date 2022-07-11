@@ -15,7 +15,7 @@
 #include <stdbool.h>
 
 #include <log.h>
-#include <rom.h>
+#include <wsrom.h>
 #include <nec.h>
 #include <necintrf.h>
 #include <gpu.h>

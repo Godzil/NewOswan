@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <log.h>
-#include <rom.h>
+#include <wsrom.h>
 #include "nec.h"
 #include <io.h>
 #include <gpu.h>

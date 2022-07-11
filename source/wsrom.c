@@ -1,6 +1,6 @@
 /*******************************************************************************
  * NewOswan
- * rom.c:
+ * wsrom.c:
  *
  * Based on the original Oswan-unix
  * Copyright (c) 2014-2022 986-Studio. All rights reserved.
@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <log.h>
-#include <rom.h>
+#include <wsrom.h>
 
 uint8_t *ws_rom_load(char *path, uint32_t *romSize)
 {
