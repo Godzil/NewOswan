@@ -17,6 +17,8 @@
 #include <log.h>
 #include <gpu.h>
 
+#if 0
+
 extern uint8_t *externalEeprom;
 extern uint16_t *internalEeprom;
 
@@ -334,3 +336,5 @@ void rs232_io_write(void *pdata, uint8_t port, uint8_t value)
 
     }
 }
+
+#endif

@@ -19,6 +19,8 @@
 #include <nec.h>
 #include <log.h>
 
+#if 0
+
 /* Temporary */
 extern uint8_t *ws_ioRam;
 
@@ -228,3 +230,5 @@ void rs232_init()
 {
 
 }
+
+#endif
