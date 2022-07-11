@@ -32,7 +32,7 @@ WRITE:
 
             for (uint32_t ix = 0 ; ix < dma_size ; ix++)
             {
-                mem_writemem20(dma_dest, mem_readmem20(dma_start));
+                mem_write(dma_dest, mem_read(dma_start));
                 dma_start += dma_inc;
                 dma_dest += dma_inc;
             }
@@ -83,7 +83,7 @@ WRITE:
 
             for (uint32_t ix = 0 ; ix < dma_size ; ix++)
             {
-                mem_writemem20(dma_dest, mem_readmem20(dma_start));
+                mem_write(dma_dest, mem_read(dma_start));
                 dma_start += dma_inc;
                 dma_dest += dma_inc;
             }

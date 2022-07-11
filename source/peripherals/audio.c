@@ -236,8 +236,8 @@ void ws_audio_port_write(uint32_t port, uint8_t value)
 
             for (k = 0 ; k < n ; k++)
             {
-                b = mem_readmem20(i);
-                mem_writemem20(j, b);
+                b = mem_read(i);
+                mem_write(j, b);
                 i++;
                 j++;
             }
@@ -1121,7 +1121,7 @@ void ws_audio_process(void)
     {
         i = (SDMACH << 8) | SDMACL;
         j = (SDMASB << 16) | (SDMASH << 8) | SDMASL;
-        b = mem_readmem20(j);
+        b = mem_read(j);
 
         if (!ws_audio_channel_isPlaying[5])
         {

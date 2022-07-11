@@ -28,10 +28,8 @@ void set_memory_bank(uint8_t bank, uint8_t *pointer);
  */
 void set_memory_page(uint8_t page, uint8_t *pointer);
 
-#define mem_readop mem_readmem20
-#define mem_readop_arg mem_readmem20
-void mem_writemem20(uint32_t addr, uint8_t value);
-uint8_t mem_readmem20(uint32_t addr);
+void mem_write(uint32_t addr, uint8_t value);
+uint8_t mem_read(uint32_t addr);
 
 #endif /* __MEMORY_H__ */
 

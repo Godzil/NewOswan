@@ -21,7 +21,7 @@ void dump_memory()
 uint8_t *pagedMemory[0x100];
 
 /* Memory address is 20bit and split in 8 (page) - 12 (offset) */
-void mem_writemem20(uint32_t addr, uint8_t value)
+void mem_write(uint32_t addr, uint8_t value)
 {
     uint8_t page = addr >> 12;
     uint16_t offset = addr & 0xFFF;
@@ -37,7 +37,7 @@ void mem_writemem20(uint32_t addr, uint8_t value)
     }
 }
 
-uint8_t mem_readmem20(uint32_t addr)
+uint8_t mem_read(uint32_t addr)
 {
     uint8_t page = addr >> 12;
     uint16_t offset = addr & 0xFFF;

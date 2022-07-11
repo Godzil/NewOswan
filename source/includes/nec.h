@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#include <memory.h>
 #include "necintrf.h"
 
 typedef enum
@@ -110,23 +112,26 @@ typedef struct
 #define OF (I.OverVal!=0)
 #define MD (I.MF!=0)
 
+#define mem_readop mem_read
+#define mem_readop_arg mem_read
+
 /************************************************************************/
 
 #define SegBase(Seg) (I.sregs[Seg] << 4)
 
 #define DefaultBase(Seg) ((seg_prefix && (Seg==DS || Seg==SS)) ? (prefix_base) : (uint32_t)(I.sregs[Seg] << 4))
 
-#define GetMemB(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint8_t)mem_readmem20((DefaultBase(Seg)+(Off))))
-#define GetMemW(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint16_t) mem_readmem20((DefaultBase(Seg)+(Off))) + (mem_readmem20((DefaultBase(Seg)+((Off)+1)))<<8) )
+#define GetMemB(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint8_t)mem_read((DefaultBase(Seg)+(Off))))
+#define GetMemW(Seg, Off) (/*nec_ICount-=((Off)&1)?1:0,*/ (uint16_t) mem_read((DefaultBase(Seg)+(Off))) + (mem_read((DefaultBase(Seg)+((Off)+1)))<<8) )
 
-#define PutMemB(Seg, Off, x) { /*nec_ICount-=((Off)&1)?1:0*/; mem_writemem20((DefaultBase(Seg)+(Off)),(x)); }
+#define PutMemB(Seg, Off, x) { /*nec_ICount-=((Off)&1)?1:0*/; mem_write((DefaultBase(Seg)+(Off)),(x)); }
 #define PutMemW(Seg, Off, x) { /*nec_ICount-=((Off)&1)?1:0*/; PutMemB(Seg,Off,(x)&0xff); PutMemB(Seg,(Off)+1,(uint8_t)((x)>>8)); }
 
 /* Todo:  Remove these later - plus readword could overflow */
-#define ReadByte(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ (uint8_t)mem_readmem20((ea)))
-#define ReadWord(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ mem_readmem20((ea))+(mem_readmem20(((ea)+1))<<8))
-#define WriteByte(ea, val) { /*nec_ICount-=((ea)&1)?1:0*/; mem_writemem20((ea),val); }
-#define WriteWord(ea, val) { /*nec_ICount-=((ea)&1)?1:0*/; mem_writemem20((ea),(uint8_t)(val)); mem_writemem20(((ea)+1),(val)>>8); }
+#define ReadByte(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ (uint8_t)mem_read((ea)))
+#define ReadWord(ea) (/*nec_ICount-=((ea)&1)?1:0,*/ mem_read((ea))+(mem_read(((ea)+1))<<8))
+#define WriteByte(ea, val) { /*nec_ICount-=((ea)&1)?1:0*/; mem_write((ea),val); }
+#define WriteWord(ea, val) { /*nec_ICount-=((ea)&1)?1:0*/; mem_write((ea),(uint8_t)(val)); mem_write(((ea)+1),(val)>>8); }
 
 #define read_port(port) io_readport(port)
 #define write_port(port, val) io_writeport(port,val)

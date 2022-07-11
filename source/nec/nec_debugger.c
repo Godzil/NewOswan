@@ -355,8 +355,8 @@ static inline void get_mod_reg_rm(uint8_t value, uint8_t *mod, uint8_t *reg, uin
 
 static int decode_modrm(uint16_t segment, uint16_t offset, modrmValues modrm, bool is8bit, char *buffer, uint32_t bufferLength)
 {
-    uint8_t disp8 = mem_readmem20(MAKE_LINEAR(segment, offset));
-    uint16_t disp16 = (mem_readmem20(MAKE_LINEAR(segment, offset + 1)) << 8) | disp8;
+    uint8_t disp8 = mem_read(MAKE_LINEAR(segment, offset));
+    uint16_t disp16 = (mem_read(MAKE_LINEAR(segment, offset + 1)) << 8) | disp8;
     char buf[63];
     int offsetReturn = 0;
 
@@ -546,7 +546,7 @@ static int decode_modrm(uint16_t segment, uint16_t offset, modrmValues modrm, bo
 
 int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsigned int bufferSize)
 {
-    uint8_t opcode = mem_readmem20(MAKE_LINEAR(segment, offset));
+    uint8_t opcode = mem_read(MAKE_LINEAR(segment, offset));
     uint16_t currentOffset = offset;
     int16_t param1, param2;
     uint8_t modrm, reg;
@@ -564,7 +564,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
     {
     /* Need to handle opcode group */
     case OP_IMMED:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, offset + 1));
+        param1 = mem_read(MAKE_LINEAR(segment, offset + 1));
         get_mod_reg_rm(param1, NULL, &reg, NULL, NULL);
         switch (reg)
         {
@@ -633,7 +633,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case OP_SHIFT:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, offset + 1));
+        param1 = mem_read(MAKE_LINEAR(segment, offset + 1));
         get_mod_reg_rm(param1, NULL, &reg, NULL, NULL);
         switch (reg)
         {
@@ -668,7 +668,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case OP_GRP1:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, offset + 1));
+        param1 = mem_read(MAKE_LINEAR(segment, offset + 1));
         get_mod_reg_rm(param1, NULL, &reg, NULL, NULL);
         switch (reg)
         {
@@ -713,7 +713,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case OP_GRP2:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, offset + 1));
+        param1 = mem_read(MAKE_LINEAR(segment, offset + 1));
         get_mod_reg_rm(param1, NULL, &reg, NULL, NULL);
         switch (reg)
         {
@@ -789,7 +789,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
 
     case OP_MOVG:
         /* Special case for C6 and C7, they are valid ONLY if reg == 0 */
-        param1 = mem_readmem20(MAKE_LINEAR(segment, offset + 1));
+        param1 = mem_read(MAKE_LINEAR(segment, offset + 1));
         get_mod_reg_rm(param1, NULL, &reg, NULL, NULL);
         if (reg != 0)
         {
@@ -855,15 +855,15 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
 
     /******* Immediate values *******/
     case PR_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
@@ -871,141 +871,141 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
 
     /******* Register / Immediate *******/
     case PR_AL_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " al, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_AH_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " ah, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_AX_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " ax, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_AX_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " ax, 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
         break;
 
     case PR_IM8_AL:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " 0%Xh, al", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_IM8_AX:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " 0%Xh, ax", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_BL_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " bl, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_BH_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " bh, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_BX_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " bx, 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
         break;
 
     case PR_CL_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " cl, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_CH_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " ch, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_CX_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " cx, 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
         break;
 
     case PR_DL_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " dl, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_DH_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " dh, 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         currentOffset++;
         break;
 
     case PR_DX_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " dx, 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
         break;
 
     case PR_SP_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " sp, 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
         break;
 
     case PR_BP_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " bp, 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
         break;
 
     case PR_DI_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " di, 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
         break;
 
     case PR_SI_IM16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         snprintf(buf, 63, " si, 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         currentOffset += 2;
@@ -1013,8 +1013,8 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
 
     /******* Register / Memory *******/
     case PR_M8_AL:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         /* TODO: If having a list of known label, try to match and display label instead of value */
         snprintf(buf, 63, " byte [0%Xh], al", param1);
         strncat(buffer, buf, bufferSize);
@@ -1022,8 +1022,8 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_M16_AX:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         /* TODO: If having a list of known label, try to match and display label instead of value */
         snprintf(buf, 63, " word [0%Xh], ax", param1);
         strncat(buffer, buf, bufferSize);
@@ -1031,8 +1031,8 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_AL_M8:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         /* TODO: If having a list of known label, try to match and display label instead of value */
         snprintf(buf, 63, " al, byte [0%Xh]", param1);
         strncat(buffer, buf, bufferSize);
@@ -1040,8 +1040,8 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_AX_M16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         /* TODO: If having a list of known label, try to match and display label instead of value */
         snprintf(buf, 63, " ax, word [0%Xh]", param1);
         strncat(buffer, buf, bufferSize);
@@ -1050,7 +1050,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
 
     /******* Address calculation *******/
     case PR_REL8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         param1 = currentOffset + (int8_t)param1;
         /* TODO: If having a list of known label, try to match and display label instead of value */
@@ -1060,8 +1060,8 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_REL16:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset += 2;
         param1 = currentOffset + (int16_t) param1;
 
@@ -1072,10 +1072,10 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_ABS32:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
-        param2 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 3)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset + 2));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
+        param2 = (mem_read(MAKE_LINEAR(segment, currentOffset + 3)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset + 2));
         /* TODO: If having a list of known label, try to match and display label instead of value */
         snprintf(buf, 63, " 0%Xh:0%Xh", param2 & 0xFFFF, param1 & 0xFFFF);
         strncat(buffer, buf, bufferSize);
@@ -1084,9 +1084,9 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
 
     /******* Other cases *******/
     case PR_IM16_IM8:
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                 mem_readmem20(MAKE_LINEAR(segment, currentOffset));
-        param2 = mem_readmem20(MAKE_LINEAR(segment, currentOffset + 2));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                 mem_read(MAKE_LINEAR(segment, currentOffset));
+        param2 = mem_read(MAKE_LINEAR(segment, currentOffset + 2));
         snprintf(buf, 63, " 0%Xh:0%Xh", param1, param2);
         strncat(buffer, buf, bufferSize);
         currentOffset += 3;
@@ -1096,55 +1096,55 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
      ************************************************ Complicated cases ************************************************
      ******************************************************************************************************************/
     case PR_RM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, true, buffer, bufferSize);
         break;
 
     case PR_RM16:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
         break;
 
     case PR_RM_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, true, buffer, bufferSize);
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         snprintf(buf, 63, ", 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         break;
 
     case PR_RM16_IM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset ++;
         snprintf(buf, 63, ", 0%Xh", param1 & 0xFF);
         strncat(buffer, buf, bufferSize);
         break;
 
     case PR_RM_IM16:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                  mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                  mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset += 2;
         snprintf(buf, 63, ", 0%Xh", param1);
         strncat(buffer, buf, bufferSize);
         break;
 
     case PR_RM8_1:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, true, buffer, bufferSize);
@@ -1152,7 +1152,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_RM16_1:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
@@ -1160,7 +1160,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_RM8_CL:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, true, buffer, bufferSize);
@@ -1168,7 +1168,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_RM16_CL:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, NULL, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
@@ -1176,7 +1176,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_RM_R8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, true, buffer, bufferSize);
@@ -1185,7 +1185,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_RM_R16:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
@@ -1194,7 +1194,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_R_RM8:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
         snprintf(buf, 63, " %s,", modrmReg8List[reg]);
@@ -1203,7 +1203,7 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_R_RM16:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
         snprintf(buf, 63, " %s,", modrmReg16List[reg]);
@@ -1212,25 +1212,25 @@ int nec_decode_instruction(uint16_t segment, uint16_t offset, char *buffer, unsi
         break;
 
     case PR_RM16_SEG:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
         currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                 mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                 mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset += 2;
         snprintf(buf, 63, ", %s", segmentRegList[reg]);
         strncat(buffer, buf, bufferSize);
         break;
 
     case PR_SEG_RM16:
-        param1 = mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset++;
         get_mod_reg_rm(param1, NULL, &reg, NULL, &modrm);
         snprintf(buf, 63, ", %s", segmentRegList[reg]);
         currentOffset += decode_modrm(segment, currentOffset, modrm, false, buffer, bufferSize);
-        param1 = (mem_readmem20(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
-                 mem_readmem20(MAKE_LINEAR(segment, currentOffset));
+        param1 = (mem_read(MAKE_LINEAR(segment, currentOffset + 1)) << 8) |
+                 mem_read(MAKE_LINEAR(segment, currentOffset));
         currentOffset += 2;
         strncat(buffer, buf, bufferSize);
         break;
@@ -1255,7 +1255,7 @@ if ((I.sregs[CS] == 0x0600) /* && (I.ip > 0x0050) */)
 {
 int tmp;
 char buffer[256];
-uint8_t op = mem_readmem20((I.sregs[CS] << 4) + I.ip);
+uint8_t op = mem_read((I.sregs[CS] << 4) + I.ip);
 //Log(TLOG_NORMAL, "NEC v30", "[%04x:%04xh] %02xh '%s' - I=%d\n", I.sregs[CS], I.ip, op, instructionsName[op], I.IF);
 printf("AX: %04X, BX: %04X, CX: %04X, DX: %04X, SI: %04X, DI: %04X, SP: %04X\n",
 I.regs.w[AW],  I.regs.w[BW],  I.regs.w[CW],  I.regs.w[DW],
