@@ -48,4 +48,6 @@ add_subdirectory(source)
 target_link_libraries(wonderswan wswan glfw ${OPENGL_glu_LIBRARY} ${OPENGL_gl_LIBRARY})
 
 add_executable(dumpinfo dumpinfo.c)
+target_link_libraries(dumpinfo wswan)
+
 add_executable(testserial testserial.c)
