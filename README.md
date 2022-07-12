@@ -3,8 +3,8 @@ NewOswan *(name likely to change)*
 [![CMake](https://github.com/Godzil/NewOswan/actions/workflows/cmake.yml/badge.svg)](https://github.com/Godzil/NewOswan/actions/workflows/cmake.yml)
 
 ### What is this project?
-NewOswan is a WonderSwan emulator originally based on oswan-unix and heavily modified to be more accurate and better 
-hardware support. 
+NewOswan is a WonderSwan emulator originally based on oswan-unix and heavily modified to be more accurate and to have 
+better hardware support. 
 
 ### I don't care about the blabla, just show me the thing running
 
@@ -57,10 +57,39 @@ WriteIO(6B, 00) [F000:0018h];
 - And many more thing I probably forgot about as this project was originally not version managed as it was just a crude
   hack on the original code and are not in the logs.
 
+### How to build
+
+It's a simple cmake base project, for that you need first to checkout the source:
+```shell
+git clone https://github.com/Godzil/NewOswan.git
+cd NewOswan
+git submodule init 
+git submodule update --recursive
+```
+
+From there create a build folder, then build the project
+```shell
+mkdir build
+cd build
+cmake ..
+make
+```
+
+And you are ready to use it!
+```shell
+./wonderswan /path/to/romfile.ws
+```
+
+The command line is most likely to change with the rewrite, so this README will not be fully updated until the rewrite is done.
+The inline help should always be correct:
+```shell
+./wonderswan -h
+```
+
 ### Futur plans
-- Complete refactor of the code.
+- Complete refactor/rewrite of the code [__This is what this branch is for and most likely going to end as a complete rewrite__].
 - Add a proper CPU debugger
-- Add other nice debugging tool like the GPU status and other things that could be needed. Acheiving the level of the tools
+- Add other nice debugging tool like the GPU status and other things that could be needed. Achieving the level of the tools
   provided by the NES emulator [Mesen](https://www.mesen.ca) would be nice.
 - Being able to rotate the screen
 - Maybe being able to change the game at runtime instead of start time
@@ -69,8 +98,8 @@ WriteIO(6B, 00) [F000:0018h];
 
 ### The boot rom stubs
 You can find the source and file in the `irom_stub` folder.
-They are identical and for now provide only the logic to boot a cart. There is no bootsplash nor configuration menu.
-A bootsplash may be added later.
+They are identical (other than the size) for now and only provide the logic to boot a cart. There is no bootsplash nor configuration menu.
+A bootsplash and setup menu may be added later.
 
 Feel free to use these stub for your own emulator if you wish, just be nice and put a line saying you are using it and 
 a link to this project in your documentation :)
