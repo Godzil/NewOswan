@@ -133,29 +133,16 @@ int main(int argc, char *argv[])
         else
         {
             ws_rom_path = argv[n];
-            ws_mk_savpath();
-            ws_mk_ieppath();
+        /*    ws_mk_savpath();
+            ws_mk_ieppath();*/
         }
     }
 
-    while (!app_terminate)
+
+    if (ws_init(ws_rom_path))
     {
-        if (!ws_rom_path)
-        {
-            exit(0);
-        }
-
-        if (ws_rom_path)
-        {
-            ws_set_system(ws_system);
-            if (ws_init(ws_rom_path))
-            {
-                ws_reset();
-                ws_emulate();
-            }
-
-            ws_done();
-        }
+        //ws_reset();
+        //ws_emulate();
     }
 
     return (0);

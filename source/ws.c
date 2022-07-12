@@ -41,53 +41,20 @@ void ws_patchRom(void)
 
 int ws_init(char *rompath)
 {
-    uint8_t *rom;
-    uint32_t romSize;
-
-    if ((rom = ws_rom_load(rompath, &romSize)) == NULL)
+    wsrom_game_t *rom;
+    if ((rom = wsrom_loadRom(rompath)) == NULL)
     {
         Log(TLOG_PANIC, "ws", "Error: cannot load %s", rompath);
         return (0);
     }
-#if 0
-    ws_staticRam = (uint8_t *)load_file(ws_sram_path);
-    if (ws_staticRam == NULL)
-    {
-        ws_staticRam = (uint8_t *)create_file(ws_sram_path, 0x10000);
-    }
 
-    if (ws_staticRam == NULL)
-    {
-        Log(TLOG_PANIC, "ws", "Card SRAM load error!\n");
-        return 0;
-    }
-
-    externalEeprom = (uint8_t *)load_file(ws_ieep_path);
-    if (externalEeprom == NULL)
-    {
-        externalEeprom = (uint8_t *)create_file(ws_ieep_path, 0x100000);
-    }
-    if (externalEeprom == NULL)
-    {
-        Log(TLOG_PANIC, "ws", "Card EEPROM load error!\n");
-        return 0;
-    }
-    ws_memory_init(rom, romSize);
-    ws_patchRom();
-#endif
-
-    io_init();
-    //ws_audio_init();
-    //ws_gpu_init();
+    wsrom_dumpInfo(rom);
 
     return (1);
 }
 
 void ws_reset(void)
 {
-    //io_reset();
-    //ws_audio_reset();
-    //ws_gpu_reset();
     nec_reset(NULL);
     nec_set_reg(NEC_SP, 0x2000);
 }
