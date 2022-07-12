@@ -13,7 +13,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-char *create_file(char *filename, uint32_t size);
-char *load_file(char *filename, bool readOnly);
+void *create_file(const char *filename, uint32_t size);
+void *load_file(const char *filename, bool readOnly, size_t *fileSize);
+void close_file(void *data, uint32_t size);
 
 #endif /* __FILE_ACCESS_H__ */
