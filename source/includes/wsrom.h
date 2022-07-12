@@ -11,6 +11,7 @@
 #define __ROM_H__
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define WSROM_ROMINFO_SIZE_2MBIT (0x01)
 #define WSROM_ROMINFO_SIZE_4MBIT (0x02)
@@ -22,6 +23,7 @@
 #define WSROM_ROMINFO_SIZE_64MBIT (0x08)
 #define WSROM_ROMINFO_SIZE_128MBIT (0x09)
 
+#define WSROM_SAVEINFO_EEPROM_SIZE_MASK (0xF0)
 #define WSROM_SAVEINFO_EEPROM_SIZE_NONE (0x00)
 #define WSROM_SAVEINFO_EEPROM_SIZE_1KBIT (0x10)
 #define WSROM_SAVEINFO_EEPROM_SIZE_16KBIT (0x20)
@@ -31,6 +33,7 @@
 #define WSROM_SAVEINFO_EEPROM_SIZE_4KBIT (0x60)
 #define WSROM_SAVEINFO_EEPROM_SIZE_2KBIT (0x70)
 
+#define WSROM_SAVEINFO_SRAM_SIZE_MASK (0x0F)
 #define WSROM_SAVEINFO_SRAM_SIZE_NONE (0x00)
 #define WSROM_SAVEINFO_SRAM_SIZE_64KBIT (0x01)
 #define WSROM_SAVEINFO_SRAM_SIZE_256KBIT (0x02)
@@ -41,7 +44,7 @@
 #define WSROM_VALID_RESET_OPCODE (0xEA)
 
 /* Card boot flags */
-#define WSROM_BOOTFLAGS__DISALLOW_BOOTSPLASH (1 << 7)
+#define WSROM_BOOTFLAGS_DISALLOW_BOOTSPLASH (1 << 7)
 #define WSROM_BOOTFLAGS_NONBOOTABLE_MASK (0x0F)
 
 /* Card extended flags */
@@ -80,16 +83,25 @@ typedef struct wsrom_rom_footer_t
 } wsrom_rom_footer_t;
 #pragma pack()
 
-typedef struct wsrom_rom_file_t
+typedef struct wsrom_game_t
 {
-    uint8_t rom_file;
-    wsrom_rom_footer_t *footer;
-} wsrom_rom_file_t;
+    uint8_t *rom_data;      /***< Content of the ROM */
+    uint8_t *save_data;     /***< Content of the save SRAM or EEPROM */
 
-void wsrom_dumpInfo(uint8_t *wsrom, uint32_t romSize);
-wsrom_rom_footer_t *wsrom_getFooter(uint8_t *wsrom, uint32_t wsromSize);
-uint32_t wsrom_getSramSize(uint8_t *wsrom, uint32_t wsromSize);
-uint32_t wsrom_getEepromSize(uint8_t *wsrom, uint32_t wsromSize);
+    uint32_t rom_mask;
+    uint32_t save_mask;
+
+    bool saveIsSram;
+
+    wsrom_rom_footer_t *footer;
+} wsrom_game_t;
+
+wsrom_game_t *wsrom_loadRom(const char *filepath);
+void wsrom_dumpInfo(wsrom_game_t *rom);
+uint32_t wsrom_getSramSize(wsrom_game_t *rom);
+uint32_t wsrom_getEepromSize(wsrom_game_t *rom);
+uint32_t wsrom_getRomSize(wsrom_game_t *rom);
+uint16_t wsrom_getChecksum(wsrom_game_t *rom);
 
 static inline uint8_t *ws_get_page_ptr(uint8_t *wsrom, uint32_t romSize, uint16_t page)
 {
