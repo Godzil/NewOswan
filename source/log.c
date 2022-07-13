@@ -61,13 +61,8 @@ void time_stamp_line(void)
 
     cSec %= 60;
 
-    /* Put cursor at start of line */
-    fprintf(stderr, "%c[s", 0x1B);
-    fprintf(stderr, "%c[7000D", 0x1B);
-    fprintf(stderr, "%c[1C", 0x1B);
     fprintf(stderr, FWHITE"[" FYELLOW "%03d" FRED "." FBLUE "%02d" FRED "." FGREEN "%03lld" FWHITE "]" CNORMAL, cMin,
             cSec, cMSec);
-    fprintf(stderr, "%c[u", 0x1B);
 }
 
 void log_real(int level, const char *user, const char *fmt, ...)
