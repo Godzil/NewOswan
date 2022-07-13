@@ -206,6 +206,47 @@ void wsrom_dumpInfo(wsrom_game_t *rom)
     Log(TLOG_NORMAL, "wsrom", "Checksum: %04Xh", rom->footer->checksum);
 }
 
+void wsrom_jsonSerialise(FILE *fp, wsrom_game_t *rom)
+{
+    fprintf(fp, "{\n");
+    fprintf(fp, "\"reset\": \"%04X:%04Xh\",\n", rom->footer->resetSegment, rom->footer->resetOffset);
+    fprintf(fp, "\"publisher\": %d,\n", rom->footer->publisherId);
+    fprintf(fp, "\"title\": %d,\n", rom->footer->gameId);
+    fprintf(fp, "\"rom_size\": \"%s\",\n", romSizeName[rom->footer->romInfo]);
+    fprintf(fp, "\"sram_save\": %s,\n", rom->saveIsSram ? "true" : "false");
+    fprintf(fp, "\"save_size\": \"%s\",\n", rom->saveIsSram ? (sramSizeName[rom->footer->saveInfo]) :
+                                               (eepromSizeName[rom->footer->saveInfo]));
+    /* Standard flags */
+    fprintf(fp, "\"cycle_rom\": %d,\n",
+        (rom->footer->cartFlags & WSROM_FLAGS_ROMCYCLE_MASK) ? 1 : 3);
+    fprintf(fp, "\"rom_data_bus\": %d,\n",
+        (rom->footer->cartFlags & WSROM_FLAGS_DBUSSIZE_MASK) ? 8 : 16);
+    fprintf(fp, "\"have_rtc\": %s,\n",
+        (rom->footer->cartFlags & WSROM_FLAGS_RTC_MASK) ? "true" : "false");
+    fprintf(fp, "\"vertical_screen\": %s,\n",
+        (rom->footer->cartFlags & WSROM_FLAGS_DFLT_ORIENTATION_MASK) ? "true" : "false");
+
+    /* Extended flags cartFlagsExt */
+    fprintf(fp, "\"access_ieeprom\": %s,\n",
+        (rom->footer->cartFlagsExt & WSROM_EXTFLAGS_IEEPROM_WRITEENABLE) ? "true" : "false");
+
+    /* Boot flags */
+    fprintf(fp, "\"disable_custom_bootsplash\": %s,\n",
+        (rom->footer->cartBootFlags & WSROM_BOOTFLAGS_DISALLOW_BOOTSPLASH) ? "true" : "false");
+    fprintf(fp, "\"bootable\": %s,\n",
+        (rom->footer->cartBootFlags & WSROM_BOOTFLAGS_NONBOOTABLE_MASK) ? "false" : "true");
+
+    fprintf(fp, "\"Checksum\": %d,\n", rom->footer->checksum);
+    fprintf(fp, "\"footer\": \"%02X:%04X:%04X:%02X:%04X:%02X:%02X:%02X:%02X:%04X:%04X\",\n",
+            rom->footer->resetOpcode, rom->footer->resetOffset, rom->footer->resetSegment,
+            rom->footer->cartBootFlags, rom->footer->publisherId, rom->footer->gameId,
+            rom->footer->cartFlagsExt, rom->footer->romInfo, rom->footer->saveInfo,
+            rom->footer->cartFlags, rom->footer->checksum);
+    // TODO: Add MD5
+    printf(fp, "\"md5\": \"\",\n");
+    fprintf(fp, "}");
+}
+
 uint16_t wsrom_getChecksum(wsrom_game_t *rom)
 {
     uint16_t sum = 0;

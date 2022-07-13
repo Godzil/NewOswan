@@ -99,6 +99,7 @@ typedef struct wsrom_game_t
 
 wsrom_game_t *wsrom_loadRom(const char *filepath);
 void wsrom_dumpInfo(wsrom_game_t *rom);
+void wsrom_jsonSerialise(FILE *fp, wsrom_game_t *rom);
 uint32_t wsrom_getSramSize(wsrom_game_t *rom);
 uint32_t wsrom_getEepromSize(wsrom_game_t *rom);
 uint32_t wsrom_getRomSize(wsrom_game_t *rom);

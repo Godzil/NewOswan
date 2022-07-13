@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <wsrom.h>
 
@@ -15,21 +16,76 @@
 int main(int argc, char *argv[])
 {
     int ret = -1;
+    char *filepath;
+    int n;
     wsrom_game_t *rom;
+    bool jsonOutput = false;
 
-    if (argc != 2)
+    for (n = 1 ; n < argc ; n++)
     {
-        printf("Usage: %s file.ws[c]\n", argv[0]);
-    }
-    else
-    {
-        rom = wsrom_loadRom(argv[1]);
-        if (rom)
+        if (argv[n][0] == '-')
         {
-            wsrom_dumpInfo(rom);
-            ret = 0;
+            switch (argv[n][1])
+            {
+            case 'j':
+                jsonOutput = true;
+                break;
+
+            default:
+                fprintf(stderr, "Unknown option: %s\n", argv[n]);
+
+            case 'h':
+                fprintf(stderr, "Usage: %s [-j] file.ws(c)\n", argv[0]);
+                goto exit;
+                break;
+            }
+        }
+        else
+        {
+            break;
         }
     }
 
+    ret = 0;
+
+    if (jsonOutput)
+    {
+        printf("{\n");
+    }
+
+    for(; n < argc ; n++)
+    {
+        rom = wsrom_loadRom(argv[n]);
+        if (jsonOutput)
+        {
+            printf("\"%s\": ", argv[n]);
+            if ( rom )
+            {
+                wsrom_jsonSerialise(stdout, rom);
+            }
+            else
+            {
+                printf("\"not valid\"");
+            }
+            if ( n < ( argc - 1 ))
+            {
+                printf(",");
+            }
+            printf("\n");
+        }
+        else
+        {
+            if ( rom )
+            {
+                wsrom_dumpInfo(rom);
+            }
+        }
+    }
+
+    if (jsonOutput)
+    {
+        printf("}\n");
+    }
+exit:
     return ret;
 }
