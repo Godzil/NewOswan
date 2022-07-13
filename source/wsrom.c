@@ -23,6 +23,7 @@
 
 static const char *romSizeName[] =
 {
+    [WSROM_ROMINFO_SIZE_1MBIT] = "1 Mbit",
     [WSROM_ROMINFO_SIZE_2MBIT] = "2 Mbit",
     [WSROM_ROMINFO_SIZE_4MBIT] = "4 Mbit",
     [WSROM_ROMINFO_SIZE_8MBIT] = "8 Mbit",
@@ -286,6 +287,9 @@ uint32_t wsrom_getRomSize(wsrom_game_t *rom)
 {
     switch (rom->footer->romInfo)
     {
+    case WSROM_ROMINFO_SIZE_1MBIT:
+        return (1 * 1024 * 1024) / 8;
+
     case WSROM_ROMINFO_SIZE_2MBIT:
         return (2 * 1024 * 1024) / 8;
 

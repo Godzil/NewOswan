@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define WSROM_ROMINFO_SIZE_1MBIT (0x00)
 #define WSROM_ROMINFO_SIZE_2MBIT (0x01)
 #define WSROM_ROMINFO_SIZE_4MBIT (0x02)
 #define WSROM_ROMINFO_SIZE_8MBIT (0x03)
