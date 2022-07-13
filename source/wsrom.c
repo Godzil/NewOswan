@@ -62,9 +62,8 @@ wsrom_game_t *wsrom_loadRom(const char *filepath)
 {
     char *savepath;
     char *tmp;
-    uint16_t calcChecksum;
     wsrom_game_t *rom = (wsrom_game_t *) calloc(1, sizeof(wsrom_game_t));
-    size_t romSize, saveSize, tempSize;
+    size_t saveSize, tempSize;
 
     if (rom == NULL)
     {
