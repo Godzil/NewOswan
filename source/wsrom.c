@@ -21,6 +21,8 @@
 #include <file_access.h>
 #include <wsrom.h>
 
+#include <md5.h>
+
 static const char *romSizeName[] =
 {
     [WSROM_ROMINFO_SIZE_1MBIT] = "1 Mbit",
@@ -209,6 +211,10 @@ void wsrom_dumpInfo(wsrom_game_t *rom)
 
 void wsrom_jsonSerialise(FILE *fp, wsrom_game_t *rom)
 {
+    MD5_CTX md5;
+    unsigned char md5_buffer[16];
+    int i;
+
     fprintf(fp, "{\n");
     fprintf(fp, "\"reset\": \"%04X:%04Xh\",\n", rom->footer->resetSegment, rom->footer->resetOffset);
     fprintf(fp, "\"publisher\": %d,\n", rom->footer->publisherId);
@@ -244,8 +250,21 @@ void wsrom_jsonSerialise(FILE *fp, wsrom_game_t *rom)
             rom->footer->cartBootFlags, rom->footer->publisherId, rom->footer->gameId,
             rom->footer->cartFlagsExt, rom->footer->romInfo, rom->footer->saveInfo,
             rom->footer->cartFlags, rom->footer->checksum);
-    // TODO: Add MD5
-    printf(fp, "\"md5\": \"\",\n");
+
+    fprintf(fp, "\"file_size\": %zu,\n", rom->romFileSize);
+
+    MD5_Init(&md5);
+    MD5_Update(&md5, rom->romData, rom->romFileSize);
+    MD5_Final(md5_buffer, &md5);
+
+    fprintf(fp, "\"md5\": \"");
+
+    for(i = 0; i < 16; i++)
+    {
+        fprintf(fp, "%02X", md5_buffer[i]);
+    }
+
+    fprintf(fp, "\",\n");
     fprintf(fp, "}");
 }
 
