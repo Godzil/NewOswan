@@ -69,14 +69,14 @@ wsrom_game_t *wsrom_loadRom(const char *filepath)
         goto exit;
     }
 
-    rom->rom_data = (uint8_t *)load_file(filepath, true, &romSize);
-    if (rom->rom_data == NULL)
+    rom->romData = (uint8_t *)load_file(filepath, true, &rom->romFileSize);
+    if ( rom->romData == NULL)
     {
         Log(TLOG_ERROR, "wsrom", "Loading file '%s' failed..", filepath);
         goto free_and_exit;
     }
 
-    rom->footer = (wsrom_rom_footer_t *)(rom->rom_data + romSize - 16);
+    rom->footer = (wsrom_rom_footer_t *)( rom->romData + rom->romFileSize - 16);
 
     /* A bit of check */
     if (rom->footer->resetOpcode != WSROM_VALID_RESET_OPCODE)
@@ -86,18 +86,19 @@ wsrom_game_t *wsrom_loadRom(const char *filepath)
     }
 
     /* Sanity check */
-    if ( wsrom_getRomSize(rom) != romSize)
+    if (wsrom_getRomSize(rom) != rom->romFileSize)
     {
         Log(TLOG_WARNING, "wsrom", "File size if different from reported ROM size..");
     }
 
-    rom->rom_mask = wsrom_getRomSize(rom) - 1;
+    rom->romMask = wsrom_getRomSize(rom) - 1;
 
     /* Check Checksum */
-    if ((calcChecksum = wsrom_getChecksum(rom)) != rom->footer->checksum)
+    rom->calculatedChecksum = wsrom_getChecksum(rom);
+    if (rom->calculatedChecksum != rom->footer->checksum)
     {
         Log(TLOG_WARNING, "wsrom", "File checksum do not match actual file [%04X : %04X]",
-            calcChecksum, rom->footer->checksum);
+            rom->calculatedChecksum, rom->footer->checksum);
     }
 
     /* Open save backing file, create if needed */
@@ -116,34 +117,34 @@ wsrom_game_t *wsrom_loadRom(const char *filepath)
         strcpy(tmp, ".sram");
         rom->saveIsSram = true;
         saveSize = wsrom_getSramSize(rom);
-        rom->save_mask = saveSize - 1;
+        rom->saveMask = saveSize - 1;
     }
     else if ((rom->footer->saveInfo & WSROM_SAVEINFO_EEPROM_SIZE_MASK) != WSROM_SAVEINFO_EEPROM_SIZE_NONE)
     {
         strcpy(tmp, ".eprom");
         rom->saveIsSram = false;
         saveSize = wsrom_getEepromSize(rom);
-        rom->save_mask = saveSize - 1;
+        rom->saveMask = saveSize - 1;
     }
     else
     {
         rom->saveIsSram = true;
         saveSize = 0;
-        rom->save_mask = 0;
+        rom->saveMask = 0;
     }
 
-    rom->save_data = NULL;
+    rom->saveData = NULL;
     tempSize = 0;
 
     if (saveSize > 0)
     {
-        if ((rom->save_data = load_file(savepath, false, &tempSize)) == NULL)
+        if ((rom->saveData = load_file(savepath, false, &tempSize)) == NULL)
         {
-            rom->save_data = create_file(savepath, saveSize);
+            rom->saveData = create_file(savepath, saveSize);
             tempSize = saveSize;
         }
 
-        if (rom->save_data == NULL)
+        if ( rom->saveData == NULL)
         {
             Log(TLOG_PANIC, "wsrom", "Cannot open/create save file '%s'", savepath);
             goto save_free_and_exit;
@@ -164,7 +165,7 @@ save_free_and_exit:
     free(savepath);
 
 unmap_and_exit:
-    close_file(rom->rom_data, romSize);
+    close_file(rom->romData, rom->romFileSize);
 
 free_and_exit:
     free(rom);
@@ -236,7 +237,8 @@ void wsrom_jsonSerialise(FILE *fp, wsrom_game_t *rom)
     fprintf(fp, "\"bootable\": %s,\n",
         (rom->footer->cartBootFlags & WSROM_BOOTFLAGS_NONBOOTABLE_MASK) ? "false" : "true");
 
-    fprintf(fp, "\"Checksum\": %d,\n", rom->footer->checksum);
+    fprintf(fp, "\"calculated_checksum\": %d,\n", rom->calculatedChecksum);
+    fprintf(fp, "\"checksum\": %d,\n", rom->footer->checksum);
     fprintf(fp, "\"footer\": \"%02X:%04X:%04X:%02X:%04X:%02X:%02X:%02X:%02X:%04X:%04X\",\n",
             rom->footer->resetOpcode, rom->footer->resetOffset, rom->footer->resetSegment,
             rom->footer->cartBootFlags, rom->footer->publisherId, rom->footer->gameId,
@@ -255,7 +257,7 @@ uint16_t wsrom_getChecksum(wsrom_game_t *rom)
 
     for(i = 0; i < size; i++)
     {
-        sum = sum + rom->rom_data[i];
+        sum = sum + rom->romData[i];
     }
 
     return sum;

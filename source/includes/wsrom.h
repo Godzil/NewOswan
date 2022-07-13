@@ -86,13 +86,16 @@ typedef struct wsrom_rom_footer_t
 
 typedef struct wsrom_game_t
 {
-    uint8_t *rom_data;      /***< Content of the ROM */
-    uint8_t *save_data;     /***< Content of the save SRAM or EEPROM */
+    uint8_t *romData;      /***< Content of the ROM */
+    uint8_t *saveData;     /***< Content of the save SRAM or EEPROM */
 
-    uint32_t rom_mask;
-    uint32_t save_mask;
+    uint32_t romMask;
+    uint32_t saveMask;
 
     bool saveIsSram;
+
+    size_t romFileSize;
+    uint16_t calculatedChecksum;
 
     wsrom_rom_footer_t *footer;
 } wsrom_game_t;
