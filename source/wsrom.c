@@ -118,7 +118,7 @@ wsrom_game_t *wsrom_loadRom(const char *filepath)
         saveSize = wsrom_getSramSize(rom);
         rom->save_mask = saveSize - 1;
     }
-    else if ((rom->footer->saveInfo & WSROM_SAVEINFO_SRAM_SIZE_MASK) != WSROM_SAVEINFO_SRAM_SIZE_NONE)
+    else if ((rom->footer->saveInfo & WSROM_SAVEINFO_EEPROM_SIZE_MASK) != WSROM_SAVEINFO_EEPROM_SIZE_NONE)
     {
         strcpy(tmp, ".eprom");
         rom->saveIsSram = false;
