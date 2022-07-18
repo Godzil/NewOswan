@@ -64,7 +64,7 @@ wsrom_game_t *wsrom_loadRom(const char *filepath)
         goto exit;
     }
 
-    rom->romData = (uint8_t *)load_file(filepath, true, &rom->romFileSize);
+    rom->romData = (uint8_t *) file_load(filepath, true, &rom->romFileSize);
     if ( rom->romData == NULL)
     {
         Log(TLOG_ERROR, "wsrom", "Loading file '%s' failed..", filepath);
@@ -133,9 +133,9 @@ wsrom_game_t *wsrom_loadRom(const char *filepath)
 
     if (saveSize > 0)
     {
-        if ((rom->saveData = load_file(savepath, false, &tempSize)) == NULL)
+        if ((rom->saveData = file_load(savepath, false, &tempSize)) == NULL)
         {
-            rom->saveData = create_file(savepath, saveSize);
+            rom->saveData = file_create(savepath, saveSize);
             tempSize = saveSize;
         }
 
@@ -160,7 +160,7 @@ save_free_and_exit:
     free(savepath);
 
 unmap_and_exit:
-    close_file(rom->romData, rom->romFileSize);
+    file_close(rom->romData, rom->romFileSize);
 
 free_and_exit:
     free(rom);
@@ -174,11 +174,11 @@ void wsrom_unloadRom(wsrom_game_t *rom)
 {
     if ((rom->romFileSize > 0) && (rom->romData != NULL))
     {
-        close_file(rom->romData, rom->romFileSize);
+        file_close(rom->romData, rom->romFileSize);
     }
     if ((rom->saveMask != 0) && (rom->saveData != NULL))
     {
-        close_file(rom->saveData, rom->saveMask + 1);
+        file_close(rom->saveData, rom->saveMask + 1);
     }
 
     memset(rom, 0, sizeof(wsrom_game_t));

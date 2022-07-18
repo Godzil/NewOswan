@@ -44,7 +44,7 @@ uint8_t mem_read(uint32_t addr)
 }
 
 /* Set memory bank with a granularity of 4-16 as it is the most common on the WonderSwan */
-void set_memory_bank(uint8_t bank, uint8_t *pointer)
+void mem_set_bank(uint8_t bank, uint8_t *pointer)
 {
     uint8_t page = bank << 4;
     for(int i = 0; i < 16; i++)
@@ -53,7 +53,7 @@ void set_memory_bank(uint8_t bank, uint8_t *pointer)
     }
 }
 
-void set_memory_page(uint8_t page, uint8_t *pointer)
+void mam_set_page(uint8_t page, uint8_t *pointer)
 {
     pagedMemory[page] = pointer;
 }

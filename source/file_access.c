@@ -21,7 +21,7 @@
 #include <file_access.h>
 #include <log.h>
 
-void *load_file(const char *filename, bool readOnly, size_t *fileSize)
+void *file_load(const char *filename, bool readOnly, size_t *fileSize)
 {
     int fd;
     char *ret_ptr;
@@ -51,7 +51,7 @@ void *load_file(const char *filename, bool readOnly, size_t *fileSize)
     return ret_ptr;
 }
 
-void *create_file(const char *filename, uint32_t size)
+void *file_create(const char *filename, uint32_t size)
 {
     int fd;
     uint32_t i;
@@ -87,7 +87,7 @@ void *create_file(const char *filename, uint32_t size)
     return ret_ptr;
 }
 
-void close_file(void *data, uint32_t size)
+void file_close(void *data, uint32_t size)
 {
     munmap(data, size);
 }

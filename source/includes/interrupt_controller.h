@@ -27,6 +27,6 @@ typedef enum hw_interrupt_type_t
 
 extern device_t InterruptController;
 
-void trigger_interrupt(hw_interrupt_type_t type);
+void intc_trigger_interrupt(hw_interrupt_type_t type);
 
 #endif /* __INTERRUPT_CONTROLLER_H__ */
