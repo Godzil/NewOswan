@@ -12,10 +12,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include <memory.h>
-#include <nec.h>
 #include <log.h>
-#include <gpu.h>
 
 #if 0
 

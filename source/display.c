@@ -26,13 +26,6 @@
 
 #include <log.h>
 #include <io.h>
-#include <ws.h>
-#include <wsrom.h>
-#include "nec.h"
-#include "necintrf.h"
-#include <gpu.h>
-#include <audio.h>
-#include <memory.h>
 
 char app_window_title[256];
 int app_terminate = 0;

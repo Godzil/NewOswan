@@ -2,7 +2,6 @@
  * NewOswan
  * memory.c: Memory implementation
  *
- * Based on the original Oswan-unix
  * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
@@ -11,11 +10,6 @@
 #include <memory.h>
 
 #include <log.h>
-
-void dump_memory()
-{
-    // TODO: Need complete rewrite
-}
 
 /* 256 page of 12 bits */
 uint8_t *pagedMemory[0x100];

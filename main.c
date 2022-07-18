@@ -2,7 +2,6 @@
  * NewOswan
  * main.c: Entry point
  *
- * Based on the original Oswan-unix
  * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/

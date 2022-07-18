@@ -12,8 +12,6 @@
 
 #include <stdint.h>
 
-void dump_memory();
-
 /***
  * Set a memory page with a granularity of 4-16
  * @param bank: the bank (0-F) to set

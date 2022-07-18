@@ -2,7 +2,6 @@
  * NewOswan
  * io.c: I/O ports implementaton
  *
- * Based on the original Oswan-unix
  * Copyright (c) 2014-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
@@ -11,17 +10,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <time.h>
-#include <stdbool.h>
 
 #include <log.h>
-#include <wsrom.h>
-#include <nec.h>
-#include <necintrf.h>
-#include <gpu.h>
-#include <audio.h>
-#include <memory.h>
-#include <ws.h>
 #include <io.h>
 
 //#define IO_DUMP
@@ -35,10 +25,8 @@ typedef struct ioregistry_t
 } ioregistry_t;
 ioregistry_t io_registry[0x100];
 
-extern uint32_t romAddressMask;
-extern nec_Regs I;
+// TODO: Find a better way
 extern uint64_t nec_monotonicCycles;
-extern uint32_t sramSize;
 
 FILE *ioLogFp = NULL;
 

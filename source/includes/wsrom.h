@@ -109,11 +109,4 @@ uint32_t wsrom_getEepromSize(wsrom_game_t *rom);
 uint32_t wsrom_getRomSize(wsrom_game_t *rom);
 uint16_t wsrom_getChecksum(wsrom_game_t *rom);
 
-static inline uint8_t *ws_get_page_ptr(uint8_t *wsrom, uint32_t romSize, uint16_t page)
-{
-    uint32_t temp = page << 16;
-    temp &= (romSize - 1);
-    return &wsrom[temp];
-}
-
 #endif /* __ROM_H__ */
