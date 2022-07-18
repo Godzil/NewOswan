@@ -78,7 +78,7 @@ device_t InterruptController =
         .init = IC_init,
         .reset = IC_reset,
         .free = NULL,
-        .deviceType = DT_INTERRUPT_CONTROLLER,
+        .type = DT_INTERRUPT_CONTROLLER,
 };
 
 /* Exported functions */

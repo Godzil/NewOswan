@@ -45,7 +45,7 @@ typedef struct device_t
     device_update update;       /***< Function called on updates - Optional */
     device_reset reset;         /***< Function called to reset the device  - Optional */
     device_free free;           /***< Function called to deinit the device - Optional */
-    device_type_t deviceType;   /***< Used to tell the type of device, could be useful to pass the
+    device_type_t type;         /***< Used to tell the type of device, could be useful to pass the
                                  * right parameters to init                - Non optional */
 } device_t;
 
