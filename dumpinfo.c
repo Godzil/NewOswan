@@ -80,6 +80,11 @@ int main(int argc, char *argv[])
                 wsrom_dumpInfo(rom);
             }
         }
+
+        if ( rom )
+        {
+            wsrom_unloadRom(rom);
+        }
     }
 
     if (jsonOutput)

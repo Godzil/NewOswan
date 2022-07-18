@@ -176,6 +176,21 @@ exit:
     return rom;
 }
 
+void wsrom_unloadRom(wsrom_game_t *rom)
+{
+    if ((rom->romFileSize > 0) && (rom->romData != NULL))
+    {
+        close_file(rom->romData, rom->romFileSize);
+    }
+    if ((rom->saveMask != 0) && (rom->saveData != NULL))
+    {
+        close_file(rom->saveData, rom->saveMask + 1);
+    }
+
+    memset(rom, 0, sizeof(wsrom_game_t));
+}
+
+
 void wsrom_dumpInfo(wsrom_game_t *rom)
 {
     Log(TLOG_NORMAL, "wsrom", "Reset vector: %04X:%04Xh", rom->footer->resetSegment, rom->footer->resetOffset);
