@@ -1,14 +1,13 @@
 /*******************************************************************************
  * NewOswan
  * interrupt_controller.h:
- *
- * Created by Manoël Trapier on 14/03/2022.
- * Copyright (c) 2022 986-Studio. All rights reserved.
+ * Based on the original Oswan-unix
+ * Copyright (c) 2022-2022 986-Studio. All rights reserved.
  *
  ******************************************************************************/
 
-#ifndef __INTERRUPT_CONTROLLER_H__
-#define __INTERRUPT_CONTROLLER_H__
+#ifndef __P_INTERRUPT_CONTROLLER_H__
+#define __P_INTERRUPT_CONTROLLER_H__
 
 #include <device.h>
 
@@ -29,4 +28,4 @@ extern device_t InterruptController;
 
 void intc_trigger_interrupt(hw_interrupt_type_t type);
 
-#endif /* __INTERRUPT_CONTROLLER_H__ */
+#endif /* __P_INTERRUPT_CONTROLLER_H__ */

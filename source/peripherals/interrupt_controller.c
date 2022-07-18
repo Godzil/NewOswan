@@ -12,7 +12,7 @@
 
 #include <device.h>
 #include <io.h>
-#include <interrupt_controller.h>
+#include <peripherals/interrupt_controller.h>
 
 /* device internal parameters */
 typedef struct intc_params_t
