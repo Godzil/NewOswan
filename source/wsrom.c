@@ -285,7 +285,7 @@ void wsrom_jsonSerialise(FILE *fp, wsrom_game_t *rom)
 uint16_t wsrom_getChecksum(wsrom_game_t *rom)
 {
     uint16_t sum = 0;
-    size_t size = wsrom_getRomSize(rom) - 2; /* We need to ignore the checksum bytes */
+    size_t size = rom->romFileSize - 2; /* We need to ignore the checksum bytes */
     size_t i;
 
     for(i = 0; i < size; i++)
