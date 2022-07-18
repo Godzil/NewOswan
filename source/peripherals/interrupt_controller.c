@@ -61,10 +61,10 @@ static void intc_init(uint8_t baseAddress, void *params)
 {
     UNUSED_PARAMETER(params);
 
-    io_register_hook(baseAddress, 0x0, intc_io_read, intc_io_write, &interrupt_controller);
-    io_register_hook(baseAddress, 0x2, intc_io_read, intc_io_write, &interrupt_controller);
-    io_register_hook(baseAddress, 0x4, intc_io_read, NULL, &interrupt_controller);
-    io_register_hook(baseAddress, 0x6, NULL, intc_io_write_ack, &interrupt_controller);
+    io_register_hook(baseAddress, 0x0, &interrupt_controller, intc_io_read, intc_io_write);
+    io_register_hook(baseAddress, 0x2, &interrupt_controller, intc_io_read, intc_io_write);
+    io_register_hook(baseAddress, 0x4, &interrupt_controller, intc_io_read, NULL);
+    io_register_hook(baseAddress, 0x6, &interrupt_controller, NULL, intc_io_write_ack);
 }
 
 static void intc_reset()

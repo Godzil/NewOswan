@@ -44,7 +44,7 @@ void io_cleanup(void)
 #endif
 }
 
-void io_register_hook(uint8_t baseAddress, uint8_t port, io_read readHook, void *pdata, io_write writeHook)
+void io_register_hook(uint8_t baseAddress, uint8_t port, void *pdata, io_read readHook, io_write writeHook)
 {
     io_registry[baseAddress + port].base_address = baseAddress;
     io_registry[baseAddress + port].read = readHook;
@@ -52,8 +52,9 @@ void io_register_hook(uint8_t baseAddress, uint8_t port, io_read readHook, void 
     io_registry[baseAddress + port].private = pdata;
 }
 
-void io_register_hook_array(uint8_t baseAddress, const uint8_t *portList, uint8_t listLen, io_read readHook, io_write writeHook,
-                            void *pdata)
+void
+io_register_hook_array(uint8_t baseAddress, const uint8_t *portList, uint8_t listLen, void *pdata, io_read readHook,
+                       io_write writeHook)
 {
     uint16_t i;
     for(i = 0; i < listLen; i++)
