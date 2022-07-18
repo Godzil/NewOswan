@@ -24,8 +24,10 @@ typedef enum hw_interrupt_type_t
     HWI_HBLANK_TIMER,
 } hw_interrupt_type_t;
 
+/* Exported device infos */
 extern device_t InterruptController;
 
+/* Exported functions */
 void intc_trigger_interrupt(hw_interrupt_type_t type);
 
 #endif /* __P_INTERRUPT_CONTROLLER_H__ */

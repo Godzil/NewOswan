@@ -77,6 +77,7 @@ static void intc_reset()
 device_t InterruptController =
 {
         .init = intc_init,
+        .update = NULL,
         .reset = intc_reset,
         .free = NULL,
         .type = DT_INTERRUPT_CONTROLLER,
