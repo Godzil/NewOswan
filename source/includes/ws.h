@@ -17,8 +17,6 @@ typedef enum wssystem_t
     WS_SYSTEM_AUTODETECT = 0, WS_SYSTEM_MONO, WS_SYSTEM_COLOR, WS_SYSTEM_CRYSTAL,
 } wssystem_t;
 
-extern uint32_t ws_cyclesByLine;
-
 int ws_init(char *rompath);
 int ws_rotated(void);
 void ws_set_system(wssystem_t system);
